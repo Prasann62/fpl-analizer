@@ -39,22 +39,45 @@ if(!isset($_SESSION['access'])){
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   
+<!-- Lineups Modal -->
+<div class="modal fade" id="lineupsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+      <div class="modal-header border-bottom-0">
+        <h5 class="modal-title fw-bold">Match Lineups</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="lineupsModalBody">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     const fixturesContainer = document.getElementById('fixtures');
+    let staticData = null; // Store static data globally
+    const lineupsModal = new bootstrap.Modal(document.getElementById('lineupsModal'));
+    const lineupsModalBody = document.getElementById('lineupsModalBody');
 
     async function loadFixtures() {
         try {
-            // 1. Get Next Gameweek
+            // 1. Get Gameweek (Prioritize Current, then Next)
             const bootstrapRes = await fetch('api.php?endpoint=bootstrap-static/');
-            const bootstrapData = await bootstrapRes.json();
+            staticData = await bootstrapRes.json();
             
-            const nextEvent = bootstrapData.events.find(e => e.is_next);
-            if (!nextEvent) {
+            const event = staticData.events.find(e => e.is_current) || staticData.events.find(e => e.is_next);
+
+            if (!event) {
                 fixturesContainer.innerHTML = `
                     <div class="col-12">
                         <div class="alert alert-info text-center">
                             <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
-                            No upcoming fixtures found.
+                            No active or upcoming fixtures found.
                         </div>
                     </div>
                 `;
@@ -63,12 +86,12 @@ if(!isset($_SESSION['access'])){
 
             // Map teams
             const teams = {};
-            bootstrapData.teams.forEach(t => {
+            staticData.teams.forEach(t => {
                 teams[t.id] = t;
             });
 
-            // 2. Get Fixtures for Next Gameweek
-            const fixturesRes = await fetch(`api.php?endpoint=fixtures/?event=${nextEvent.id}`);
+            // 2. Get Fixtures for Gameweek
+            const fixturesRes = await fetch(`api.php?endpoint=fixtures/?event=${event.id}`);
             const fixtures = await fixturesRes.json();
 
             // 3. Render
@@ -76,7 +99,7 @@ if(!isset($_SESSION['access'])){
                 <div class="col-12 mb-2">
                     <div class="d-flex align-items-center justify-content-center gap-3">
                         <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.2;"></div>
-                        <h3 class="fw-bold text-primary m-0">Gameweek ${nextEvent.id}</h3>
+                        <h3 class="fw-bold text-primary m-0">Gameweek ${event.id} <span class="badge bg-dark fs-6 align-middle ms-2">${event.is_current ? 'LIVE' : 'UPCOMING'}</span></h3>
                         <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.2;"></div>
                     </div>
                 </div>
@@ -88,45 +111,67 @@ if(!isset($_SESSION['access'])){
                 const date = new Date(match.kickoff_time);
                 const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
                 const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                const pulseId = match.code; // 'code' in FPL usually corresponds to the match ID used in other places, or 'pulse_id' if available. 
+                // Note: FPL api often returns 'code' which is the unique match ID, and 'pulse_id' might be separate. 
+                // Usually 'code' is sufficient for sorting, but for PL website link we should check pulse_id.
+                // Let's pass the whole match object to safe keep.
+
+                let statusBadge = '';
+                let scoreDisplay = '';
+                let borderColor = 'border-0'; // Default
+
+                if (match.finished) {
+                    statusBadge = '<span class="badge bg-secondary">FT</span>';
+                    scoreDisplay = `<div class="h2 fw-bold mb-0">${match.team_h_score} - ${match.team_a_score}</div>`;
+                } else if (match.started) {
+                    statusBadge = `<span class="badge bg-danger spinner-grow-sm">LIVE ${match.minutes}'</span>`;
+                    scoreDisplay = `<div class="h2 fw-bold mb-0 text-danger">${match.team_h_score} - ${match.team_a_score}</div>`;
+                    borderColor = 'border border-danger border-2'; // Highlight live matches
+                } else {
+                    statusBadge = `<span class="badge bg-light text-dark border">${timeStr}</span>`;
+                    scoreDisplay = `<div class="h2 fw-bold mb-0 text-muted mx-3">vs</div>`;
+                }
 
                 html += `
                     <div class="col-md-6 col-lg-4">
-                        <a href="match-details.php?id=${match.id}&event=${match.event}" class="text-decoration-none">
-                            <div class="card h-100 shadow-hover border-0">
-                                <div class="card-body position-relative overflow-hidden">
-                                    <!-- Background Decoration -->
-                                    <div class="position-absolute top-0 start-0 w-100 h-100" 
-                                         style="background: linear-gradient(45deg, rgba(55,0,60,0.03) 0%, rgba(0,255,133,0.03) 100%); z-index: 0;">
-                                    </div>
+                        <div class="card h-100 shadow-hover ${borderColor} overflow-hidden">
+                             <!-- Clickable Area Wrapper -->
+                            <div class="card-body position-relative pb-2">
+                                <a href="match-details.php?id=${match.id}&event=${match.event}" class="text-decoration-none text-dark stretched-link" style="z-index: 1;"></a>
+                                
+                                <!-- Background -->
+                                <div class="position-absolute top-0 start-0 w-100 h-100" 
+                                     style="background: linear-gradient(45deg, rgba(55,0,60,0.02) 0%, rgba(0,255,133,0.02) 100%); z-index: 0;">
+                                </div>
+
+                                <div class="position-relative z-1 text-center pointer-events-none">
+                                    <div class="school-date text-muted small mb-2 fw-bold text-uppercase">${dateStr}</div>
                                     
-                                    <div class="position-relative z-1">
-                                        <div class="text-center mb-3">
-                                            <span class="badge bg-light text-dark border shadow-sm">
-                                                <i class="bi bi-calendar3 me-1"></i> ${dateStr} • ${timeStr}
-                                            </span>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="text-center w-25">
+                                            <div class="fw-bold text-dark h5 mb-0">${homeTeam.short_name}</div>
                                         </div>
                                         
-                                        <div class="d-flex justify-content-between align-items-center px-2">
-                                            <div class="text-center" style="width: 40%;">
-                                                <div class="fw-bold text-dark mb-1 h5">${homeTeam.short_name}</div>
-                                                <div class="small text-muted">Home</div>
-                                            </div>
-                                            
-                                            <div class="text-center" style="width: 20%;">
-                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 40px; height: 40px;">
-                                                    <span class="fw-bold text-primary">VS</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="text-center" style="width: 40%;">
-                                                <div class="fw-bold text-dark mb-1 h5">${awayTeam.short_name}</div>
-                                                <div class="small text-muted">Away</div>
-                                            </div>
+                                        <div class="w-50 d-flex flex-column align-items-center justify-content-center">
+                                            ${scoreDisplay}
+                                            <div class="mt-2">${statusBadge}</div>
+                                        </div>
+                                        
+                                        <div class="text-center w-25">
+                                            <div class="fw-bold text-dark h5 mb-0">${awayTeam.short_name}</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                            
+                            <!-- Footer with Lineup Button (z-index higher than stretched-link) -->
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-3 text-center position-relative" style="z-index: 2;">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill px-4" 
+                                        onclick="openLineups(${match.id}, ${match.event}, ${match.team_h}, ${match.team_a}, ${match.started}, ${match.pulse_id || match.code})">
+                                    <i class="bi bi-people-fill me-1"></i> Lineups
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `;
             });
@@ -144,6 +189,107 @@ if(!isset($_SESSION['access'])){
                 </div>
             `;
         }
+    }
+
+    async function openLineups(fixtureId, eventId, homeTeamId, awayTeamId, started, pulseId) {
+        lineupsModal.show();
+        lineupsModalBody.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+
+        const homeTeam = staticData.teams.find(t => t.id === homeTeamId);
+        const awayTeam = staticData.teams.find(t => t.id === awayTeamId);
+
+        if (!started) {
+            // Match not started - Show External Link
+             lineupsModalBody.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Official FPL lineup data is only available after kickoff.
+                    </div>
+                    <p class="mb-4">Confirmed lineups are usually available 1 hour before kickoff on the official Premier League website.</p>
+                    <a href="https://www.premierleague.com/match/${pulseId}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-up-right me-2"></i> View Confirmed Lineups
+                    </a>
+                    <div class="mt-3 text-muted small">Opens in a new tab</div>
+                </div>
+            `;
+            return;
+        }
+
+        // Match Started - Fetch Live Data
+        try {
+            const liveRes = await fetch(`api.php?endpoint=event/${eventId}/live/`);
+            if (!liveRes.ok) throw new Error('Failed to load live data');
+            const liveData = await liveRes.json();
+
+            // Helper to get stats
+            const getPlayerStats = (id) => liveData?.elements?.find(e => e.id === id)?.stats;
+
+             // Helper to filter lineup
+            const getTeamLineup = (teamId) => {
+                return staticData.elements
+                    .filter(p => p.team === teamId)
+                    .map(p => {
+                        const stats = getPlayerStats(p.id);
+                        return { player: p, stats: stats };
+                    })
+                    .filter(item => item.stats && item.stats.minutes > 0)
+                    .sort((a, b) => a.player.element_type - b.player.element_type); 
+            };
+
+            const homeLineup = getTeamLineup(homeTeamId);
+            const awayLineup = getTeamLineup(awayTeamId);
+
+            // Render Modal Content
+             lineupsModalBody.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-6 border-end">
+                        <h6 class="fw-bold text-center mb-3 text-primary">${homeTeam.name}</h6>
+                        <ul class="list-group list-group-flush list-group-sm">
+                            ${renderLineupList(homeLineup)}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-center mb-3 text-primary">${awayTeam.name}</h6>
+                        <ul class="list-group list-group-flush list-group-sm">
+                            ${renderLineupList(awayLineup)}
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+        } catch (error) {
+             console.error(error);
+             lineupsModalBody.innerHTML = `
+                <div class="alert alert-danger text-center">
+                    Could not load lineup data. <br> ${error.message}
+                </div>
+            `;
+        }
+    }
+
+    function renderLineupList(lineup) {
+        if (lineup.length === 0) return '<li class="list-group-item text-muted text-center small">No live data yet</li>';
+        
+        const posMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+        
+        return lineup.map(item => `
+            <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0 border-0">
+                <div class="d-flex align-items-center text-truncate">
+                    <span class="badge bg-light text-secondary border me-2 small" style="min-width: 35px;">${posMap[item.player.element_type]}</span>
+                    <span class="small fw-500 text-truncate" style="max-width: 120px;" title="${item.player.web_name}">${item.player.web_name}</span>
+                </div>
+                <div class="small fw-bold ms-1" style="font-size: 0.85rem;">
+                     ${item.stats.total_points}
+                </div>
+            </li>
+        `).join('');
     }
 
     loadFixtures();

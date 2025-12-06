@@ -161,9 +161,13 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<div class="card shadow-sm mb-4"><div class="card-header fw-bold text-primary">Match Stats</div><div class="card-body p-0">`;
             html += `<div class="table-responsive"><table class="table table-sm align-middle mb-0">`;
             
+            const statOrder = ['goals_scored', 'assists', 'own_goals', 'penalties_saved', 'penalties_missed', 'saves', 'bps', 'bonus', 'yellow_cards', 'red_cards'];
+            
+            fixture.stats.sort((a, b) => {
+                return statOrder.indexOf(a.identifier) - statOrder.indexOf(b.identifier);
+            });
+
             fixture.stats.forEach(stat => {
-                if (stat.identifier === 'bps') return; 
-                
                 const homeEvents = stat.h.map(e => {
                     const p = staticData.elements.find(el => el.id === e.element);
                     return `${p.web_name} (${e.value})`;

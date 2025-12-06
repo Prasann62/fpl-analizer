@@ -16,14 +16,34 @@
     --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.18);
 }
 
+html {
+    background-color: #ffffff;
+    min-height: 100%;
+}
+
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background-color: #f0f2f5;
-    background-image:
-        radial-gradient(at 0% 0%, rgba(55, 0, 60, 0.05) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(0, 255, 133, 0.05) 0px, transparent 50%);
+    background-color: transparent;
     color: var(--text-color);
     min-height: 100vh;
+    position: relative;
+    z-index: 0;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    z-index: -1;
+    background: radial-gradient(circle at top center,
+            rgba(56, 193, 182, 0.5),
+            transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+    background-repeat: no-repeat;
 }
 
 /* Navbar */

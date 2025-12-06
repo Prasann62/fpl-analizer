@@ -31,6 +31,9 @@
             <a class="nav-link" href="rank.php">Live Rank</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="live-score.php">Live Score</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="logout.php">LOG OUT</a>
           </li>
         </ul>
