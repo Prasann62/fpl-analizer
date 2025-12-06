@@ -1,18 +1,16 @@
-
-<?php  session_start();
-if(isset($_SESSION['access'])){
-  header('location:loginform.php');
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <style> .group {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Form</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    a { text-decoration: none; color: #000; }
+    a:hover { text-decoration: underline; }
+
+    .group {
       position: relative;
       margin-bottom: 25px;
     }
@@ -107,96 +105,80 @@ if(isset($_SESSION['access'])){
     button:hover {
       box-shadow: inset 0px 0px 25px #1479EA;
       color: #fff;
-    }</style>
+    }
+  </style>
 </head>
 <body>
-    <div class="row mt-5">
-        <div class="col-sm-2"></div>
-
-        
-        <div class="col-sm-6 mt-5 text-center">
-        <img src="pl.1.png"  width="500px" height="450px" alt="fpl">
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="text-center mb-3">
+          <img src="f.p.t.1.png" alt="Logo" class="img-fluid">
         </div>
 
-        <!-- Login form -->
-        <div class="col-sm-3 mt-5">
-            <div class="text-center mb-3">
-                <img src="f.p.t.1.png" alt="Logo">
-            </div>
-
-            <form method="POST" action="">
-            <div class="group">
-            <input required type="email" class="input" name="em">
+        <form method="POST" action="">
+          <div class="group">
+            <input required type="email" class="input" name="email">
             <span class="highlight"></span>
             <span class="bar"></span>
             <label>Email</label>
           </div>
+
           <div class="group">
-            <input required type="password" class="input" name="ps">
+            <input required type="password" class="input" name="password">
             <span class="highlight"></span>
             <span class="bar"></span>
-            <label>password</label>
+            <label>Password</label>
           </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit"  name="but">Log In</button>
-                </div>
+          <div class="d-grid gap-2">
+            <button type="submit" name="login_btn">Log In</button>
+          </div>
 
-                <div class="text-center my-2">or</div>
+          <div class="text-center my-2">or</div>
 
-                <div class="text-center mt-2">
-                    <a href="#" class="text-decoration-none">Forgot password?</a>
-                </div>
-
-                <div class="text-center mt-2">
-                    Don’t have an account? <a href="signin.php" class="text-decoration-none">Sign up</a>
-                </div>
-            </form>
-        </div>
+          <div class="text-center mt-2">
+            Don't have an account? <a href="signin.php">Sign Up</a>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 
-    <?php
-
- if(isset($_POST['but']))
-    {
-       
-        $email=$_POST['em'];
-        $psw=$_POST['ps'];
-
-
+  <?php
+    session_start();
+    if(isset($_POST['login_btn'])) {
+        $email = $_POST['email'];
+        $password = $_POST['password'];
 
         $servername = "localhost";
-        $username = "u913997673_prasanna";
-        $password = "Ko%a/2klkcooj]@o";
-        $dbname = "u913997673_prasanna";
+        $username   = "u913997673_prasanna";
+        $password_db   = "Ko%a/2klkcooj]@o";
+        $dbname     = "u913997673_prasanna";
 
+        $conn = new mysqli($servername, $username, $password_db, $dbname);
 
-        $conn = new mysqli($servername, $username, $password, $dbname);
-
-        if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+        if($conn->connect_error){
+            die("connection failed:".$conn->connect_error);
         }
 
-       
-$sql="SELECT * FROM signin where email='$email' and password='$psw'";
+        // Use prepared statement for security
+        $stmt = $conn->prepare("SELECT * FROM signin WHERE email = ? AND password = ?");
+        $stmt->bind_param("ss", $email, $password);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    $query_run=mysqli_query($conn,$sql);
+        if ($result->num_rows > 0){
+            $_SESSION['access'] = true;
+            $_SESSION['email'] = $email;
+            echo "<script>window.open('Dashboard.php','_self')</script>";
+        } else{
+            echo "<script>alert('Invalid Email or Password');</script>";
+        }
 
-    if(mysqli_num_rows($query_run)==1){
-        $_SESSION['access']=$email;
-
-           echo "<script>window.open('index.php','_self')</script>";
-
-    }else{
-
-
-        echo "<script>alert('invalid user name')</script>";
-    }
-
-
+        $stmt->close();
         $conn->close();
-
-        }
-?>
+    }
+  ?>
 </body>
 </html>

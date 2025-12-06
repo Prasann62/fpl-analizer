@@ -1,31 +1,58 @@
-<?php  session_start();
-if(!isset($_SESSION['access'])){
-  header('location:loginform.php');
-}
-
-?>  
-  
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Football Website</title>
+  <title>MyFPL - Fantasy Premier League Manager</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
 </head>
 <body>
 
     <?php include 'navbar.php';?>
 
   <!-- Hero Section -->
-  <section class="bg-light text-center py-5">
-    <div class="container">
-      <h1 class="display-4 fw-bold">Welcome to My Football Club</h1>
-      <p class="lead">Stay updated with teams, fixtures, and players.</p>
-      <a href="#" class="btn btn-primary btn-lg mt-3">Get Started</a>
+  <section class="hero-section text-center">
+    <div class="container animate-fade-in">
+      <h1 class="hero-title mb-4">Master Your FPL Team</h1>
+      <p class="lead mb-5">Analyze stats, track fixtures, and optimize your fantasy team like a pro.</p>
+      <a href="Dashboard.php" class="btn btn-premium btn-lg">Go to Dashboard</a>
     </div>
   </section>
+
+  <!-- Features Section -->
+  <div class="container my-5">
+      <div class="row g-4">
+          <div class="col-md-4">
+              <div class="card h-100 text-center p-4">
+                  <div class="card-body">
+                      <i class="bi bi-bar-chart-fill text-primary fs-1 mb-3"></i>
+                      <h3 class="card-title">Live Stats</h3>
+                      <p class="card-text">Get real-time updates on player performance and points.</p>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-4">
+              <div class="card h-100 text-center p-4">
+                  <div class="card-body">
+                      <i class="bi bi-calendar-event-fill text-success fs-1 mb-3"></i>
+                      <h3 class="card-title">Fixtures</h3>
+                      <p class="card-text">Plan ahead with our detailed fixture difficulty tracker.</p>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-4">
+              <div class="card h-100 text-center p-4">
+                  <div class="card-body">
+                      <i class="bi bi-people-fill text-danger fs-1 mb-3"></i>
+                      <h3 class="card-title">Player Analysis</h3>
+                      <p class="card-text">Deep dive into player form, value, and potential returns.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
 
 
   <?php include 'footer.php';?>

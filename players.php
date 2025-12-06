@@ -1,68 +1,226 @@
+<?php
+session_start();
+if(!isset($_SESSION['access'])){
+  header('location:loginform.php');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>players</title>
+    <title>Players | FPL Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-   
+    <link href="style.css" rel="stylesheet">
 </head>
 <body>
 <?php include 'navbar.php';?>
 
-<!-- Player Filters -->
-<div class="container mt-4">
-    <div class="row mb-4">
-      <div class="col-md-4">
-        <input type="text" id="searchBox" class="form-control" placeholder="Search player by name...">
-      </div>
-      <div class="col-md-4">
-        <select id="positionFilter" class="form-select">
-          <option value="">All Positions</option>
-          <option value="1">Goalkeeper</option>
-          <option value="2">Defender</option>
-          <option value="3">Midfielder</option>
-          <option value="4">Forward</option>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <select id="teamFilter" class="form-select">
-          <option value="">All Teams</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- Player Stats Section -->
-  <section class="container py-5">
-    <h2 class="text-center mb-4">Player Statistics</h2>
-    <div class="table-responsive">
-      <table class="table table-striped table-bordered text-center align-middle">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Position</th>
-            <th>Price</th>
-            <th>Form</th>
-            <th>Points</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Dynamic Player Data Will Load Here -->
-        </tbody>
-      </table>
+<div class="container py-5">
+    <!-- Hero Header -->
+    <div class="hero-header shadow-lg mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-4 fw-extrabold mb-2">Player Database</h1>
+                <p class="lead opacity-75 mb-0">Scout the best talents for your team.</p>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <i class="bi bi-people-fill display-1 opacity-25"></i>
+            </div>
+        </div>
     </div>
 
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted fw-bold text-uppercase">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" id="searchBox" class="form-control border-start-0 ps-0" placeholder="Find player by name...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted fw-bold text-uppercase">Position</label>
+                    <select id="positionFilter" class="form-select">
+                        <option value="">All Positions</option>
+                        <option value="1">Goalkeeper</option>
+                        <option value="2">Defender</option>
+                        <option value="3">Midfielder</option>
+                        <option value="4">Forward</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted fw-bold text-uppercase">Team</label>
+                    <select id="teamFilter" class="form-select">
+                        <option value="">All Teams</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Player Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0 fw-bold text-primary">Statistics</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Name</th>
+                            <th>Pos</th>
+                            <th>Team</th>
+                            <th>Price</th>
+                            <th class="text-center">Form</th>
+                            <th class="text-center">Points</th>
+                            <th class="text-center pe-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include 'footer.php';?>
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+<script>
+    const searchBox = document.getElementById('searchBox');
+    const positionFilter = document.getElementById('positionFilter');
+    const teamFilter = document.getElementById('teamFilter');
+    const tbody = document.getElementById('playersTableBody');
+
+    let allPlayers = [];
+    let teamsMap = {};
+    let positionsMap = {1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+
+    async function init() {
+        try {
+            const res = await fetch('api.php?endpoint=bootstrap-static/');
+            const data = await res.json();
+
+            // Map teams
+            data.teams.forEach(t => {
+                teamsMap[t.id] = t;
+                const option = document.createElement('option');
+                option.value = t.id;
+                option.textContent = t.name;
+                teamFilter.appendChild(option);
+            });
+
+            allPlayers = data.elements;
+            renderPlayers(allPlayers.slice(0, 50)); // Initial render top 50
+
+            // Event Listeners
+            searchBox.addEventListener('input', filterPlayers);
+            positionFilter.addEventListener('change', filterPlayers);
+            teamFilter.addEventListener('change', filterPlayers);
+
+        } catch (error) {
+            console.error(error);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-danger">
+                        <i class="bi bi-x-circle display-4 d-block mb-3"></i>
+                        Failed to load players
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    function filterPlayers() {
+        const searchTerm = searchBox.value.toLowerCase();
+        const position = positionFilter.value;
+        const team = teamFilter.value;
+
+        const filtered = allPlayers.filter(p => {
+            const matchesSearch = (p.first_name + ' ' + p.second_name).toLowerCase().includes(searchTerm);
+            const matchesPosition = position ? p.element_type == position : true;
+            const matchesTeam = team ? p.team == team : true;
+            return matchesSearch && matchesPosition && matchesTeam;
+        });
+
+        // Limit to 50 for performance unless searching
+        const limit = searchTerm ? 100 : 50;
+        renderPlayers(filtered.slice(0, limit));
+    }
+
+    function renderPlayers(players) {
+        tbody.innerHTML = '';
+        if (players.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        No players found matching your criteria
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        players.forEach(p => {
+            const team = teamsMap[p.team];
+            const position = positionsMap[p.element_type];
+            
+            // Status Logic
+            let statusIcon = 'bi-check-circle-fill text-success';
+            let statusTitle = 'Available';
+            
+            if (p.status === 'd') {
+                statusIcon = 'bi-exclamation-circle-fill text-warning';
+                statusTitle = p.news || 'Doubtful';
+            } else if (p.status === 'i' || p.status === 'u') {
+                statusIcon = 'bi-x-circle-fill text-danger';
+                statusTitle = p.news || 'Unavailable';
+            }
+
+            const row = `
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">${p.first_name} ${p.second_name}</div>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">${position}</span></td>
+                    <td>${team.short_name}</td>
+                    <td class="fw-bold">£${(p.now_cost / 10).toFixed(1)}m</td>
+                    <td class="text-center">
+                        <span class="fw-bold ${parseFloat(p.form) > 5 ? 'text-success' : ''}">${p.form}</span>
+                    </td>
+                    <td class="text-center fw-bold">${p.total_points}</td>
+                    <td class="text-center pe-4">
+                        <i class="bi ${statusIcon}" data-bs-toggle="tooltip" title="${statusTitle}"></i>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+        
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    }
+
+    init();
+</script>
 </body>
 </html>
