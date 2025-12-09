@@ -36,6 +36,17 @@
           <li class="nav-item">
             <a class="nav-link" href="logout.php">LOG OUT</a>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="aiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              AI Hub
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="aiDropdown">
+              <li><a class="dropdown-item" href="ai-team-rating.php">Team Rating</a></li>
+              <li><a class="dropdown-item" href="ai-team-picker.php">Team Picker</a></li>
+              <li><a class="dropdown-item" href="ai-team-improver.php">Team Improver</a></li>
+              <li><a class="dropdown-item" href="ai-team-point-predictor.php">Point Predictor</a></li>
+            </ul>
+          </li>
         </ul>
       </div>
     </div>
