@@ -13,6 +13,7 @@ if(!isset($_SESSION['access'])){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <style>
+    <style>
         .transfer-card {
             border-left: 4px solid var(--accent-color);
             transition: transform 0.2s;
@@ -20,11 +21,17 @@ if(!isset($_SESSION['access'])){
         .transfer-card:hover {
             transform: translateX(5px);
         }
+        .transfer-card.diff-card {
+            border-left-color: #fd7e14; /* Orange for diffs */
+        }
+        .transfer-card.block-card {
+            border-left-color: var(--secondary-color); /* Teal for blocks */
+        }
         .player-out {
-            background: rgba(220, 53, 69, 0.1);
+            background: rgba(220, 53, 69, 0.05);
         }
         .player-in {
-            background: rgba(25, 135, 84, 0.1);
+            background: rgba(25, 135, 84, 0.05);
         }
         .ownership-bar {
             height: 6px;
@@ -113,6 +120,14 @@ if(!isset($_SESSION['access'])){
             <div class="col-md-3">
                 <div class="card text-center h-100">
                     <div class="card-body">
+                        <div class="text-muted small text-uppercase">Transfers Made</div>
+                        <h3 class="fw-bold text-dark" id="transfersMade">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
                         <div class="text-muted small text-uppercase">Suggested Moves</div>
                         <h3 class="fw-bold text-success" id="movesCount">0</h3>
                     </div>
@@ -122,11 +137,23 @@ if(!isset($_SESSION['access'])){
 
         <!-- Transfer Suggestions -->
         <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold d-flex align-items-center">
-                <i class="bi bi-arrow-left-right me-2"></i>
-                Recommended Transfers
+            <div class="card-header bg-white fw-bold d-flex align-items-center justify-content-between">
+                <div><i class="bi bi-arrow-left-right me-2"></i>Recommended Transfers</div>
+                <div class="small fw-normal text-muted">Based on League Ownership</div>
             </div>
             <div class="card-body" id="transferList">
+                <div class="row">
+                    <div class="col-lg-6 mb-3">
+                        <h6 class="fw-bold text-warning mb-3"><i class="bi bi-lightning-charge-fill me-2"></i>Catch Up (Differentials)</h6>
+                        <p class="small text-muted">High potential players that your rivals <strong>don't</strong> own.</p>
+                        <div id="diffList"></div>
+                    </div>
+                    <div class="col-lg-6 mb-3">
+                        <h6 class="fw-bold text-success mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Block Rivals (Template)</h6>
+                        <p class="small text-muted">High ownership players you're missing out on.</p>
+                        <div id="blockList"></div>
+                    </div>
+                </div>
                 <!-- Injected -->
             </div>
         </div>
@@ -162,6 +189,14 @@ if(!isset($_SESSION['access'])){
     let bootstrapData = null;
     let managerId = null;
 
+    // Auto-load from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get('manager_id')) {
+        managerIdInput.value = urlParams.get('manager_id');
+        // Auto click load
+        setTimeout(() => loadLeaguesBtn.click(), 500);
+    }
+
     // Step 1: Load Leagues
     loadLeaguesBtn.addEventListener('click', async () => {
         managerId = managerIdInput.value.trim();
@@ -184,6 +219,16 @@ if(!isset($_SESSION['access'])){
             });
 
             step2.classList.remove('d-none');
+
+            // Auto Select League if in URL
+            if(urlParams.get('league_id')) {
+                const lid = urlParams.get('league_id');
+                // check if exists
+                if([...leagueSelect.options].some(o => o.value == lid)) {
+                    leagueSelect.value = lid;
+                    setTimeout(() => analyzeBtn.click(), 500);
+                }
+            }
             
         } catch (e) {
             alert(e.message);
@@ -230,6 +275,11 @@ if(!isset($_SESSION['access'])){
             const leader = allManagers[0];
             document.getElementById('yourRank').innerText = myEntry ? `#${myEntry.rank}` : 'N/A';
             document.getElementById('pointsBehind').innerText = myEntry ? (leader.total - myEntry.total) : '-';
+            
+            // Get Transfers Made
+            const entryRes = await fetch(`api.php?endpoint=entry/${managerId}/`);
+            const entryData = await entryRes.json();
+            document.getElementById('transfersMade').innerText = entryData.last_deadline_total_transfers || 0;
 
             // C. Analyze Top 20 or all if small league
             const teamsToScan = allManagers.slice(0, Math.min(20, allManagers.length));
@@ -264,11 +314,25 @@ if(!isset($_SESSION['access'])){
 
             // Template players I'm missing (high ownership)
             const missingHighOwnership = Object.entries(playerOwnership)
-                .filter(([id, count]) => !myPlayerIds.has(parseInt(id)) && count >= scanned * 0.4)
+                .filter(([id, count]) => !myPlayerIds.has(parseInt(id)) && (count / scanned) >= 0.3) // >30% ownership
                 .map(([id, count]) => ({ player: players[id], ownership: count / scanned }))
                 .sort((a, b) => b.ownership - a.ownership);
+            
+            // Differentials (Low League Ownership but High Form)
+            // Available in FPL but owned by < 10% of league rivals
+            // Filter global player list for this? Or just checking widely
+            // We use global 'players' object
+            const potentialDifferentials = Object.values(players)
+                .filter(p => 
+                    p.status === 'a' &&
+                    parseFloat(p.form) > 3.0 && // Good form
+                    !myPlayerIds.has(p.id) &&   // Don't own
+                    ((playerOwnership[p.id] || 0) / scanned) < 0.1 // <10% league owned
+                )
+                .sort((a,b) => parseFloat(b.form) - parseFloat(a.form))
+                .slice(0, 10);
 
-            // My players with low ownership (potential sells)
+            // My players with low ownership/form (potential sells)
             const lowOwnershipMine = mySquad
                 .filter(p => {
                     const own = playerOwnership[p.id] || 0;
@@ -278,7 +342,7 @@ if(!isset($_SESSION['access'])){
 
             // F. Render Transfers
             updateProgress(100, 'Done!');
-            renderTransfers(missingHighOwnership, lowOwnershipMine, scanned, playerOwnership, players);
+            renderTransfers(missingHighOwnership, potentialDifferentials, lowOwnershipMine, scanned, playerOwnership, players);
 
             loading.classList.add('d-none');
             results.classList.remove('d-none');
@@ -291,84 +355,118 @@ if(!isset($_SESSION['access'])){
         }
     });
 
-    function renderTransfers(toBuy, toSell, total, ownership, players) {
-        const container = document.getElementById('transferList');
-        container.innerHTML = '';
+    function renderTransfers(blockers, differentials, toSell, total, ownership, players) {
+        // 1. Render Transfers
+        const diffList = document.getElementById('diffList');
+        const blockList = document.getElementById('blockList');
+        if(diffList) diffList.innerHTML = '';
+        if(blockList) blockList.innerHTML = '';
 
-        let movesCount = 0;
+        let totalMoves = 0;
 
-        // Match sells to buys by position
-        const maxMoves = Math.min(3, toSell.length, toBuy.length);
+        // Helper to find best sell candidate for a buy target
+        const findSellFor = (buyPlayer) => {
+            // Find same position, cheaper or similar price (if possible), low form/ownership
+            // or just the worst player in that position
+            return toSell.find(s => s.element_type === buyPlayer.element_type) || null;
+        };
 
-        for (let i = 0; i < maxMoves; i++) {
-            const outPlayer = toSell[i];
-            // Find a buy in same position
-            const inPlayer = toBuy.find(b => b.player.element_type === outPlayer.element_type && b.player.now_cost <= outPlayer.now_cost + 10);
-            
-            if (inPlayer) {
-                movesCount++;
-                const card = document.createElement('div');
-                card.className = 'transfer-card card mb-3';
-                card.innerHTML = `
-                    <div class="card-body p-0">
-                        <div class="row g-0 align-items-center">
-                            <div class="col-5 p-3 player-out">
-                                <div class="small text-danger text-uppercase fw-bold">Transfer Out</div>
-                                <div class="fw-bold fs-5">${outPlayer.web_name}</div>
-                                <div class="text-muted small">Form: ${outPlayer.form} | £${outPlayer.now_cost/10}m</div>
-                                <div class="ownership-bar mt-2">
-                                    <div class="ownership-fill bg-danger" style="width: ${Math.round((ownership[outPlayer.id]||0)/total*100)}%"></div>
-                                </div>
-                                <div class="small text-muted mt-1">${Math.round((ownership[outPlayer.id]||0)/total*100)}% league ownership</div>
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="bi bi-arrow-right fs-2 text-muted"></i>
-                            </div>
-                            <div class="col-5 p-3 player-in">
-                                <div class="small text-success text-uppercase fw-bold">Transfer In</div>
-                                <div class="fw-bold fs-5">${inPlayer.player.web_name}</div>
-                                <div class="text-muted small">Form: ${inPlayer.player.form} | £${inPlayer.player.now_cost/10}m</div>
-                                <div class="ownership-bar mt-2">
-                                    <div class="ownership-fill bg-success" style="width: ${Math.round(inPlayer.ownership*100)}%"></div>
-                                </div>
-                                <div class="small text-muted mt-1">${Math.round(inPlayer.ownership*100)}% league ownership</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-
-                // Remove used buy
-                toBuy = toBuy.filter(b => b.player.id !== inPlayer.player.id);
+        // Render Blockers
+        if(blockers.length === 0 && blockList) blockList.innerHTML = '<p class="text-muted small">You own all the key template players!</p>';
+        blockers.forEach(item => {
+            if(blockList) {
+                const p = item.player;
+                const sellP = findSellFor(p);
+                const card = createTransferCard(p, item.ownership, 'block', sellP);
+                blockList.appendChild(card);
             }
-        }
-
-        if (movesCount === 0) {
-            container.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Your team is already well-optimized for this league! No critical transfers needed.</div>';
-        }
-
-        document.getElementById('movesCount').innerText = movesCount;
-
-        // Ownership Insights
-        const ownershipList = document.getElementById('ownershipList');
-        ownershipList.innerHTML = '';
-
-        // Top 5 most owned
-        const topOwned = Object.entries(ownership)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5);
-
-        topOwned.forEach(([id, count]) => {
-            const p = players[id];
-            const pct = Math.round(count / total * 100);
-            const li = document.createElement('li');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center';
-            li.innerHTML = `
-                <span><strong>${p.web_name}</strong> <span class="text-muted small">(${['GK','DEF','MID','FWD'][p.element_type-1]})</span></span>
-                <span class="badge bg-primary">${pct}%</span>
-            `;
-            ownershipList.appendChild(li);
+            totalMoves++;
         });
+
+        // Render Differentials
+        if(differentials.length === 0 && diffList) diffList.innerHTML = '<p class="text-muted small">No hidden gems found currently.</p>';
+        differentials.forEach(p => {
+             const ownCount = ownership[p.id] || 0;
+             if(diffList) {
+                const sellP = findSellFor(p);
+                const card = createTransferCard(p, ownCount/total, 'diff', sellP);
+                diffList.appendChild(card);
+             }
+             totalMoves++;
+        });
+
+        const movesCountEl = document.getElementById('movesCount');
+        if(movesCountEl) movesCountEl.innerText = totalMoves;
+
+        // 2. Ownership Insights
+        const ownershipList = document.getElementById('ownershipList');
+        if(ownershipList) {
+            ownershipList.innerHTML = '';
+
+            // Top 5 most owned
+            const topOwned = Object.entries(ownership)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            topOwned.forEach(([id, count]) => {
+                const p = players[id]; 
+                if(!p) return;
+                const pct = Math.round(count / total * 100);
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                const posName = ['','GK','DEF','MID','FWD'][p.element_type] || '';
+                li.innerHTML = `
+                    <span><strong>${p.web_name}</strong> <span class="text-muted small">(${posName})</span></span>
+                    <span class="badge bg-primary">${pct}%</span>
+                `;
+                ownershipList.appendChild(li);
+            });
+        }
+    }
+
+    function createTransferCard(p, ownPct, type, sellPlayer) {
+        const div = document.createElement('div');
+        div.className = `transfer-card card mb-3 ${type === 'diff' ? 'diff-card' : 'block-card'}`;
+        const badgeColor = type === 'diff' ? 'bg-warning text-dark' : 'bg-success';
+        const badgeText = type === 'diff' ? 'DIFF' : 'BLOCK';
+        
+        let sellHtml = '';
+        if(sellPlayer) {
+            sellHtml = `
+                <div class="border-top pt-2 mt-2">
+                    <div class="d-flex justify-content-between align-items-center small">
+                         <span class="text-danger fw-bold"><i class="bi bi-box-arrow-right me-1"></i>Sell: ${sellPlayer.web_name}</span>
+                         <span class="text-muted">£${sellPlayer.now_cost/10}m</span>
+                    </div>
+                </div>
+            `;
+        } else {
+             sellHtml = `
+                <div class="border-top pt-2 mt-2">
+                    <div class="small text-muted text-center fst-italic">No obvious sell candidate in this position</div>
+                </div>
+            `;
+        }
+
+        div.innerHTML = `
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                         <div class="fw-bold text-dark fs-5">${p.web_name} <span class="badge ${badgeColor} ms-1" style="font-size:0.6rem; vertical-align: middle;">${badgeText}</span></div>
+                         <div class="small text-muted">Form: ${p.form} • £${p.now_cost/10}m</div>
+                    </div>
+                    <div class="text-end" style="min-width: 60px;">
+                        <div class="fw-bold small">${Math.round(ownPct*100)}%</div>
+                        <div class="progress" style="height: 4px; width: 60px">
+                            <div class="progress-bar ${type==='diff'?'bg-warning':'bg-success'}" role="progressbar" style="width: ${Math.round(ownPct*100)}%"></div>
+                        </div>
+                        <div class="text-muted" style="font-size: 0.65rem">Owned</div>
+                    </div>
+                </div>
+                ${sellHtml}
+            </div>
+        `;
+        return div;
     }
 </script>
 </body>

@@ -43,14 +43,21 @@ if(!isset($_SESSION['access'])){
                 
                 <!-- Analysis Section -->
                 <div class="card shadow-sm mb-4 border-primary border-opacity-25">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="fw-bold text-primary mb-1">League Analysis</h5>
-                            <p class="text-muted small mb-0">Analyze teams on this page</p>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h5 class="fw-bold text-primary mb-1">League Analysis</h5>
+                                <p class="text-muted small mb-0">Analyze teams or optimize your squad for this league.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="#" id="aiImproveBtn" class="btn btn-warning text-dark fw-bold">
+                                    <i class="bi bi-robot me-2"></i>AI Improve My Team
+                                </a>
+                                <button id="analyzeBtn" class="btn btn-primary">
+                                    <i class="bi bi-magic me-2"></i>Analyze Stats
+                                </button>
+                            </div>
                         </div>
-                        <button id="analyzeBtn" class="btn btn-primary">
-                            <i class="bi bi-magic me-2"></i>Analyze Page
-                        </button>
                     </div>
                     <div id="analysisProgress" class="progress d-none rounded-0" style="height: 4px;">
                         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
@@ -137,6 +144,19 @@ document.addEventListener('DOMContentLoaded', () => {
         backToLeaguesBtn.href = `leagues.php?id=${managerId}`;
     }
     
+    // Setup AI Improve Button
+    const aiImproveBtn = document.getElementById('aiImproveBtn');
+    if(leagueId && managerId) {
+        aiImproveBtn.href = `ai-team-improver.php?league_id=${leagueId}&manager_id=${managerId}`;
+    } else if (leagueId) {
+        // If we don't know manager ID, just pass league, they will have to input manager ID or we might ask.
+        // But the prompt says "based on which classic league manager click", implying we might know the manager.
+        // If not, we just link to the page and they can fill it.
+        aiImproveBtn.href = `ai-team-improver.php?league_id=${leagueId}`;
+    } else {
+        aiImproveBtn.classList.add('disabled');
+    }
+
     const leagueNameEl = document.getElementById('leagueName');
     const leagueSubtitleEl = document.getElementById('leagueSubtitle');
     const loadingSpinner = document.getElementById('loadingSpinner');
