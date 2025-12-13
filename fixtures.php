@@ -23,6 +23,21 @@ if(!isset($_SESSION['access'])){
         <p class="lead opacity-75 mb-0">Upcoming fixtures and schedule.</p>
     </div>
 
+    <div id="controlPanel" class="row mb-4 justify-content-center">
+        <div class="col-md-6 text-center">
+             <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white fw-bold">Gameweek</span>
+                <select class="form-select text-center fw-bold" id="gwSelect">
+                     <option value="" selected>Auto (Smart)</option>
+                     <!-- Options populated by JS -->
+                </select>
+                <button class="btn btn-primary" id="loadBtn">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Load
+                </button>
+             </div>
+        </div>
+    </div>
+
     <div id="fixtures" class="row g-4">
         <div class="col-12 text-center">
             <div class="spinner-border text-primary" role="status">
@@ -60,17 +75,72 @@ if(!isset($_SESSION['access'])){
 
 <script>
     const fixturesContainer = document.getElementById('fixtures');
+    const gwSelect = document.getElementById('gwSelect');
+    const loadBtn = document.getElementById('loadBtn');
+    
     let staticData = null; // Store static data globally
     const lineupsModal = new bootstrap.Modal(document.getElementById('lineupsModal'));
     const lineupsModalBody = document.getElementById('lineupsModalBody');
 
-    async function loadFixtures() {
+    // Init
+    init();
+
+    async function init() {
+         await loadStaticData(); // Load first
+         loadFixtures(); // Then load default
+    }
+    
+    loadBtn.addEventListener('click', () => loadFixtures(gwSelect.value));
+    gwSelect.addEventListener('change', () => loadFixtures(gwSelect.value));
+
+    async function loadStaticData() {
         try {
-            // 1. Get Gameweek (Prioritize Current, then Next)
-            const bootstrapRes = await fetch('api.php?endpoint=bootstrap-static/');
-            staticData = await bootstrapRes.json();
+            const res = await fetch('api.php?endpoint=bootstrap-static/');
+            staticData = await res.json();
             
-            const event = staticData.events.find(e => e.is_current) || staticData.events.find(e => e.is_next);
+            // Populate Dropdown
+            let html = '<option value="" selected>Auto (Smart)</option>';
+            staticData.events.forEach(e => {
+                 if(e.id <= 38) {
+                      let label = `Gameweek ${e.id}`;
+                      if(e.is_current) label += " (Live)";
+                      else if(e.is_next) label += " (Next)";
+                      html += `<option value="${e.id}">${label}</option>`;
+                 }
+            });
+            gwSelect.innerHTML = html;
+        } catch(e) {
+            console.error("Static data failed", e);
+        }
+    }
+
+    async function loadFixtures(specificGw = null) {
+        fixturesContainer.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>`;
+            
+        try {
+            if(!staticData) await loadStaticData();
+            
+            let event;
+            
+            if (specificGw) {
+                // Manual Selection
+                event = staticData.events.find(e => e.id == specificGw);
+            } else {
+                // Smart Auto Logic
+                const current = staticData.events.find(e => e.is_current);
+                const next = staticData.events.find(e => e.is_next);
+                
+                // User Logic: "automaticle flich hext gameweak after finesh last game"
+                // If current event is explicitly marked 'finished', switch to next.
+                if (current && current.finished) {
+                     event = next || current; // Fallback to current if no next
+                } else {
+                     event = current || next || staticData.events[0];
+                }
+            }
 
             if (!event) {
                 fixturesContainer.innerHTML = `
@@ -81,8 +151,13 @@ if(!isset($_SESSION['access'])){
                         </div>
                     </div>
                 `;
+                // Sync dropdown if auto
+                if(!specificGw) gwSelect.value = ""; 
                 return;
             }
+            
+            // Sync dropdown if auto
+            if(!specificGw) gwSelect.value = event.id; 
 
             // Map teams
             const teams = {};
@@ -99,7 +174,7 @@ if(!isset($_SESSION['access'])){
                 <div class="col-12 mb-2">
                     <div class="d-flex align-items-center justify-content-center gap-3">
                         <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.2;"></div>
-                        <h3 class="fw-bold text-primary m-0">Gameweek ${event.id} <span class="badge bg-dark fs-6 align-middle ms-2">${event.is_current ? 'LIVE' : 'UPCOMING'}</span></h3>
+                        <h3 class="fw-bold text-primary m-0">Gameweek ${event.id} <span class="badge bg-dark fs-6 align-middle ms-2">${event.finished ? 'FINISHED' : (event.is_current ? 'LIVE' : 'UPCOMING')}</span></h3>
                         <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.2;"></div>
                     </div>
                 </div>

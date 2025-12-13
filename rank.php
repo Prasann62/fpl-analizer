@@ -49,7 +49,14 @@ if(!isset($_SESSION['access'])){
                 </div>
             </div>
 
-            <div id="rankContainer" class="d-none">
+            <!-- Live Content Wrapper -->
+            <div id="rankContainer" class="d-none position-relative">
+                
+                <!-- Loading Overlay -->
+                <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark p-3 shadow-lg z-3">
+                    <span class="spinner-border spinner-border-sm me-2"></span> Updating Rank...
+                </div>
+
                 <!-- Live Stats Cards -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
@@ -113,9 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchRankBtn = document.getElementById('fetchRankBtn');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const rankContainer = document.getElementById('rankContainer');
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const livePointsEl = document.getElementById('livePoints');
     const overallRankEl = document.getElementById('overallRank');
-    const rankMovementEl = document.getElementById('rankMovement');
     const livePlayersBody = document.getElementById('livePlayersBody');
     const errorAlert = document.getElementById('errorAlert');
 
@@ -149,7 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showLoading(true);
         hideError();
-        rankContainer.classList.add('d-none');
+        
+        // Don't hide container, use overlay if already waiting
+        // rankContainer.classList.add('d-none'); 
 
         try {
             // 1. Get current gameweek
@@ -178,6 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             renderLiveStats(managerData, picksData.picks, liveElements);
+            
+            // Show container if hidden (first load)
+            rankContainer.classList.remove('d-none');
 
         } catch (error) {
             console.error(error);
@@ -188,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderLiveStats(manager, picks, liveStats) {
+        // ... (render logic unchanged) ...
         // Update Rank
         overallRankEl.textContent = manager.summary_overall_rank ? manager.summary_overall_rank.toLocaleString() : '-';
         
@@ -232,24 +245,22 @@ document.addEventListener('DOMContentLoaded', () => {
             livePlayersBody.innerHTML += row;
         });
 
-        // Update Total Points Display
-        // Note: We add the manager's previous total to this GW's live points for a "Live Total" if needed, 
-        // but usually "Live Points" refers to the GW score.
-        // Let's show GW Live Points.
-        // If we want to show "Live Rank", we need complex calculation or an external API. 
-        // Since we can't easily calculate true Live Rank without all user data, we will stick to "Live GW Points" and "Official Overall Rank".
-        livePointsEl.textContent = totalPoints - (picks.entry_history ? picks.entry_history.event_transfers_cost : 0); // Deduct hits if available in picks response (it is in entry_history usually)
-
-        rankContainer.classList.remove('d-none');
+        livePointsEl.textContent = totalPoints - (picks.entry_history ? picks.entry_history.event_transfers_cost : 0); 
     }
 
     function showLoading(show) {
         if (show) {
-            loadingSpinner.classList.remove('d-none');
+            const isFirst = rankContainer.classList.contains('d-none');
+            if(isFirst) {
+                 loadingSpinner.classList.remove('d-none');
+            } else {
+                 if(loadingOverlay) loadingOverlay.classList.remove('d-none');
+            }
             fetchRankBtn.disabled = true;
             fetchRankBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
         } else {
             loadingSpinner.classList.add('d-none');
+            if(loadingOverlay) loadingOverlay.classList.add('d-none');
             fetchRankBtn.disabled = false;
             fetchRankBtn.innerHTML = '<i class="bi bi-speedometer2 me-2"></i>Track Live';
         }

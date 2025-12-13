@@ -40,13 +40,17 @@ if(!isset($_SESSION['access'])){
         </div>
     </div>
 
-    <!-- Manager Input -->
+    <!-- Manager Input and GW Selector -->
     <div class="row mb-4">
-        <div class="col-md-6 mx-auto">
+        <div class="col-md-9 mx-auto">
             <div class="input-group input-group-lg shadow-sm">
                 <input type="number" id="managerId" class="form-control" placeholder="Enter Manager ID" aria-label="Manager ID">
+                <select class="form-select" id="gwSelect" style="max-width: 170px;">
+                    <option value="" selected>Auto (Live)</option>
+                    <!-- Options populated by JS -->
+                </select>
                 <button class="btn btn-primary fw-bold px-4" type="button" id="loadBtn">
-                    <i class="bi bi-lightning-charge-fill me-2"></i>Load Live Data
+                    <i class="bi bi-lightning-charge-fill me-2"></i>Load
                 </button>
             </div>
         </div>
@@ -54,12 +58,18 @@ if(!isset($_SESSION['access'])){
 
     <!-- Live Content -->
     <div id="liveContent" class="d-none">
+        
+        <!-- Loading Overlay (Visible during updates without hiding content) -->
+        <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark p-3 shadow-lg z-3">
+             <span class="spinner-border spinner-border-sm me-2"></span> Updating Live Data...
+        </div>
+
         <!-- Summary Cards -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="card bg-primary text-white h-100 border-0 shadow-lg" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
                     <div class="card-body text-center p-4">
-                        <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Live Score</h6>
+                        <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Score</h6>
                         <h2 class="display-2 fw-bold mb-0" id="totalPoints">0</h2>
                         <i class="bi bi-trophy-fill opacity-25 position-absolute top-0 end-0 m-3 fs-1"></i>
                     </div>
@@ -70,7 +80,7 @@ if(!isset($_SESSION['access'])){
                     <div class="card-body text-center p-4">
                         <h6 class="text-white-50 text-uppercase fw-bold mb-2">Gameweek Rank</h6>
                         <h2 class="display-4 fw-bold mb-0" id="gwRank">-</h2>
-                        <div class="small text-white-50 mt-2">Active GW: <span id="currentGW" class="fw-bold text-white"></span></div>
+                        <div class="small text-white-50 mt-2">GW: <span id="currentGW" class="fw-bold text-white"></span></div>
                     </div>
                 </div>
             </div>
@@ -89,9 +99,9 @@ if(!isset($_SESSION['access'])){
         </div>
 
         <!-- Players Table -->
-        <div class="card border-0 shadow-lg">
+        <div class="card border-0 shadow-lg position-relative">
             <div class="card-header bg-dark text-white py-3">
-                 <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Lineup & Live Stats</h5>
+                 <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Lineup & Stats</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -120,12 +130,12 @@ if(!isset($_SESSION['access'])){
         </div>
     </div>
     
-     <!-- Loading State -->
-    <div id="loadingState" class="text-center py-5 d-none">
+     <!-- Initial Loading State (only for first load) -->
+    <div id="initialLoadingState" class="text-center py-5 d-none">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
             <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="mt-3 text-muted fw-bold">Fetching Live FPL Data...</p>
+        <p class="mt-3 text-muted fw-bold">Fetching Data...</p>
     </div>
 
      <!-- Error State -->
@@ -144,8 +154,10 @@ if(!isset($_SESSION['access'])){
 <script>
     const loadBtn = document.getElementById('loadBtn');
     const managerInput = document.getElementById('managerId');
+    const gwSelect = document.getElementById('gwSelect');
     const liveContent = document.getElementById('liveContent');
-    const loadingState = document.getElementById('loadingState');
+    const initialLoadingState = document.getElementById('initialLoadingState');
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const errorState = document.getElementById('errorState');
     const errorMessage = document.getElementById('errorMessage');
 
@@ -156,12 +168,35 @@ if(!isset($_SESSION['access'])){
     const managerNameEl = document.getElementById('managerName');
     const teamNameEl = document.getElementById('teamName');
     const lineupTable = document.getElementById('lineupTable');
+    
+    let staticData = null;
 
     // Load ID from storage
     const storedId = localStorage.getItem('fpl_manager_id');
     if(storedId) {
         managerInput.value = storedId;
-        // Optionally auto-load: loadData();
+    }
+
+    // Initialize - populate GW dropdown
+    init();
+
+    async function init() {
+         try {
+            const res = await fetch('api.php?endpoint=bootstrap-static/');
+            staticData = await res.json();
+            
+            // Populate Dropdown
+            let html = '<option value="" selected>Auto (Live)</option>';
+            staticData.events.forEach(e => {
+                if(e.id <= 38) {
+                     const label = e.is_current ? `GW ${e.id} (Live)` : (e.is_next ? `GW ${e.id} (Next)` : `GW ${e.id}`);
+                     html += `<option value="${e.id}">${label}</option>`;
+                }
+            });
+            gwSelect.innerHTML = html;
+        } catch(e) {
+            console.error(e);
+        }
     }
 
     loadBtn.addEventListener('click', loadData);
@@ -172,20 +207,33 @@ if(!isset($_SESSION['access'])){
         
         localStorage.setItem('fpl_manager_id', id);
         
-        // Toggle States
-        liveContent.classList.add('d-none');
+        // Reset Error
         errorState.classList.add('d-none');
-        loadingState.classList.remove('d-none');
+        
+        // Loading States
+        const isFirstLoad = liveContent.classList.contains('d-none');
+        if (isFirstLoad) {
+            initialLoadingState.classList.remove('d-none');
+        } else {
+             if(loadingOverlay) loadingOverlay.classList.remove('d-none');
+             loadBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        }
+        
         loadBtn.disabled = true;
 
         try {
-            // 1. Get Static Data
-            const staticRes = await fetch('api.php?endpoint=bootstrap-static/');
-            const staticData = await staticRes.json();
+            // Ensure static data
+            if(!staticData) {
+                 const staticRes = await fetch('api.php?endpoint=bootstrap-static/');
+                 staticData = await staticRes.json();
+            }
             
-            // Current Gameweek
-            const currentEvent = staticData.events.find(e => e.is_current) || staticData.events[0];
-            const gw = currentEvent.id;
+            // Determine Gameweek
+            let gw = gwSelect.value;
+            if (!gw) {
+                const currentEvent = staticData.events.find(e => e.is_current) || staticData.events[0];
+                gw = currentEvent.id;
+            }
             currentGWEl.textContent = gw;
 
             // Mappings
@@ -203,7 +251,7 @@ if(!isset($_SESSION['access'])){
             teamNameEl.textContent = entryData.name;
             gwRankEl.textContent = entryData.summary_event_rank ? entryData.summary_event_rank.toLocaleString() : '-';
 
-            // 3. Get Picks
+             // 3. Get Picks
             const picksRes = await fetch(`api.php?endpoint=entry/${id}/event/${gw}/picks/`);
             if(!picksRes.ok) throw new Error('Picks not found for this GW');
             const picksData = await picksRes.json();
@@ -282,11 +330,14 @@ if(!isset($_SESSION['access'])){
 
         } catch (err) {
             console.error(err);
-            errorMessage.textContent = err.message || "Failed to load live data. The game might be updating.";
+            errorMessage.textContent = err.message || "Failed to load data.";
             errorState.classList.remove('d-none');
+            // Keep content visible if possible, usually better UX
         } finally {
-            loadingState.classList.add('d-none');
+            initialLoadingState.classList.add('d-none');
+            if(loadingOverlay) loadingOverlay.classList.add('d-none');
             loadBtn.disabled = false;
+            loadBtn.innerHTML = '<i class="bi bi-lightning-charge-fill me-2"></i>Load';
         }
     }
 </script>
