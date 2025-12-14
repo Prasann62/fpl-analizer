@@ -16,80 +16,82 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <!-- Hero Header -->
-    <div class="hero-header shadow-lg mb-5">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="display-4 fw-extrabold mb-2">Player Database</h1>
-                <p class="lead opacity-75 mb-0">Scout the best talents for your team.</p>
-            </div>
-            <div class="col-md-4 text-end d-none d-md-block">
-                <i class="bi bi-people-fill display-1 opacity-25"></i>
+<div class="main-content">
+    <div class="container py-5">
+        <!-- Hero Header -->
+        <div class="hero-header shadow-lg mb-5">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-extrabold mb-2">Player Database</h1>
+                    <p class="lead opacity-75 mb-0">Scout the best talents for your team.</p>
+                </div>
+                <div class="col-md-4 text-end d-none d-md-block">
+                    <i class="bi bi-people-fill display-1 opacity-25"></i>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label small text-muted fw-bold text-uppercase">Search</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" id="searchBox" class="form-control border-start-0 ps-0" placeholder="Find player by name...">
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted fw-bold text-uppercase">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                            <input type="text" id="searchBox" class="form-control border-start-0 ps-0" placeholder="Find player by name...">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted fw-bold text-uppercase">Position</label>
+                        <select id="positionFilter" class="form-select">
+                            <option value="">All Positions</option>
+                            <option value="1">Goalkeeper</option>
+                            <option value="2">Defender</option>
+                            <option value="3">Midfielder</option>
+                            <option value="4">Forward</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted fw-bold text-uppercase">Team</label>
+                        <select id="teamFilter" class="form-select">
+                            <option value="">All Teams</option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label small text-muted fw-bold text-uppercase">Position</label>
-                    <select id="positionFilter" class="form-select">
-                        <option value="">All Positions</option>
-                        <option value="1">Goalkeeper</option>
-                        <option value="2">Defender</option>
-                        <option value="3">Midfielder</option>
-                        <option value="4">Forward</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small text-muted fw-bold text-uppercase">Team</label>
-                    <select id="teamFilter" class="form-select">
-                        <option value="">All Teams</option>
-                    </select>
-                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Player Table -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0 fw-bold text-primary">Statistics</h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Name</th>
-                            <th>Pos</th>
-                            <th>Team</th>
-                            <th>Price</th>
-                            <th class="text-center">Form</th>
-                            <th class="text-center">Points</th>
-                            <th class="text-center pe-4">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="playersTableBody">
-                        <tr>
-                            <td colspan="7" class="text-center py-5">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- Player Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 fw-bold text-primary">Statistics</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Name</th>
+                                <th>Pos</th>
+                                <th>Team</th>
+                                <th>Price</th>
+                                <th class="text-center">Form</th>
+                                <th class="text-center">Points</th>
+                                <th class="text-center pe-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

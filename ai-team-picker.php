@@ -90,129 +90,130 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <div class="row mb-5 align-items-center">
-        <div class="col-lg-8">
-            <h1 class="display-4 fw-extrabold mb-2">League Beater AI</h1>
-            <p class="lead opacity-75">Analyze your league's top teams and build a squad to overtake them.</p>
-        </div>
-        <div class="col-lg-4">
-             <div class="card bg-light border-0">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">Target Strategy: Top 3 Finish</h6>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-secondary text-dark me-2">Template</span>
-                        <small class="text-muted">Covering high-owned players</small>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-danger me-2">Differential</span>
-                        <small class="text-muted">High upside, low ownership</small>
+<div class="main-content">
+    <div class="container py-5">
+        <div class="row mb-5 align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-extrabold mb-2">League Beater AI</h1>
+                <p class="lead opacity-75">Analyze your league's top teams and build a squad to overtake them.</p>
+            </div>
+            <div class="col-lg-4">
+                 <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">Target Strategy: Top 3 Finish</h6>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-secondary text-dark me-2">Template</span>
+                            <small class="text-muted">Covering high-owned players</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2">Differential</span>
+                            <small class="text-muted">High upside, low ownership</small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Step 1: Manager ID -->
-    <div class="card mb-4" id="step1">
-        <div class="card-body">
-            <h5 class="card-title fw-bold">1. Load Manager</h5>
-            <div class="input-group input-group-lg">
-                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-                <input type="number" id="managerId" class="form-control" placeholder="Enter your Manager ID">
-                <button class="btn btn-primary" id="loadLeaguesBtn">Load Leagues</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Step 2: Select League -->
-    <div class="card mb-4 d-none" id="step2">
-        <div class="card-body">
-            <h5 class="card-title fw-bold">2. Select Target League</h5>
-            <select class="form-select form-select-lg mb-3" id="leagueSelect">
-                <option selected disabled>Choose a classic league...</option>
-            </select>
-            <div class="d-flex gap-2">
-                <button class="btn btn-success flex-grow-1" id="analyzeBtn">
-                    <i class="bi bi-cpu me-2"></i>Analyze & Pick Team
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading State -->
-    <div id="loading" class="text-center py-5 d-none">
-        <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;"></div>
-        <h4 class="mt-4 fw-bold animate-pulse" id="loadingText">Connecting to FPL...</h4>
-        <div class="progress mt-3 mx-auto" style="width: 50%; height: 6px;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" style="width: 0%"></div>
-        </div>
-    </div>
-
-    <!-- Step 3: Results -->
-    <div id="results" class="d-none">
-        
-        <!-- Stats Summary -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                 <div class="card h-100 text-center border-primary">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase small">Teams Analyzed</h6>
-                        <h2 class="fw-bold text-primary" id="countAnalyzed">0</h2>
-                    </div>
-                 </div>
-            </div>
-             <div class="col-md-4">
-                 <div class="card h-100 text-center border-secondary">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase small">Template Strength</h6>
-                        <h2 class="fw-bold text-secondary" id="templateScore">0%</h2>
-                    </div>
-                 </div>
-            </div>
-             <div class="col-md-4">
-                 <div class="card h-100 text-center border-danger">
-                    <div class="card-body">
-                        <h6 class="text-muted text-uppercase small">Differentials</h6>
-                        <h2 class="fw-bold text-danger" id="diffCount">0</h2>
-                    </div>
-                 </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- Pitch View -->
-            <div class="col-lg-8 mx-auto">
-                <div class="pitch-bg shadow-lg" id="pitch">
-                    <div class="pitch-line"></div>
-                    <div class="row text-center mb-3 justify-content-center" id="gkpRow"></div>
-                    <div class="row text-center mb-3 justify-content-center" id="defRow"></div>
-                    <div class="row text-center mb-3 justify-content-center" id="midRow"></div>
-                    <div class="row text-center justify-content-center" id="fwdRow"></div>
+        <!-- Step 1: Manager ID -->
+        <div class="card mb-4" id="step1">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">1. Load Manager</h5>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                    <input type="number" id="managerId" class="form-control" placeholder="Enter your Manager ID">
+                    <button class="btn btn-primary" id="loadLeaguesBtn">Load Leagues</button>
                 </div>
             </div>
+        </div>
+
+        <!-- Step 2: Select League -->
+        <div class="card mb-4 d-none" id="step2">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">2. Select Target League</h5>
+                <select class="form-select form-select-lg mb-3" id="leagueSelect">
+                    <option selected disabled>Choose a classic league...</option>
+                </select>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success flex-grow-1" id="analyzeBtn">
+                        <i class="bi bi-cpu me-2"></i>Analyze & Pick Team
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;"></div>
+            <h4 class="mt-4 fw-bold animate-pulse" id="loadingText">Connecting to FPL...</h4>
+            <div class="progress mt-3 mx-auto" style="width: 50%; height: 6px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Step 3: Results -->
+        <div id="results" class="d-none">
             
-            <!-- Bench & Details -->
-            <div class="col-lg-4 mt-4 mt-lg-0">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white fw-bold">
-                        <i class="bi bi-info-circle me-2"></i>Selection Logic
+            <!-- Stats Summary -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                     <div class="card h-100 text-center border-primary">
+                        <div class="card-body">
+                            <h6 class="text-muted text-uppercase small">Teams Analyzed</h6>
+                            <h2 class="fw-bold text-primary" id="countAnalyzed">0</h2>
+                        </div>
+                     </div>
+                </div>
+                 <div class="col-md-4">
+                     <div class="card h-100 text-center border-secondary">
+                        <div class="card-body">
+                            <h6 class="text-muted text-uppercase small">Template Strength</h6>
+                            <h2 class="fw-bold text-secondary" id="templateScore">0%</h2>
+                        </div>
+                     </div>
+                </div>
+                 <div class="col-md-4">
+                     <div class="card h-100 text-center border-danger">
+                        <div class="card-body">
+                            <h6 class="text-muted text-uppercase small">Differentials</h6>
+                            <h2 class="fw-bold text-danger" id="diffCount">0</h2>
+                        </div>
+                     </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Pitch View -->
+                <div class="col-lg-8 mx-auto">
+                    <div class="pitch-bg shadow-lg" id="pitch">
+                        <div class="pitch-line"></div>
+                        <div class="row text-center mb-3 justify-content-center" id="gkpRow"></div>
+                        <div class="row text-center mb-3 justify-content-center" id="defRow"></div>
+                        <div class="row text-center mb-3 justify-content-center" id="midRow"></div>
+                        <div class="row text-center justify-content-center" id="fwdRow"></div>
                     </div>
-                    <ul class="list-group list-group-flush" id="logicList">
-                        <!-- injected -->
-                    </ul>
                 </div>
                 
-                <div class="card mt-3 shadow-sm bg-light">
-                    <div class="card-body text-center">
-                         <small class="text-muted text-uppercase fw-bold">Total Cost</small>
-                         <h3 class="fw-bold mb-0">£<span id="totalCost">0.0</span>m</h3>
+                <!-- Bench & Details -->
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white fw-bold">
+                            <i class="bi bi-info-circle me-2"></i>Selection Logic
+                        </div>
+                        <ul class="list-group list-group-flush" id="logicList">
+                            <!-- injected -->
+                        </ul>
+                    </div>
+                    
+                    <div class="card mt-3 shadow-sm bg-light">
+                        <div class="card-body text-center">
+                             <small class="text-muted text-uppercase fw-bold">Total Cost</small>
+                             <h3 class="fw-bold mb-0">£<span id="totalCost">0.0</span>m</h3>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <?php include 'footer.php';?>

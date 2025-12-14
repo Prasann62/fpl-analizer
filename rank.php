@@ -16,93 +16,95 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <!-- Hero Header -->
-    <div class="hero-header shadow-lg mb-5 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <div class="z-1">
-            <h1 class="display-4 fw-extrabold mb-2">Live Rank</h1>
-            <p class="lead opacity-75 mb-0">Real-time gameweek performance tracking.</p>
+<div class="main-content">
+    <div class="container py-5">
+        <!-- Hero Header -->
+        <div class="hero-header shadow-lg mb-5 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
+            <div class="z-1">
+                <h1 class="display-4 fw-extrabold mb-2">Live Rank</h1>
+                <p class="lead opacity-75 mb-0">Real-time gameweek performance tracking.</p>
+            </div>
+            <div class="mt-4 mt-md-0 z-1">
+                <i class="bi bi-bar-chart-line-fill display-1 opacity-25"></i>
+            </div>
         </div>
-        <div class="mt-4 mt-md-0 z-1">
-            <i class="bi bi-bar-chart-line-fill display-1 opacity-25"></i>
-        </div>
-    </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Input Section -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold mb-3">Track Manager</h5>
-                    <div class="input-group input-group-lg">
-                        <input type="number" id="managerIdInput" class="form-control" placeholder="Enter Manager ID" aria-label="Manager ID">
-                        <button class="btn btn-primary" type="button" id="fetchRankBtn">
-                            <i class="bi bi-speedometer2 me-2"></i>Track Live
-                        </button>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Input Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-3">Track Manager</h5>
+                        <div class="input-group input-group-lg">
+                            <input type="number" id="managerIdInput" class="form-control" placeholder="Enter Manager ID" aria-label="Manager ID">
+                            <button class="btn btn-primary" type="button" id="fetchRankBtn">
+                                <i class="bi bi-speedometer2 me-2"></i>Track Live
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="loadingSpinner" class="text-center d-none py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                <div id="loadingSpinner" class="text-center d-none py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Live Content Wrapper -->
-            <div id="rankContainer" class="d-none position-relative">
+                <!-- Live Content Wrapper -->
+                <div id="rankContainer" class="d-none position-relative">
+                    
+                    <!-- Loading Overlay -->
+                    <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark p-3 shadow-lg z-3">
+                        <span class="spinner-border spinner-border-sm me-2"></span> Updating Rank...
+                    </div>
+
+                    <!-- Live Stats Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-primary text-white h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h6 class="opacity-75 text-uppercase small fw-bold">Live Points</h6>
+                                    <h2 class="display-3 fw-extrabold mb-0" id="livePoints">-</h2>
+                                    <small class="opacity-75">Gameweek Total</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-white h-100 border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h6 class="text-muted text-uppercase small fw-bold">Overall Rank</h6>
+                                    <h2 class="display-4 fw-bold mb-0 text-dark" id="overallRank">-</h2>
+                                    <small class="text-muted" id="rankMovement"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Players Table -->
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold text-primary">Live Player Points</h5>
+                            <span class="badge bg-danger animate-pulse">LIVE</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">Player</th>
+                                            <th>Status</th>
+                                            <th class="text-end pe-4">Points</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="livePlayersBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <!-- Loading Overlay -->
-                <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark p-3 shadow-lg z-3">
-                    <span class="spinner-border spinner-border-sm me-2"></span> Updating Rank...
-                </div>
-
-                <!-- Live Stats Cards -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <div class="card bg-primary text-white h-100 border-0 shadow-sm">
-                            <div class="card-body text-center">
-                                <h6 class="opacity-75 text-uppercase small fw-bold">Live Points</h6>
-                                <h2 class="display-3 fw-extrabold mb-0" id="livePoints">-</h2>
-                                <small class="opacity-75">Gameweek Total</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card bg-white h-100 border-0 shadow-sm">
-                            <div class="card-body text-center">
-                                <h6 class="text-muted text-uppercase small fw-bold">Overall Rank</h6>
-                                <h2 class="display-4 fw-bold mb-0 text-dark" id="overallRank">-</h2>
-                                <small class="text-muted" id="rankMovement"></small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live Players Table -->
-                <div class="card shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-primary">Live Player Points</h5>
-                        <span class="badge bg-danger animate-pulse">LIVE</span>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="ps-4">Player</th>
-                                        <th>Status</th>
-                                        <th class="text-end pe-4">Points</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="livePlayersBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <div id="errorAlert" class="alert alert-danger d-none mt-3" role="alert"></div>
             </div>
-            
-            <div id="errorAlert" class="alert alert-danger d-none mt-3" role="alert"></div>
         </div>
     </div>
 </div>

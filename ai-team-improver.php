@@ -48,126 +48,128 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <div class="hero-header shadow-lg mb-5">
-        <h1 class="display-4 fw-extrabold mb-2">League-Smart Transfers</h1>
-        <p class="lead opacity-75">Analyze your mini-league rivals and find the winning edge.</p>
-    </div>
-
-    <!-- Step 1: Manager ID -->
-    <div class="card mb-4" id="step1">
-        <div class="card-body">
-            <h5 class="card-title fw-bold">1. Load Your Team</h5>
-            <div class="input-group input-group-lg">
-                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-                <input type="number" id="managerId" class="form-control" placeholder="Enter your Manager ID">
-                <button class="btn btn-primary" id="loadLeaguesBtn">Load Leagues</button>
-            </div>
+<div class="main-content">
+    <div class="container py-5">
+        <div class="hero-header shadow-lg mb-5">
+            <h1 class="display-4 fw-extrabold mb-2">League-Smart Transfers</h1>
+            <p class="lead opacity-75">Analyze your mini-league rivals and find the winning edge.</p>
         </div>
-    </div>
 
-    <!-- Step 2: Select League -->
-    <div class="card mb-4 d-none" id="step2">
-        <div class="card-body">
-            <h5 class="card-title fw-bold">2. Select Target League</h5>
-            <select class="form-select form-select-lg mb-3" id="leagueSelect">
-                <option selected disabled>Choose a classic league...</option>
-            </select>
-            <button class="btn btn-success w-100" id="analyzeBtn">
-                <i class="bi bi-search me-2"></i>Analyze League & Find Transfers
-            </button>
-        </div>
-    </div>
-
-    <!-- Loading -->
-    <div id="loading" class="text-center py-5 d-none">
-        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-        <h5 class="mt-3" id="loadingText">Scanning league...</h5>
-        <div class="progress mt-3 mx-auto" style="width: 300px; height: 6px;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" style="width: 0%"></div>
-        </div>
-    </div>
-
-    <!-- Results -->
-    <div id="results" class="d-none">
-        
-        <!-- Summary Stats -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="text-muted small text-uppercase">Teams Scanned</div>
-                        <h3 class="fw-bold text-primary" id="teamsScanned">0</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="text-muted small text-uppercase">Your Rank</div>
-                        <h3 class="fw-bold" id="yourRank">-</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="text-muted small text-uppercase">Points Behind #1</div>
-                        <h3 class="fw-bold text-danger" id="pointsBehind">0</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="text-muted small text-uppercase">Transfers Made</div>
-                        <h3 class="fw-bold text-dark" id="transfersMade">0</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center h-100">
-                    <div class="card-body">
-                        <div class="text-muted small text-uppercase">Suggested Moves</div>
-                        <h3 class="fw-bold text-success" id="movesCount">0</h3>
-                    </div>
+        <!-- Step 1: Manager ID -->
+        <div class="card mb-4" id="step1">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">1. Load Your Team</h5>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                    <input type="number" id="managerId" class="form-control" placeholder="Enter your Manager ID">
+                    <button class="btn btn-primary" id="loadLeaguesBtn">Load Leagues</button>
                 </div>
             </div>
         </div>
 
-        <!-- Transfer Suggestions -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-white fw-bold d-flex align-items-center justify-content-between">
-                <div><i class="bi bi-arrow-left-right me-2"></i>Recommended Transfers</div>
-                <div class="small fw-normal text-muted">Based on League Ownership</div>
+        <!-- Step 2: Select League -->
+        <div class="card mb-4 d-none" id="step2">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">2. Select Target League</h5>
+                <select class="form-select form-select-lg mb-3" id="leagueSelect">
+                    <option selected disabled>Choose a classic league...</option>
+                </select>
+                <button class="btn btn-success w-100" id="analyzeBtn">
+                    <i class="bi bi-search me-2"></i>Analyze League & Find Transfers
+                </button>
             </div>
-            <div class="card-body" id="transferList">
-                <div class="row">
-                    <div class="col-lg-6 mb-3">
-                        <h6 class="fw-bold text-warning mb-3"><i class="bi bi-lightning-charge-fill me-2"></i>Catch Up (Differentials)</h6>
-                        <p class="small text-muted">High potential players that your rivals <strong>don't</strong> own.</p>
-                        <div id="diffList"></div>
-                    </div>
-                    <div class="col-lg-6 mb-3">
-                        <h6 class="fw-bold text-success mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Block Rivals (Template)</h6>
-                        <p class="small text-muted">High ownership players you're missing out on.</p>
-                        <div id="blockList"></div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+            <h5 class="mt-3" id="loadingText">Scanning league...</h5>
+            <div class="progress mt-3 mx-auto" style="width: 300px; height: 6px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="d-none">
+            
+            <!-- Summary Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Teams Scanned</div>
+                            <h3 class="fw-bold text-primary" id="teamsScanned">0</h3>
+                        </div>
                     </div>
                 </div>
-                <!-- Injected -->
+                <div class="col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Your Rank</div>
+                            <h3 class="fw-bold" id="yourRank">-</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Points Behind #1</div>
+                            <h3 class="fw-bold text-danger" id="pointsBehind">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Transfers Made</div>
+                            <h3 class="fw-bold text-dark" id="transfersMade">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <div class="text-muted small text-uppercase">Suggested Moves</div>
+                            <h3 class="fw-bold text-success" id="movesCount">0</h3>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Ownership Insights -->
-        <div class="card mt-4 shadow-sm">
-            <div class="card-header bg-white fw-bold">
-                <i class="bi bi-pie-chart me-2"></i>League Ownership Insights
+            <!-- Transfer Suggestions -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white fw-bold d-flex align-items-center justify-content-between">
+                    <div><i class="bi bi-arrow-left-right me-2"></i>Recommended Transfers</div>
+                    <div class="small fw-normal text-muted">Based on League Ownership</div>
+                </div>
+                <div class="card-body" id="transferList">
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <h6 class="fw-bold text-warning mb-3"><i class="bi bi-lightning-charge-fill me-2"></i>Catch Up (Differentials)</h6>
+                            <p class="small text-muted">High potential players that your rivals <strong>don't</strong> own.</p>
+                            <div id="diffList"></div>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <h6 class="fw-bold text-success mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Block Rivals (Template)</h6>
+                            <p class="small text-muted">High ownership players you're missing out on.</p>
+                            <div id="blockList"></div>
+                        </div>
+                    </div>
+                    <!-- Injected -->
+                </div>
             </div>
-            <ul class="list-group list-group-flush" id="ownershipList">
-                <!-- Injected -->
-            </ul>
-        </div>
 
+            <!-- Ownership Insights -->
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-white fw-bold">
+                    <i class="bi bi-pie-chart me-2"></i>League Ownership Insights
+                </div>
+                <ul class="list-group list-group-flush" id="ownershipList">
+                    <!-- Injected -->
+                </ul>
+            </div>
+
+        </div>
     </div>
 </div>
 

@@ -12,48 +12,49 @@
 
     <?php include 'navbar.php';?>
 
-  <!-- Hero Section -->
-  <section class="hero-section text-center">
-    <div class="container animate-fade-in">
-      <h1 class="hero-title mb-4">Master Your FPL Team</h1>
-      <p class="lead mb-5">Analyze stats, track fixtures, and optimize your fantasy team like a pro.</p>
-      <a href="Dashboard.php" class="btn btn-premium btn-lg">Go to Dashboard</a>
-    </div>
-  </section>
+  <div class="main-content">
+      <!-- Hero Section -->
+      <section class="hero-section text-center">
+        <div class="container animate-fade-in">
+          <h1 class="hero-title mb-4">Master Your FPL Team</h1>
+          <p class="lead mb-5">Analyze stats, track fixtures, and optimize your fantasy team like a pro.</p>
+          <a href="Dashboard.php" class="btn btn-premium btn-lg">Go to Dashboard</a>
+        </div>
+      </section>
 
-  <!-- Features Section -->
-  <div class="container my-5">
-      <div class="row g-4">
-          <div class="col-md-4">
-              <div class="card h-100 text-center p-4">
-                  <div class="card-body">
-                      <i class="bi bi-bar-chart-fill text-primary fs-1 mb-3"></i>
-                      <h3 class="card-title">Live Stats</h3>
-                      <p class="card-text">Get real-time updates on player performance and points.</p>
+      <!-- Features Section -->
+      <div class="container my-5">
+          <div class="row g-4">
+              <div class="col-md-4">
+                  <div class="card h-100 text-center p-4">
+                      <div class="card-body">
+                          <i class="bi bi-bar-chart-fill text-primary fs-1 mb-3"></i>
+                          <h3 class="card-title">Live Stats</h3>
+                          <p class="card-text">Get real-time updates on player performance and points.</p>
+                      </div>
                   </div>
               </div>
-          </div>
-          <div class="col-md-4">
-              <div class="card h-100 text-center p-4">
-                  <div class="card-body">
-                      <i class="bi bi-calendar-event-fill text-success fs-1 mb-3"></i>
-                      <h3 class="card-title">Fixtures</h3>
-                      <p class="card-text">Plan ahead with our detailed fixture difficulty tracker.</p>
+              <div class="col-md-4">
+                  <div class="card h-100 text-center p-4">
+                      <div class="card-body">
+                          <i class="bi bi-calendar-event-fill text-success fs-1 mb-3"></i>
+                          <h3 class="card-title">Fixtures</h3>
+                          <p class="card-text">Plan ahead with our detailed fixture difficulty tracker.</p>
+                      </div>
                   </div>
               </div>
-          </div>
-          <div class="col-md-4">
-              <div class="card h-100 text-center p-4">
-                  <div class="card-body">
-                      <i class="bi bi-people-fill text-danger fs-1 mb-3"></i>
-                      <h3 class="card-title">Player Analysis</h3>
-                      <p class="card-text">Deep dive into player form, value, and potential returns.</p>
+              <div class="col-md-4">
+                  <div class="card h-100 text-center p-4">
+                      <div class="card-body">
+                          <i class="bi bi-people-fill text-danger fs-1 mb-3"></i>
+                          <h3 class="card-title">Player Analysis</h3>
+                          <p class="card-text">Deep dive into player form, value, and potential returns.</p>
+                      </div>
                   </div>
               </div>
           </div>
       </div>
   </div>
-
 
   <?php include 'footer.php';?>
   

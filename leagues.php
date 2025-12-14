@@ -16,86 +16,88 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <!-- Hero Header -->
-    <div class="hero-header shadow-lg mb-5 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <div class="z-1">
-            <h1 class="display-4 fw-extrabold mb-2">Leagues</h1>
-            <p class="lead opacity-75 mb-0">View your league standings and status.</p>
-        </div>
-        <div class="mt-4 mt-md-0 z-1">
-            <i class="bi bi-trophy-fill display-1 opacity-25"></i>
-        </div>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Input Section -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold mb-3">Load Leagues</h5>
-                    <div class="input-group input-group-lg">
-                        <input type="number" id="managerIdInput" class="form-control" placeholder="Enter Manager ID" aria-label="Manager ID">
-                        <button class="btn btn-primary" type="button" id="fetchLeaguesBtn">
-                            <i class="bi bi-search me-2"></i>Get Leagues
-                        </button>
-                    </div>
-                </div>
+<div class="main-content">
+    <div class="container py-5">
+        <!-- Hero Header -->
+        <div class="hero-header shadow-lg mb-5 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
+            <div class="z-1">
+                <h1 class="display-4 fw-extrabold mb-2">Leagues</h1>
+                <p class="lead opacity-75 mb-0">View your league standings and status.</p>
             </div>
-
-            <div id="loadingSpinner" class="text-center d-none py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
+            <div class="mt-4 mt-md-0 z-1">
+                <i class="bi bi-trophy-fill display-1 opacity-25"></i>
             </div>
+        </div>
 
-            <div id="leaguesContainer" class="d-none">
-                <!-- Classic Leagues -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Input Section -->
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0 fw-bold text-primary">Classic Leagues</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="ps-4">League Name</th>
-                                        <th class="text-center">Rank</th>
-                                        <th class="text-center">Last Rank</th>
-                                        <th class="text-center pe-4">Movement</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="classicLeaguesBody"></tbody>
-                            </table>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-3">Load Leagues</h5>
+                        <div class="input-group input-group-lg">
+                            <input type="number" id="managerIdInput" class="form-control" placeholder="Enter Manager ID" aria-label="Manager ID">
+                            <button class="btn btn-primary" type="button" id="fetchLeaguesBtn">
+                                <i class="bi bi-search me-2"></i>Get Leagues
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- H2H Leagues -->
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h5 class="mb-0 fw-bold text-primary">Head-to-Head Leagues</h5>
+                <div id="loadingSpinner" class="text-center d-none py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="ps-4">League Name</th>
-                                        <th class="text-center">Rank</th>
-                                        <th class="text-center">Last Rank</th>
-                                        <th class="text-center pe-4">Movement</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="h2hLeaguesBody"></tbody>
-                            </table>
+                </div>
+
+                <div id="leaguesContainer" class="d-none">
+                    <!-- Classic Leagues -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0 fw-bold text-primary">Classic Leagues</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">League Name</th>
+                                            <th class="text-center">Rank</th>
+                                            <th class="text-center">Last Rank</th>
+                                            <th class="text-center pe-4">Movement</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="classicLeaguesBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- H2H Leagues -->
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0 fw-bold text-primary">Head-to-Head Leagues</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">League Name</th>
+                                            <th class="text-center">Rank</th>
+                                            <th class="text-center">Last Rank</th>
+                                            <th class="text-center pe-4">Movement</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="h2hLeaguesBody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
+                <div id="errorAlert" class="alert alert-danger d-none mt-3" role="alert"></div>
             </div>
-            
-            <div id="errorAlert" class="alert alert-danger d-none mt-3" role="alert"></div>
         </div>
     </div>
 </div>

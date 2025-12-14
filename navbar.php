@@ -1,53 +1,50 @@
-<!-- Navbar -->
-<link href="style.css" rel="stylesheet">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="#">MyFPL</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" href="index.php">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="Dashboard.php">Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="team.php">Team</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="fixtures.php">Fixtures</a>
-          </li>
-          <li class="nav-item">                                                
-            <a class="nav-link" href="players.php">Players</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="leagues.php">Leagues</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="rank.php">Live Rank</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="live-score.php">Live Score</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="logout.php">LOG OUT</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="aiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              AI Hub
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="aiDropdown">
-              <li><a class="dropdown-item" href="ai-team-rating.php">Team Rating</a></li>
-              <li><a class="dropdown-item" href="ai-team-picker.php">Team Picker</a></li>
-              <li><a class="dropdown-item" href="ai-team-improver.php">Team Improver</a></li>
-              <li><a class="dropdown-item" href="ai-team-point-predictor.php">Point Predictor</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+<!-- Top Navbar -->
+<?php include_once 'sidebar.php'; ?>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#00ff85',
+                    card: 'rgba(255, 255, 255, 0.1)',
+                }
+            }
+        }
+    }
+</script>
+
+<nav class="relative flex items-center justify-between h-16 px-4 py-2 bg-card rounded-md shadow-md">
+                            <a href="">
+                                <img src="../assets/logo-dark-BRT9tiBX.png" alt="" class="h-5 block dark:hidden">
+                                <img src="../assets/logo-light-CCjoJosn.png" alt="" class="h-5 dark:block hidden">
+                            </a>
+
+                            <div class="relative group">
+                                <button type="button" class="btn btn-icon bg-primary text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="menu" class="lucide lucide-menu"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg>
+                                </button>
+
+                                <ul class="absolute end-0 z-50 lg:w-352 md:w-175 w-75 top-full mt-2 hidden flex-col bg-card shadow-lg rounded-md py-3 group-focus-within:flex transition-all duration-300">
+                                    <li>
+                                        <a href="#!" class="block px-4 py-2.5 text-[15px] font-medium text-default-800 hover:text-primary transition-all">Home</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#!" class="block px-4 py-2.5 text-[15px] font-medium text-default-800 hover:text-primary transition-all">About Us</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#!" class="block px-4 py-2.5 text-[15px] font-medium text-primary transition-all">Service</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#!" class="block px-4 py-2.5 text-[15px] font-medium text-default-800 hover:text-primary transition-all">Blog</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="#!" class="block px-4 py-2.5 text-[15px] font-medium text-default-800 hover:text-primary transition-all">Contact</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>

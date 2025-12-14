@@ -16,65 +16,67 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <!-- Hero Header -->
-    <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
-        <div class="z-1">
-            <h1 class="display-4 fw-extrabold mb-2">My Team</h1>
-            <p class="lead opacity-75 mb-0">Track your squad's performance in real-time.</p>
-        </div>
-        <div class="mt-4 mt-md-0 z-1">
-            <i class="bi bi-shield-shaded display-1 opacity-25"></i>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- Input Section -->
-        <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold mb-4">Load Manager</h5>
-                    <div class="mb-3">
-                        <label class="form-label text-muted small text-uppercase fw-bold">Manager ID</label>
-                        <input id="managerId" type="number" class="form-control form-control-lg" placeholder="e.g. 1234567">
-                    </div>
-                    <button id="loadBtn" class="btn btn-primary w-100 btn-lg">
-                        <i class="bi bi-search me-2"></i>Load Team
-                    </button>
-                    
-                    <div id="managerInfo" class="mt-4"></div>
-                </div>
+<div class="main-content">
+    <div class="container py-5">
+        <!-- Hero Header -->
+        <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
+            <div class="z-1">
+                <h1 class="display-4 fw-extrabold mb-2">My Team</h1>
+                <p class="lead opacity-75 mb-0">Track your squad's performance in real-time.</p>
+            </div>
+            <div class="mt-4 mt-md-0 z-1">
+                <i class="bi bi-shield-shaded display-1 opacity-25"></i>
             </div>
         </div>
 
-        <!-- Team Table Section -->
-        <div class="col-lg-8">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-primary">Current Squad</h5>
-                    <span class="badge bg-light text-dark border">Gameweek Live</span>
+        <div class="row g-4">
+            <!-- Input Section -->
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-4">Load Manager</h5>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small text-uppercase fw-bold">Manager ID</label>
+                            <input id="managerId" type="number" class="form-control form-control-lg" placeholder="e.g. 1234567">
+                        </div>
+                        <button id="loadBtn" class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-search me-2"></i>Load Team
+                        </button>
+                        
+                        <div id="managerInfo" class="mt-4"></div>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="ps-4">Player</th>
-                                    <th>Pos</th>
-                                    <th>Team</th>
-                                    <th class="text-center">Form</th>
-                                    <th class="text-end pe-4">Points</th>
-                                </tr>
-                            </thead>
-                            <tbody id="teamTable">
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
-                                        <i class="bi bi-people display-4 d-block mb-3 opacity-25"></i>
-                                        Enter a Manager ID to view the squad
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            </div>
+
+            <!-- Team Table Section -->
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary">Current Squad</h5>
+                        <span class="badge bg-light text-dark border">Gameweek Live</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Player</th>
+                                        <th>Pos</th>
+                                        <th>Team</th>
+                                        <th class="text-center">Form</th>
+                                        <th class="text-end pe-4">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teamTable">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5 text-muted">
+                                            <i class="bi bi-people display-4 d-block mb-3 opacity-25"></i>
+                                            Enter a Manager ID to view the squad
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

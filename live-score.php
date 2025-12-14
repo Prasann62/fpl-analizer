@@ -28,121 +28,123 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <!-- Header -->
-    <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
-        <div class="z-1">
-            <h1 class="display-4 fw-extrabold mb-2">Live Live Score</h1>
-            <p class="lead opacity-75 mb-0">Real-time performance stats for the current gameweek.</p>
-        </div>
-        <div class="mt-4 mt-md-0 z-1">
-            <i class="bi bi-activity display-1 opacity-25"></i>
-        </div>
-    </div>
-
-    <!-- Manager Input and GW Selector -->
-    <div class="row mb-4">
-        <div class="col-md-9 mx-auto">
-            <div class="input-group input-group-lg shadow-sm">
-                <input type="number" id="managerId" class="form-control" placeholder="Enter Manager ID" aria-label="Manager ID">
-                <select class="form-select" id="gwSelect" style="max-width: 170px;">
-                    <option value="" selected>Auto (Live)</option>
-                    <!-- Options populated by JS -->
-                </select>
-                <button class="btn btn-primary fw-bold px-4" type="button" id="loadBtn">
-                    <i class="bi bi-lightning-charge-fill me-2"></i>Load
-                </button>
+<div class="main-content">
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
+            <div class="z-1">
+                <h1 class="display-4 fw-extrabold mb-2">Live Live Score</h1>
+                <p class="lead opacity-75 mb-0">Real-time performance stats for the current gameweek.</p>
+            </div>
+            <div class="mt-4 mt-md-0 z-1">
+                <i class="bi bi-activity display-1 opacity-25"></i>
             </div>
         </div>
-    </div>
 
-    <!-- Live Content -->
-    <div id="liveContent" class="d-none">
+        <!-- Manager Input and GW Selector -->
+        <div class="row mb-4">
+            <div class="col-md-9 mx-auto">
+                <div class="input-group input-group-lg shadow-sm">
+                    <input type="number" id="managerId" class="form-control" placeholder="Enter Manager ID" aria-label="Manager ID">
+                    <select class="form-select" id="gwSelect" style="max-width: 170px;">
+                        <option value="" selected>Auto (Live)</option>
+                        <!-- Options populated by JS -->
+                    </select>
+                    <button class="btn btn-primary fw-bold px-4" type="button" id="loadBtn">
+                        <i class="bi bi-lightning-charge-fill me-2"></i>Load
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Content -->
+        <div id="liveContent" class="d-none">
+            
+            <!-- Loading Overlay (Visible during updates without hiding content) -->
+            <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark p-3 shadow-lg z-3">
+                 <span class="spinner-border spinner-border-sm me-2"></span> Updating Live Data...
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white h-100 border-0 shadow-lg" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                        <div class="card-body text-center p-4">
+                            <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Score</h6>
+                            <h2 class="display-2 fw-bold mb-0" id="totalPoints">0</h2>
+                            <i class="bi bi-trophy-fill opacity-25 position-absolute top-0 end-0 m-3 fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white h-100 border-0 shadow-lg" style="background: linear-gradient(135deg, #198754 0%, #157347 100%);">
+                        <div class="card-body text-center p-4">
+                            <h6 class="text-white-50 text-uppercase fw-bold mb-2">Gameweek Rank</h6>
+                            <h2 class="display-4 fw-bold mb-0" id="gwRank">-</h2>
+                            <div class="small text-white-50 mt-2">GW: <span id="currentGW" class="fw-bold text-white"></span></div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg bg-dark text-white">
+                        <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                             <div>
+                                <h6 class="text-muted text-uppercase fw-bold mb-2">Manager Info</h6>
+                                 <h4 class="fw-bold mb-1" id="managerName"></h4>
+                                 <p class="text-muted mb-0 small" id="teamName"></p>
+                             </div>
+                             <i class="bi bi-person-badge-fill fs-1 text-muted opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Players Table -->
+            <div class="card border-0 shadow-lg position-relative">
+                <div class="card-header bg-dark text-white py-3">
+                     <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Lineup & Stats</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-center">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="text-start ps-4">Player</th>
+                                    <th>Min</th>
+                                    <th>G</th>
+                                    <th>A</th>
+                                    <th>CS</th>
+                                    <th>GC</th>
+                                    <th>Sav</th>
+                                    <th>BPS</th>
+                                    <th>Cards</th>
+                                    <th>ICT</th>
+                                    <th class="text-end pe-4">Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lineupTable">
+                                <!-- Rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        <!-- Loading Overlay (Visible during updates without hiding content) -->
-        <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark p-3 shadow-lg z-3">
-             <span class="spinner-border spinner-border-sm me-2"></span> Updating Live Data...
+         <!-- Initial Loading State (only for first load) -->
+        <div id="initialLoadingState" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted fw-bold">Fetching Data...</p>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card bg-primary text-white h-100 border-0 shadow-lg" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
-                    <div class="card-body text-center p-4">
-                        <h6 class="text-white-50 text-uppercase fw-bold mb-2">Total Score</h6>
-                        <h2 class="display-2 fw-bold mb-0" id="totalPoints">0</h2>
-                        <i class="bi bi-trophy-fill opacity-25 position-absolute top-0 end-0 m-3 fs-1"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card bg-success text-white h-100 border-0 shadow-lg" style="background: linear-gradient(135deg, #198754 0%, #157347 100%);">
-                    <div class="card-body text-center p-4">
-                        <h6 class="text-white-50 text-uppercase fw-bold mb-2">Gameweek Rank</h6>
-                        <h2 class="display-4 fw-bold mb-0" id="gwRank">-</h2>
-                        <div class="small text-white-50 mt-2">GW: <span id="currentGW" class="fw-bold text-white"></span></div>
-                    </div>
-                </div>
-            </div>
-             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-lg bg-dark text-white">
-                    <div class="card-body p-4 d-flex align-items-center justify-content-between">
-                         <div>
-                            <h6 class="text-muted text-uppercase fw-bold mb-2">Manager Info</h6>
-                             <h4 class="fw-bold mb-1" id="managerName"></h4>
-                             <p class="text-muted mb-0 small" id="teamName"></p>
-                         </div>
-                         <i class="bi bi-person-badge-fill fs-1 text-muted opacity-25"></i>
-                    </div>
-                </div>
-            </div>
+         <!-- Error State -->
+        <div id="errorState" class="d-none alert alert-danger shadow-sm mt-4 text-center">
+             <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMessage"></span>
         </div>
 
-        <!-- Players Table -->
-        <div class="card border-0 shadow-lg position-relative">
-            <div class="card-header bg-dark text-white py-3">
-                 <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Lineup & Stats</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 text-center">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="text-start ps-4">Player</th>
-                                <th>Min</th>
-                                <th>G</th>
-                                <th>A</th>
-                                <th>CS</th>
-                                <th>GC</th>
-                                <th>Sav</th>
-                                <th>BPS</th>
-                                <th>Cards</th>
-                                <th>ICT</th>
-                                <th class="text-end pe-4">Pts</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lineupTable">
-                            <!-- Rows injected here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
-    
-     <!-- Initial Loading State (only for first load) -->
-    <div id="initialLoadingState" class="text-center py-5 d-none">
-        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-3 text-muted fw-bold">Fetching Data...</p>
-    </div>
-
-     <!-- Error State -->
-    <div id="errorState" class="d-none alert alert-danger shadow-sm mt-4 text-center">
-         <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMessage"></span>
-    </div>
-
 </div>
 
 <?php include 'footer.php';?>

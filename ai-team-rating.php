@@ -52,104 +52,105 @@ if(!isset($_SESSION['access'])){
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between mb-5">
-        <div class="z-1">
-            <h1 class="display-4 fw-extrabold mb-2">AI Team Rating</h1>
-            <p class="lead opacity-75 mb-0">Deep learning analysis of your squad strength.</p>
-        </div>
-        <div class="mt-4 mt-md-0 z-1">
-            <i class="bi bi-cpu display-1 opacity-25"></i>
-        </div>
-    </div>
-
-    <!-- Input Section -->
-    <div class="row justify-content-center mb-5">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <div class="input-group input-group-lg">
-                        <input type="number" id="managerId" class="form-control border-0 bg-light" placeholder="Enter Manager ID">
-                        <button class="btn btn-primary px-4" id="analyzeBtn">
-                            <i class="bi bi-magic me-2"></i>Analyze
-                        </button>
-                    </div>
-                </div>
+<div class="main-content">
+    <div class="container py-5">
+        <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between mb-5">
+            <div class="z-1">
+                <h1 class="display-4 fw-extrabold mb-2">AI Team Rating</h1>
+                <p class="lead opacity-75 mb-0">Deep learning analysis of your squad strength.</p>
+            </div>
+            <div class="mt-4 mt-md-0 z-1">
+                <i class="bi bi-cpu display-1 opacity-25"></i>
             </div>
         </div>
-    </div>
 
-    <!-- Results Section -->
-    <div id="resultsSection" class="d-none">
-        
-        <!-- Main Rating Display -->
+        <!-- Input Section -->
         <div class="row justify-content-center mb-5">
-            <div class="col-md-4 text-center">
-                <div class="card bg-transparent border-0">
-                    <div class="card-body d-flex flex-column align-items-center">
-                        <div class="rating-gauge mb-4" id="ratingGauge">
-                            <span class="rating-value" id="totalScore">0</span>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group input-group-lg">
+                            <input type="number" id="managerId" class="form-control border-0 bg-light" placeholder="Enter Manager ID">
+                            <button class="btn btn-primary px-4" id="analyzeBtn">
+                                <i class="bi bi-magic me-2"></i>Analyze
+                            </button>
                         </div>
-                        <h3 class="fw-bold mb-1">Squad Health</h3>
-                        <div id="verdictBadge" class="badge bg-secondary text-primary fs-6 px-3 py-2">Calculating...</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Detailed Metrics -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card h-100 analysis-card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-graph-up-arrow text-primary fs-1 mb-3"></i>
-                        <h5 class="fw-bold">Form Rating</h5>
-                        <div class="progress mb-2" style="height: 10px;">
-                            <div id="formProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+        <!-- Results Section -->
+        <div id="resultsSection" class="d-none">
+            
+            <!-- Main Rating Display -->
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-4 text-center">
+                    <div class="card bg-transparent border-0">
+                        <div class="card-body d-flex flex-column align-items-center">
+                            <div class="rating-gauge mb-4" id="ratingGauge">
+                                <span class="rating-value" id="totalScore">0</span>
+                            </div>
+                            <h3 class="fw-bold mb-1">Squad Health</h3>
+                            <div id="verdictBadge" class="badge bg-secondary text-primary fs-6 px-3 py-2">Calculating...</div>
                         </div>
-                        <p class="text-muted small mb-0" id="formText"> analyzing form...</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 analysis-card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-cash-stack text-warning fs-1 mb-3"></i>
-                        <h5 class="fw-bold">Value Efficiency</h5>
-                        <div class="progress mb-2" style="height: 10px;">
-                            <div id="valueProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
-                        </div>
-                        <p class="text-muted small mb-0" id="valueText">calculating ROI...</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 analysis-card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-lightning-charge text-danger fs-1 mb-3"></i>
-                        <h5 class="fw-bold">Explosiveness (ICT)</h5>
-                        <div class="progress mb-2" style="height: 10px;">
-                            <div id="ictProgress" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
-                        </div>
-                        <p class="text-muted small mb-0" id="ictText">measuring potential...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- AI Insights -->
-        <div class="card">
-            <div class="card-header bg-transparent border-bottom">
-                <h5 class="fw-bold mb-0"><i class="bi bi-robot me-2"></i>AI Insights</h5>
+            <!-- Detailed Metrics -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100 analysis-card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-graph-up-arrow text-primary fs-1 mb-3"></i>
+                            <h5 class="fw-bold">Form Rating</h5>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div id="formProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-muted small mb-0" id="formText"> analyzing form...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 analysis-card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-cash-stack text-warning fs-1 mb-3"></i>
+                            <h5 class="fw-bold">Value Efficiency</h5>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div id="valueProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-muted small mb-0" id="valueText">calculating ROI...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 analysis-card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-lightning-charge text-danger fs-1 mb-3"></i>
+                            <h5 class="fw-bold">Explosiveness (ICT)</h5>
+                            <div class="progress mb-2" style="height: 10px;">
+                                <div id="ictProgress" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-muted small mb-0" id="ictText">measuring potential...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush" id="insightsList">
-                    <!-- Insights will be injected here -->
-                </ul>
+
+            <!-- AI Insights -->
+            <div class="card">
+                <div class="card-header bg-transparent border-bottom">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-robot me-2"></i>AI Insights</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush" id="insightsList">
+                        <!-- Insights will be injected here -->
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <?php include 'footer.php';?>

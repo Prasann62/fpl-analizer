@@ -12,41 +12,87 @@ if(!isset($_SESSION['access'])){
     <title>Fixtures | FPL Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
+    <style>
+        .fdr-table {
+            font-size: 0.8rem;
+        }
+        .fdr-cell {
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .fdr-1 { background-color: #375523; }
+        .fdr-2 { background-color: #01fc7a; color: black; }
+        .fdr-3 { background-color: #e7e7e7; color: black; }
+        .fdr-4 { background-color: #ff1751; }
+        .fdr-5 { background-color: #80072d; }
+    </style>
 </head>
 <body>
 <?php include 'navbar.php';?>
 
-<div class="container py-5">
-    <!-- Hero Header -->
-    <div class="hero-header shadow-lg mb-5 text-center">
-        <h1 class="display-4 fw-extrabold mb-2">Match Centre</h1>
-        <p class="lead opacity-75 mb-0">Upcoming fixtures and schedule.</p>
-    </div>
-
-    <div id="controlPanel" class="row mb-4 justify-content-center">
-        <div class="col-md-6 text-center">
-             <div class="input-group shadow-sm">
-                <span class="input-group-text bg-white fw-bold">Gameweek</span>
-                <select class="form-select text-center fw-bold" id="gwSelect">
-                     <option value="" selected>Auto (Smart)</option>
-                     <!-- Options populated by JS -->
-                </select>
-                <button class="btn btn-primary" id="loadBtn">
-                    <i class="bi bi-arrow-clockwise me-1"></i> Load
-                </button>
-             </div>
+<div class="main-content">
+    <div class="container py-5">
+        <!-- Hero Header -->
+        <div class="hero-header shadow-lg mb-5 text-center">
+            <h1 class="display-4 fw-extrabold mb-2">Match Centre</h1>
+            <p class="lead opacity-75 mb-0">Upcoming fixtures and schedule.</p>
         </div>
-    </div>
 
-    <div id="fixtures" class="row g-4">
-        <div class="col-12 text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+        <!-- FDR Ticker Section -->
+        <div class="card shadow-sm mb-5">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span>Fixture Difficulty Ticker (Next 5 GWs)</span>
+                <span class="badge bg-secondary">FDR</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 fdr-table">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Team</th>
+                                <th class="text-center" id="fdr-gw-1">GW-</th>
+                                <th class="text-center" id="fdr-gw-2">GW-</th>
+                                <th class="text-center" id="fdr-gw-3">GW-</th>
+                                <th class="text-center" id="fdr-gw-4">GW-</th>
+                                <th class="text-center" id="fdr-gw-5">GW-</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fdrTableBody">
+                            <tr><td colspan="6" class="text-center py-3"><span class="spinner-border spinner-border-sm"></span> Loading Ticker...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="controlPanel" class="row mb-4 justify-content-center">
+            <div class="col-md-6 text-center">
+                 <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white fw-bold">Gameweek</span>
+                    <select class="form-select text-center fw-bold" id="gwSelect">
+                         <option value="" selected>Auto (Smart)</option>
+                         <!-- Options populated by JS -->
+                    </select>
+                    <button class="btn btn-primary" id="loadBtn">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Load
+                    </button>
+                 </div>
+            </div>
+        </div>
+
+        <div id="fixtures" class="row g-4">
+            <div class="col-12 text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         </div>
     </div>
 </div>
-  
+
 <?php include 'footer.php';?>
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -88,6 +134,7 @@ if(!isset($_SESSION['access'])){
     async function init() {
          await loadStaticData(); // Load first
          loadFixtures(); // Then load default
+         loadFDRTicker(); // Load Ticker
     }
     
     loadBtn.addEventListener('click', () => loadFixtures(gwSelect.value));
@@ -114,6 +161,71 @@ if(!isset($_SESSION['access'])){
         }
     }
 
+    async function loadFDRTicker() {
+        try {
+            // Get current and next 4 GWs
+            const currentEvent = staticData.events.find(e => e.is_next) || staticData.events.find(e => e.is_current);
+            const startGw = currentEvent.id;
+            const endGw = Math.min(38, startGw + 4);
+            
+            // Update Headers
+            for(let i=0; i<5; i++) {
+                const gw = startGw + i;
+                document.getElementById(`fdr-gw-${i+1}`).innerText = gw <= 38 ? `GW${gw}` : '-';
+            }
+
+            // Fetch Future Fixtures
+            const res = await fetch('api.php?endpoint=fixtures/?future=1');
+            const fixtures = await res.json();
+            
+            const tbody = document.getElementById('fdrTableBody');
+            tbody.innerHTML = '';
+
+            // Group by team
+            staticData.teams.forEach(team => {
+                const row = document.createElement('tr');
+                
+                let cells = `<td class="fw-bold ps-3">${team.short_name}</td>`;
+                
+                for(let i=0; i<5; i++) {
+                    const gw = startGw + i;
+                    if(gw > 38) {
+                        cells += '<td></td>';
+                        continue;
+                    }
+                    
+                    // Find fixture(s) for this team in this GW
+                    const teamFixtures = fixtures.filter(f => f.event === gw && (f.team_h === team.id || f.team_a === team.id));
+                    
+                    if(teamFixtures.length === 0) {
+                        cells += '<td class="text-center text-muted small">-</td>';
+                    } else {
+                        // Handle multiple fixtures (DGW)
+                        let cellContent = '';
+                        teamFixtures.forEach(fix => {
+                            const isHome = fix.team_h === team.id;
+                            const oppId = isHome ? fix.team_a : fix.team_h;
+                            const opp = staticData.teams.find(t => t.id === oppId);
+                            const difficulty = isHome ? fix.team_h_difficulty : fix.team_a_difficulty;
+                            
+                            // Format: "ARS (H)" or "LIV (A)"
+                            const text = `${opp.short_name} (${isHome ? 'H' : 'A'})`;
+                            cellContent += `<div class="fdr-cell fdr-${difficulty} mb-1" title="Difficulty: ${difficulty}">${text}</div>`;
+                        });
+                        cells += `<td class="align-middle">${cellContent}</td>`;
+                    }
+                }
+                
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+
+        } catch(e) {
+            console.error("FDR Error", e);
+            document.getElementById('fdrTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading ticker</td></tr>';
+        }
+    }
+
     async function loadFixtures(specificGw = null) {
         fixturesContainer.innerHTML = `
             <div class="col-12 text-center py-5">
@@ -133,10 +245,9 @@ if(!isset($_SESSION['access'])){
                 const current = staticData.events.find(e => e.is_current);
                 const next = staticData.events.find(e => e.is_next);
                 
-                // User Logic: "automaticle flich hext gameweak after finesh last game"
                 // If current event is explicitly marked 'finished', switch to next.
                 if (current && current.finished) {
-                     event = next || current; // Fallback to current if no next
+                     event = next || current;
                 } else {
                      event = current || next || staticData.events[0];
                 }
@@ -151,25 +262,20 @@ if(!isset($_SESSION['access'])){
                         </div>
                     </div>
                 `;
-                // Sync dropdown if auto
                 if(!specificGw) gwSelect.value = ""; 
                 return;
             }
             
-            // Sync dropdown if auto
             if(!specificGw) gwSelect.value = event.id; 
 
-            // Map teams
             const teams = {};
             staticData.teams.forEach(t => {
                 teams[t.id] = t;
             });
 
-            // 2. Get Fixtures for Gameweek
             const fixturesRes = await fetch(`api.php?endpoint=fixtures/?event=${event.id}`);
             const fixtures = await fixturesRes.json();
 
-            // 3. Render
             let html = `
                 <div class="col-12 mb-2">
                     <div class="d-flex align-items-center justify-content-center gap-3">
@@ -186,14 +292,11 @@ if(!isset($_SESSION['access'])){
                 const date = new Date(match.kickoff_time);
                 const dateStr = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
                 const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                const pulseId = match.code; // 'code' in FPL usually corresponds to the match ID used in other places, or 'pulse_id' if available. 
-                // Note: FPL api often returns 'code' which is the unique match ID, and 'pulse_id' might be separate. 
-                // Usually 'code' is sufficient for sorting, but for PL website link we should check pulse_id.
-                // Let's pass the whole match object to safe keep.
+                const pulseId = match.code; 
 
                 let statusBadge = '';
                 let scoreDisplay = '';
-                let borderColor = 'border-0'; // Default
+                let borderColor = 'border-0'; 
 
                 if (match.finished) {
                     statusBadge = '<span class="badge bg-secondary">FT</span>';
@@ -201,7 +304,7 @@ if(!isset($_SESSION['access'])){
                 } else if (match.started) {
                     statusBadge = `<span class="badge bg-danger spinner-grow-sm">LIVE ${match.minutes}'</span>`;
                     scoreDisplay = `<div class="h2 fw-bold mb-0 text-danger">${match.team_h_score} - ${match.team_a_score}</div>`;
-                    borderColor = 'border border-danger border-2'; // Highlight live matches
+                    borderColor = 'border border-danger border-2'; 
                 } else {
                     statusBadge = `<span class="badge bg-light text-dark border">${timeStr}</span>`;
                     scoreDisplay = `<div class="h2 fw-bold mb-0 text-muted mx-3">vs</div>`;
@@ -210,36 +313,27 @@ if(!isset($_SESSION['access'])){
                 html += `
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100 shadow-hover ${borderColor} overflow-hidden">
-                             <!-- Clickable Area Wrapper -->
                             <div class="card-body position-relative pb-2">
                                 <a href="match-details.php?id=${match.id}&event=${match.event}" class="text-decoration-none text-dark stretched-link" style="z-index: 1;"></a>
-                                
-                                <!-- Background -->
                                 <div class="position-absolute top-0 start-0 w-100 h-100" 
                                      style="background: linear-gradient(45deg, rgba(55,0,60,0.02) 0%, rgba(0,255,133,0.02) 100%); z-index: 0;">
                                 </div>
-
                                 <div class="position-relative z-1 text-center pointer-events-none">
                                     <div class="school-date text-muted small mb-2 fw-bold text-uppercase">${dateStr}</div>
-                                    
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div class="text-center w-25">
                                             <div class="fw-bold text-dark h5 mb-0">${homeTeam.short_name}</div>
                                         </div>
-                                        
                                         <div class="w-50 d-flex flex-column align-items-center justify-content-center">
                                             ${scoreDisplay}
                                             <div class="mt-2">${statusBadge}</div>
                                         </div>
-                                        
                                         <div class="text-center w-25">
                                             <div class="fw-bold text-dark h5 mb-0">${awayTeam.short_name}</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Footer with Lineup Button (z-index higher than stretched-link) -->
                             <div class="card-footer bg-transparent border-0 pt-0 pb-3 text-center position-relative" style="z-index: 2;">
                                 <button class="btn btn-sm btn-outline-primary rounded-pill px-4" 
                                         onclick="openLineups(${match.id}, ${match.event}, ${match.team_h}, ${match.team_a}, ${match.started}, ${match.pulse_id || match.code})">
@@ -280,7 +374,6 @@ if(!isset($_SESSION['access'])){
         const awayTeam = staticData.teams.find(t => t.id === awayTeamId);
 
         if (!started) {
-            // Match not started - Show External Link
              lineupsModalBody.innerHTML = `
                 <div class="text-center py-4">
                     <div class="alert alert-info mb-4">
@@ -297,16 +390,13 @@ if(!isset($_SESSION['access'])){
             return;
         }
 
-        // Match Started - Fetch Live Data
         try {
             const liveRes = await fetch(`api.php?endpoint=event/${eventId}/live/`);
             if (!liveRes.ok) throw new Error('Failed to load live data');
             const liveData = await liveRes.json();
 
-            // Helper to get stats
             const getPlayerStats = (id) => liveData?.elements?.find(e => e.id === id)?.stats;
 
-             // Helper to filter lineup
             const getTeamLineup = (teamId) => {
                 return staticData.elements
                     .filter(p => p.team === teamId)
@@ -321,7 +411,6 @@ if(!isset($_SESSION['access'])){
             const homeLineup = getTeamLineup(homeTeamId);
             const awayLineup = getTeamLineup(awayTeamId);
 
-            // Render Modal Content
              lineupsModalBody.innerHTML = `
                 <div class="row g-3">
                     <div class="col-md-6 border-end">
@@ -366,8 +455,6 @@ if(!isset($_SESSION['access'])){
             </li>
         `).join('');
     }
-
-    loadFixtures();
 </script>
 </body>
 </html>
