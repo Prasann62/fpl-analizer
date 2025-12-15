@@ -18,8 +18,8 @@ if(!isset($_SESSION['access'])){
 
 <div class="main-content">
     <div class="container py-4">
-        <div class="hero-header shadow-lg mb-5 text-center">
-            <h1 class="display-5 fw-extrabold mb-2">FPL Draft Mode</h1>
+        <div class="hero-header mb-5 text-center">
+            <h1 class="display-5 fw-bold mb-2">FPL Draft Mode</h1>
             <p class="lead opacity-75 mb-4">A different way to play Fantasy Premier League.</p>
             <a href="https://draft.premierleague.com" target="_blank" class="btn btn-primary fw-bold px-4">Official Draft Site <i class="bi bi-box-arrow-up-right ms-2"></i></a>
         </div>
@@ -36,10 +36,10 @@ if(!isset($_SESSION['access'])){
             </div>
             <div class="col-md-6">
                 <!-- Mock Simulator Visual -->
-                <div class="card bg-dark text-white shadow-lg border-0">
+                <div class="card shadow-lg border-0">
                     <div class="card-header border-bottom border-light border-opacity-10 d-flex justify-content-between">
-                        <span class="fw-bold">Mock Draft Room</span>
-                        <span class="badge bg-danger">Round 1 / Pick 4</span>
+                        <span class="fw-bold text-primary">Mock Draft Room</span>
+                        <span class="badge bg-danger rounded-pill">Round 1 / Pick 4</span>
                     </div>
                     <div class="card-body">
                          <div class="d-flex mb-3 align-items-center opacity-50">
@@ -52,7 +52,7 @@ if(!isset($_SESSION['access'])){
                          </div>
                          <div class="d-flex mb-3 align-items-center opacity-50">
                              <span class="me-3 small text-muted">Pick 3 (Charlie)</span>
-                             <span class="badge bg-light text-dark">B. Saka</span>
+                             <span class="badge bg-secondary text-white border border-light border-opacity-25">B. Saka</span>
                          </div>
                          <div class="d-flex mb-3 align-items-center">
                              <span class="me-3 small fw-bold text-primary">Pick 4 (You)</span>

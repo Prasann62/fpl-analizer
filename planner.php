@@ -101,9 +101,9 @@ if(!isset($_SESSION['access'])){
 
 <div class="main-content">
     <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="hero-header d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="h3 fw-bold mb-0">Transfer Planner</h1>
+                <h1 class="display-5 fw-bold mb-1">Transfer Planner</h1>
                 <p class="text-muted small mb-0">Plan your moves for upcoming gameweeks.</p>
             </div>
             <div>

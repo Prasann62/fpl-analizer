@@ -92,13 +92,13 @@ if(!isset($_SESSION['access'])){
 
 <div class="main-content">
     <div class="container py-5">
-        <div class="row mb-5 align-items-center">
+        <div class="hero-header row mb-5 align-items-center justify-content-between">
             <div class="col-lg-8">
-                <h1 class="display-4 fw-extrabold mb-2">League Beater AI</h1>
+                <h1 class="display-5 fw-bold mb-2">League Beater AI</h1>
                 <p class="lead opacity-75">Analyze your league's top teams and build a squad to overtake them.</p>
             </div>
             <div class="col-lg-4">
-                 <div class="card bg-light border-0">
+                 <div class="card bg-opacity-10 border-0" style="background: rgba(255,255,255,0.05);">
                     <div class="card-body">
                         <h6 class="fw-bold mb-3">Target Strategy: Top 3 Finish</h6>
                         <div class="d-flex align-items-center mb-2">

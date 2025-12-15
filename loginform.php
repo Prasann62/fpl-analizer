@@ -3,148 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Form</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Login | FPL Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-  <style>
-    a { text-decoration: none; color: #000; }
-    a:hover { text-decoration: underline; }
-
-    .group {
-      position: relative;
-      margin-bottom: 25px;
-    }
-
-    .input {
-      font-size: 16px;
-      padding: 10px 10px 10px 5px;
-      display: block;
-      width: 100%;
-      border: none;
-      border-bottom: 1px solid #515151;
-      background: transparent;
-    }
-
-    .input:focus { outline: none; }
-
-    label {
-      color: #999;
-      font-size: 18px;
-      font-weight: normal;
-      position: absolute;
-      left: 5px;
-      top: 10px;
-      transition: 0.2s ease all;
-      pointer-events: none;
-    }
-
-    .input:focus ~ label,
-    .input:valid ~ label {
-      top: -20px;
-      font-size: 14px;
-      color: #5264AE;
-    }
-
-    .bar {
-      position: relative;
-      display: block;
-      width: 100%;
-    }
-
-    .bar:before, .bar:after {
-      content: '';
-      height: 2px;
-      width: 0;
-      bottom: 1px;
-      position: absolute;
-      background: #5264AE;
-      transition: 0.2s ease all;
-    }
-
-    .bar:before { left: 50%; }
-    .bar:after { right: 50%; }
-
-    .input:focus ~ .bar:before,
-    .input:focus ~ .bar:after {
-      width: 50%;
-    }
-
-    .highlight {
-      position: absolute;
-      height: 60%;
-      width: 100px;
-      top: 25%;
-      left: 0;
-      pointer-events: none;
-      opacity: 0.5;
-    }
-
-    .input:focus ~ .highlight {
-      animation: inputHighlighter 0.3s ease;
-    }
-
-    @keyframes inputHighlighter {
-      from { background: #5264AE; }
-      to   { width: 0; background: transparent; }
-    }
-
-    button {
-      width: 100%;
-      height: 3.5em;
-      border: 3px ridge #149CEA;
-      outline: none;
-      background-color: transparent;
-      color: #212121;
-      transition: 0.5s;
-      border-radius: 0.3em;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      box-shadow: inset 0px 0px 25px #1479EA;
-      color: #fff;
-    }
-  </style>
 </head>
-<body>
-  <div class="container mt-5">
+<body class="d-flex align-items-center justify-content-center min-vh-100">
+
+  <div class="container">
     <div class="row justify-content-center">
-      <div class="col-md-6 col-lg-4">
-        <div class="text-center mb-3">
-          <img src="f.p.t.1.png" alt="Logo" class="img-fluid">
+      <div class="col-md-5 col-lg-4">
+        
+        <div class="text-center mb-4">
+             <!-- You can uncomment this if you have the logo image, or use text -->
+             <!-- <img src="f.p.t.1.png" alt="Logo" class="img-fluid mb-3" style="max-height: 80px;"> -->
+             <h1 class="h3 fw-bold text-primary">FPL Manager</h1>
+             <p class="text-muted small">Sign in to manage your team</p>
         </div>
 
-        <form method="POST" action="">
-          <div class="group">
-            <input required type="email" class="input" name="email">
-            <span class="highlight"></span>
-            <span class="bar"></span>
-            <label>Email</label>
-          </div>
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+                <form method="POST" action="">
+                  <div class="mb-3">
+                    <label class="form-label text-muted small text-uppercase fw-bold">Email Address</label>
+                    <input required type="email" class="form-control form-control-lg" name="email" placeholder="name@example.com">
+                  </div>
 
-          <div class="group">
-            <input required type="password" class="input" name="password">
-            <span class="highlight"></span>
-            <span class="bar"></span>
-            <label>Password</label>
-          </div>
+                  <div class="mb-4">
+                    <label class="form-label text-muted small text-uppercase fw-bold">Password</label>
+                    <input required type="password" class="form-control form-control-lg" name="password" placeholder="Enter your password">
+                  </div>
 
-          <div class="d-grid gap-2">
-            <button type="submit" name="login_btn">Log In</button>
-          </div>
+                  <div class="d-grid gap-2">
+                    <button type="submit" name="login_btn" class="btn btn-primary btn-lg fw-bold">Log In</button>
+                  </div>
 
-          <div class="text-center my-2">or</div>
+                  <div class="text-center my-3 text-muted position-relative">
+                      <span class="px-2 small opacity-50">OR</span>
+                  </div>
 
-          <div class="text-center mt-2">
-            Don't have an account? <a href="signin.php">Sign Up</a>
-          </div>
-        </form>
+                  <div class="text-center">
+                    <p class="mb-0 text-muted">Don't have an account? <a href="signin.php" class="text-primary fw-bold text-decoration-none">Sign Up</a></p>
+                  </div>
+                </form>
+            </div>
+        </div>
+        
       </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <?php
     session_start();

@@ -19,10 +19,10 @@ if(!isset($_SESSION['access'])){
 <div class="main-content">
     <div class="container py-5">
         <!-- Hero Header -->
-        <div class="hero-header shadow-lg mb-5">
+        <div class="hero-header mb-5">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h1 class="display-4 fw-extrabold mb-2">Player Database</h1>
+                    <h1 class="display-5 fw-bold mb-2">Player Database</h1>
                     <p class="lead opacity-75 mb-0">Scout the best talents for your team.</p>
                 </div>
                 <div class="col-md-4 text-end d-none d-md-block">

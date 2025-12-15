@@ -50,8 +50,8 @@ if(!isset($_SESSION['access'])){
 
 <div class="main-content">
     <div class="container py-5">
-        <div class="hero-header shadow-lg mb-5">
-            <h1 class="display-4 fw-extrabold mb-2">League-Smart Transfers</h1>
+        <div class="hero-header mb-5 text-center text-md-start">
+            <h1 class="display-5 fw-bold mb-2">League-Smart Transfers</h1>
             <p class="lead opacity-75">Analyze your mini-league rivals and find the winning edge.</p>
         </div>
 

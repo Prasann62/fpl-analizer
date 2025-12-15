@@ -18,8 +18,8 @@ if(!isset($_SESSION['access'])){
 
 <div class="main-content">
     <div class="container py-4">
-        <div class="hero-header shadow-lg mb-4">
-            <h1 class="display-5 fw-extrabold mb-1">Expert Reveals</h1>
+        <div class="hero-header mb-4 text-center">
+            <h1 class="display-5 fw-bold mb-1">Expert Reveals</h1>
             <p class="lead opacity-75 mb-0">See how the top managers are setting up.</p>
         </div>
 

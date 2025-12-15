@@ -19,9 +19,9 @@ if(!isset($_SESSION['access'])){
 <div class="main-content">
     <div class="container py-5">
         <!-- Hero Header -->
-        <div class="hero-header shadow-lg mb-5 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
+        <div class="hero-header mb-5 text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
             <div class="z-1">
-                <h1 class="display-4 fw-extrabold mb-2">Live Rank</h1>
+                <h1 class="display-5 fw-bold mb-2">Live Rank</h1>
                 <p class="lead opacity-75 mb-0">Real-time gameweek performance tracking.</p>
             </div>
             <div class="mt-4 mt-md-0 z-1">
@@ -54,7 +54,7 @@ if(!isset($_SESSION['access'])){
                 <div id="rankContainer" class="d-none position-relative">
                     
                     <!-- Loading Overlay -->
-                    <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark p-3 shadow-lg z-3">
+                    <div id="loadingOverlay" class="d-none position-absolute top-50 start-50 translate-middle badge bg-dark bg-opacity-75 p-3 shadow-lg z-3 border border-secondary">
                         <span class="spinner-border spinner-border-sm me-2"></span> Updating Rank...
                     </div>
 

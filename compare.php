@@ -19,8 +19,8 @@ if(!isset($_SESSION['access'])){
 <div class="main-content">
     <div class="container py-4">
         <!-- Header -->
-        <div class="hero-header shadow-lg mb-4 text-center">
-            <h1 class="display-5 fw-extrabold mb-1">Player Comparison</h1>
+        <div class="hero-header mb-4 text-center">
+            <h1 class="display-5 fw-bold mb-1">Player Comparison</h1>
             <p class="lead opacity-75 mb-0">Head-to-head stats analysis.</p>
         </div>
 
@@ -70,10 +70,10 @@ if(!isset($_SESSION['access'])){
         
         <!-- Comparison Table -->
         <div id="comparisonResult" class="d-none">
-            <div class="card shadow-lg border-0 overflow-hidden">
+            <div class="card border-0 overflow-hidden">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 text-center">
-                        <thead class="bg-dark text-white">
+                        <thead>
                             <tr>
                                 <th class="w-25" id="headA">Player A</th>
                                 <th class="w-50">Metric</th>

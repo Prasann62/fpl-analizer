@@ -28,11 +28,25 @@ body {
 }
 
 /* Glassmorphism */
-.glass-card {
+/* Glassmorphism & Cards */
+.glass-card,
+.card {
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
     border: var(--glass-border);
     border-radius: 12px;
+    color: white;
+    /* Ensure text is white inside cards */
+}
+
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-footer {
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Sidebar Styles */
@@ -57,20 +71,84 @@ body {
     align-items: center;
 }
 
-.sidebar-item {
-    display: block;
-    padding: 0.8rem 1.5rem;
+/* New Sidebar Styles */
+.side-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-title {
+    padding: 1rem 1.5rem 0.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
+.menu-item {
+    margin-bottom: 2px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
     transition: all 0.2s;
     border-left: 3px solid transparent;
+    font-size: 0.95rem;
+    cursor: pointer;
 }
 
-.sidebar-item:hover,
-.sidebar-item.active {
+.menu-link:hover,
+.menu-link.active,
+.hs-accordion-toggle.active {
     color: var(--primary-color);
     background: rgba(255, 255, 255, 0.03);
     border-left-color: var(--primary-color);
+}
+
+.menu-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 0.75rem;
+}
+
+.menu-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.menu-text {
+    flex-grow: 1;
+}
+
+.menu-arrow {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+}
+
+.hs-accordion-toggle.active .menu-arrow {
+    transform: rotate(180deg);
+}
+
+/* Submenu styles */
+.sub-menu {
+    list-style: none;
+    padding-left: 0;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.sub-menu .menu-link {
+    padding-left: 3.5rem;
+    font-size: 0.9rem;
 }
 
 .main-content {
@@ -143,8 +221,58 @@ body {
     font-weight: bold;
 }
 
-.btn-primary:hover {
-    background-color: #00e074 !important;
+.btn-premium {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border: none;
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+    color: #000;
+}
+
+/* Form Controls Dark Mode */
+.form-control,
+.form-select {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 0 0.25rem rgba(0, 255, 133, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Table Dark Mode */
+.table {
+    color: white;
+    --bs-table-bg: transparent;
+    --bs-table-color: white;
+    --bs-table-border-color: rgba(255, 255, 255, 0.1);
+}
+
+.table> :not(caption)>*>* {
+    background-color: transparent;
+    color: white;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.table-hover>tbody>tr:hover>* {
+    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
+    color: white;
 }
 
 .hero-header {

@@ -19,8 +19,8 @@ if(!isset($_SESSION['access'])){
 <div class="main-content">
     <div class="container py-4">
         <!-- Header -->
-        <div class="hero-header shadow-lg mb-4">
-            <h1 class="display-5 fw-extrabold mb-1">Price Predictor</h1>
+        <div class="hero-header mb-4 text-center">
+            <h1 class="display-5 fw-bold mb-1">Price Predictor</h1>
             <p class="lead opacity-75 mb-0">Market movers for tonight.</p>
         </div>
 

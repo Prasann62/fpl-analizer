@@ -31,9 +31,9 @@ if(!isset($_SESSION['access'])){
 <div class="main-content">
     <div class="container py-5">
         <!-- Header -->
-        <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
+        <div class="hero-header text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
             <div class="z-1">
-                <h1 class="display-4 fw-extrabold mb-2">Live Live Score</h1>
+                <h1 class="display-5 fw-bold mb-2">Live Live Score</h1>
                 <p class="lead opacity-75 mb-0">Real-time performance stats for the current gameweek.</p>
             </div>
             <div class="mt-4 mt-md-0 z-1">
@@ -86,7 +86,7 @@ if(!isset($_SESSION['access'])){
                     </div>
                 </div>
                  <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-lg bg-dark text-white">
+                    <div class="card h-100">
                         <div class="card-body p-4 d-flex align-items-center justify-content-between">
                              <div>
                                 <h6 class="text-muted text-uppercase fw-bold mb-2">Manager Info</h6>
@@ -100,9 +100,9 @@ if(!isset($_SESSION['access'])){
             </div>
 
             <!-- Players Table -->
-            <div class="card border-0 shadow-lg position-relative">
-                <div class="card-header bg-dark text-white py-3">
-                     <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Lineup & Stats</h5>
+            <div class="card position-relative">
+                <div class="card-header py-3">
+                     <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-list-ul me-2"></i>Lineup & Stats</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">

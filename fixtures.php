@@ -36,8 +36,8 @@ if(!isset($_SESSION['access'])){
 <div class="main-content">
     <div class="container py-5">
         <!-- Hero Header -->
-        <div class="hero-header shadow-lg mb-5 text-center">
-            <h1 class="display-4 fw-extrabold mb-2">Match Centre</h1>
+        <div class="hero-header mb-5 text-center">
+            <h1 class="display-5 fw-bold mb-2">Match Centre</h1>
             <p class="lead opacity-75 mb-0">Upcoming fixtures and schedule.</p>
         </div>
 
@@ -279,9 +279,9 @@ if(!isset($_SESSION['access'])){
             let html = `
                 <div class="col-12 mb-2">
                     <div class="d-flex align-items-center justify-content-center gap-3">
-                        <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.2;"></div>
-                        <h3 class="fw-bold text-primary m-0">Gameweek ${event.id} <span class="badge bg-dark fs-6 align-middle ms-2">${event.finished ? 'FINISHED' : (event.is_current ? 'LIVE' : 'UPCOMING')}</span></h3>
-                        <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.2;"></div>
+                        <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.5;"></div>
+                        <h3 class="fw-bold text-primary m-0">Gameweek ${event.id} <span class="badge bg-primary text-dark fs-6 align-middle ms-2">${event.finished ? 'FINISHED' : (event.is_current ? 'LIVE' : 'UPCOMING')}</span></h3>
+                        <div class="h-px bg-secondary flex-grow-1" style="height: 2px; opacity: 0.5;"></div>
                     </div>
                 </div>
             `;

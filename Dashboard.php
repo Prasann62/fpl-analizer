@@ -19,9 +19,9 @@ if(!isset($_SESSION['access'])){
 <div class="main-content">
     <div class="container py-5">
         <!-- Hero Header -->
-        <div class="hero-header shadow-lg text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
+        <div class="hero-header text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
             <div class="z-1">
-                <h1 class="display-4 fw-extrabold mb-2">My Team</h1>
+                <h1 class="display-5 fw-bold mb-2">My Team</h1>
                 <p class="lead opacity-75 mb-0">Track your squad's performance in real-time.</p>
             </div>
             <div class="mt-4 mt-md-0 z-1">
@@ -53,7 +53,7 @@ if(!isset($_SESSION['access'])){
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold text-primary">Current Squad</h5>
-                        <span class="badge bg-light text-dark border">Gameweek Live</span>
+                        <span class="badge bg-primary text-dark">Gameweek Live</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -138,7 +138,7 @@ if(!isset($_SESSION['access'])){
             const managerData = await managerRes.json();
 
             managerInfo.innerHTML = `
-                <div class="p-3 bg-light rounded-3 border">
+                <div class="p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25">
                     <h6 class="fw-bold mb-1">${managerData.player_first_name} ${managerData.player_last_name}</h6>
                     <div class="text-muted small mb-2">${managerData.name}</div>
                     <div class="d-flex justify-content-between align-items-center">
