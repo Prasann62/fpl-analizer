@@ -9,6 +9,7 @@ if(!isset($_SESSION['access'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php include 'favicon-meta.php'; ?>
     <title>Dashboard | FPL Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
@@ -138,12 +139,12 @@ if(!isset($_SESSION['access'])){
             const managerData = await managerRes.json();
 
             managerInfo.innerHTML = `
-                <div class="p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25">
-                    <h6 class="fw-bold mb-1">${managerData.player_first_name} ${managerData.player_last_name}</h6>
-                    <div class="text-muted small mb-2">${managerData.name}</div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary">GW${gw}: ${managerData.summary_event_points}</span>
-                        <span class="badge bg-dark">Total: ${managerData.summary_overall_points}</span>
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 mt-4">
+                    <h6 class="fw-bold text-gray-800 mb-1 fs-5">${managerData.player_first_name} ${managerData.player_last_name}</h6>
+                    <div class="text-gray-500 small mb-3">${managerData.name}</div>
+                    <div class="d-flex justify-content-start gap-3 align-items-center">
+                        <span class="badge bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-2 rounded-md">GW${gw}: ${managerData.summary_event_points}</span>
+                        <span class="badge bg-gray-100 text-gray-700 border border-gray-200 px-3 py-2 rounded-md">Total: ${managerData.summary_overall_points}</span>
                     </div>
                 </div>
             `;

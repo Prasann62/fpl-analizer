@@ -1,9 +1,21 @@
 :root {
-    --primary-color: #00ff85;
-    --secondary-color: #38003c;
-    --dark-bg: #1f1f1f;
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    --primary-color: #059669;
+    /* Emerald 600 - Professional Soft Green */
+    --secondary-color: #f3f4f6;
+    /* Gray 100 */
+    --accent-color: #34d399;
+    /* Emerald 400 */
+    --bg-color: #f8fafc;
+    /* Slate 50 - broken white */
+    --card-bg: #ffffff;
+    --text-primary: #1e293b;
+    /* Slate 800 */
+    --text-secondary: #64748b;
+    /* Slate 500 */
+    --border-color: #e2e8f0;
+    /* Slate 200 */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 /* User Custom CSS */
@@ -16,37 +28,49 @@ a {
 }
 
 .logo-box .logo-sm,
-.logo-box .logo-light {
+.logo-box .logo-dark {
     display: none;
 }
 
-body {
-    background-color: var(--dark-bg) !important;
-    color: white !important;
-    font-family: 'Outfit', sans-serif;
-    overflow-x: hidden;
+.logo-box .logo-light {
+    display: block;
+    /* Show dark logo on light bg (logo-light class usually means "logo for light mode" or vice versa, will check sidebar) */
 }
 
-/* Glassmorphism */
-/* Glassmorphism & Cards */
+body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.5;
+}
+
+/* Cards */
 .glass-card,
 .card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: var(--glass-border);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    color: white;
-    /* Ensure text is white inside cards */
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
 }
 
 .card-header {
     background: transparent;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .card-footer {
     background: transparent;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--border-color);
 }
 
 /* Sidebar Styles */
@@ -56,22 +80,22 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    background: linear-gradient(180deg, var(--secondary-color) 0%, #1a1a1a 100%);
+    background: #ffffff;
     z-index: 1050;
     transition: transform 0.3s ease;
     overflow-y: auto;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid var(--border-color);
 }
 
 .sidebar-header {
     padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-/* New Sidebar Styles */
+/* Navigation */
 .side-nav {
     list-style: none;
     padding: 0;
@@ -79,11 +103,11 @@ body {
 }
 
 .menu-title {
-    padding: 1rem 1.5rem 0.5rem;
-    font-size: 0.7rem;
+    padding: 1.5rem 1.5rem 0.5rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.5);
-    font-weight: bold;
+    color: var(--text-secondary);
+    font-weight: 700;
     letter-spacing: 0.05em;
 }
 
@@ -95,19 +119,21 @@ body {
     display: flex;
     align-items: center;
     padding: 0.75rem 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     text-decoration: none;
     transition: all 0.2s;
     border-left: 3px solid transparent;
     font-size: 0.95rem;
     cursor: pointer;
+    font-weight: 500;
 }
 
 .menu-link:hover,
 .menu-link.active,
 .hs-accordion-toggle.active {
     color: var(--primary-color);
-    background: rgba(255, 255, 255, 0.03);
+    background: #f0fdf4;
+    /* Very light green bg */
     border-left-color: var(--primary-color);
 }
 
@@ -118,11 +144,12 @@ body {
     width: 20px;
     height: 20px;
     margin-right: 0.75rem;
+    color: currentColor;
 }
 
 .menu-icon svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
 }
 
 .menu-text {
@@ -139,11 +166,11 @@ body {
     transform: rotate(180deg);
 }
 
-/* Submenu styles */
+/* Submenu */
 .sub-menu {
     list-style: none;
     padding-left: 0;
-    background: rgba(0, 0, 0, 0.1);
+    background: #f8fafc;
 }
 
 .sub-menu .menu-link {
@@ -153,18 +180,19 @@ body {
 
 .main-content {
     margin-left: 250px;
-    padding: 20px;
+    padding: 24px;
     transition: margin-left 0.3s ease;
     min-height: 100vh;
 }
 
-/* Navbar overrides for sidebar layout */
+/* Navbar overrides */
 .navbar-top {
     margin-left: 250px;
-    background: rgba(31, 31, 31, 0.95) !important;
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
     transition: margin-left 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .sidebar-overlay {
@@ -173,7 +201,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.2);
     z-index: 1040;
     display: none;
     opacity: 0;
@@ -211,73 +239,87 @@ body {
 
 .bg-primary {
     background-color: var(--primary-color) !important;
-    color: black !important;
+    color: white !important;
 }
 
 .btn-primary {
     background-color: var(--primary-color) !important;
     border: none;
-    color: black !important;
-    font-weight: bold;
+    color: white !important;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.btn-premium {
-    background: linear-gradient(45deg, #FFD700, #FFA500);
-    border: none;
-    color: #000;
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
+.btn-primary:hover {
+    background-color: #047857 !important;
+    /* Emerald 700 */
 }
 
-.btn-premium:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
-    color: #000;
-}
-
-/* Form Controls Dark Mode */
+/* Form Controls */
 .form-control,
 .form-select {
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
 }
 
 .form-control:focus,
 .form-select:focus {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: #ffffff;
     border-color: var(--primary-color);
-    color: white;
-    box-shadow: 0 0 0 0.25rem rgba(0, 255, 133, 0.25);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+    outline: none;
 }
 
 .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-secondary);
 }
 
-/* Table Dark Mode */
+/* Tables */
 .table {
-    color: white;
+    color: var(--text-primary);
     --bs-table-bg: transparent;
-    --bs-table-color: white;
-    --bs-table-border-color: rgba(255, 255, 255, 0.1);
+    --bs-table-color: var(--text-primary);
+    --bs-table-border-color: var(--border-color);
 }
 
 .table> :not(caption)>*>* {
     background-color: transparent;
-    color: white;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-bottom-color: var(--border-color);
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+}
+
+.table>thead {
+    background-color: #f8fafc;
+}
+
+.table>thead>tr>th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom-width: 1px;
 }
 
 .table-hover>tbody>tr:hover>* {
-    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
-    color: white;
+    background-color: #f1f5f9;
+    color: var(--text-primary);
 }
 
+/* Hero Section */
 .hero-header {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, #1a1a1a 100%);
-    padding: 3rem 2rem;
-    border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
 }
