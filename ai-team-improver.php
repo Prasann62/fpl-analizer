@@ -267,81 +267,146 @@ if(!isset($_SESSION['access'])){
             bootstrapData.elements.forEach(p => players[p.id] = p);
             const currentGw = bootstrapData.events.find(e => e.is_current)?.id || 1;
 
-            // B. Fetch League Standings
+            // B. Fetch ALL League Standings (with Pagination)
             updateProgress(25, 'Loading league standings...');
-            const standingsRes = await fetch(`api.php?endpoint=leagues-classic/${leagueId}/standings/`);
-            const standingsData = await standingsRes.json();
-            const allManagers = standingsData.standings.results;
-
-            // Find user's rank and points
-            const myEntry = allManagers.find(m => m.entry == managerId);
-            const leader = allManagers[0];
-            document.getElementById('yourRank').innerText = myEntry ? `#${myEntry.rank}` : 'N/A';
-            document.getElementById('pointsBehind').innerText = myEntry ? (leader.total - myEntry.total) : '-';
             
-            // Get Transfers Made
-            const entryRes = await fetch(`api.php?endpoint=entry/${managerId}/`);
-            const entryData = await entryRes.json();
-            document.getElementById('transfersMade').innerText = entryData.last_deadline_total_transfers || 0;
+            let allManagers = [];
+            let page = 1;
+            let hasNextPage = true;
+            const maxManagersToFetch = 1000; // Total limit for standings fetching
 
-            // C. Analyze Top 20 or all if small league
-            const teamsToScan = allManagers.slice(0, Math.min(20, allManagers.length));
-            updateProgress(40, `Scanning ${teamsToScan.length} teams...`);
+            while (hasNextPage && allManagers.length < maxManagersToFetch) {
+                updateProgress(15 + Math.min(15, page * 1), `Loading league standings (page ${page})...`);
+                const standingsRes = await fetch(`api.php?endpoint=leagues-classic/${leagueId}/standings/?page_new_entries=1&page_standings=${page}`);
+                const standingsData = await standingsRes.json();
+                
+                if (standingsData.standings && standingsData.standings.results) {
+                    allManagers = allManagers.concat(standingsData.standings.results);
+                    hasNextPage = standingsData.standings.has_next;
+                    page++;
+                } else {
+                    hasNextPage = false;
+                }
+                
+                // If it's the first page, we can show initial rank info
+                if (page === 2) { 
+                    const leader = allManagers[0];
+                    const myEntry = allManagers.find(m => m.entry == managerId);
+                    document.getElementById('yourRank').innerText = myEntry ? `#${myEntry.rank}` : 'N/A';
+                    document.getElementById('pointsBehind').innerText = myEntry ? (leader.total - myEntry.total) : '-';
+                }
+            }
+
+            // Get Transfers Made for the user specifically
+            updateProgress(28, 'Fetching your transfer history...');
+            try {
+                const entryRes = await fetch(`api.php?endpoint=entry/${managerId}/`);
+                const entryData = await entryRes.json();
+                document.getElementById('transfersMade').innerText = entryData.last_deadline_total_transfers || 0;
+            } catch(e) { console.warn('Entry fetch fail', e); }
+
+            // C. Analyze Managers
+            updateProgress(30, 'Preparing team analysis...');
+            // To be efficient, we scan the Top 50 AND the 50 closest rivals to the user
+            // If the league is small, we scan everyone.
+            let managersToScan = [];
+            const userIdx = allManagers.findIndex(m => m.entry == managerId);
+            
+            if (allManagers.length <= 100) {
+                managersToScan = allManagers;
+            } else {
+                // Top 50
+                const top50 = allManagers.slice(0, 50);
+                // Users around the manager
+                let start = Math.max(0, userIdx - 25);
+                let end = Math.min(allManagers.length, userIdx + 25);
+                const rivals = allManagers.slice(start, end);
+                
+                // Merge and unique
+                const combined = [...top50, ...rivals];
+                const seen = new Set();
+                managersToScan = combined.filter(m => {
+                    const duplicate = seen.has(m.entry);
+                    seen.add(m.entry);
+                    return !duplicate;
+                });
+            }
+
+            updateProgress(40, `Scanning ${managersToScan.length} teams...`);
 
             const playerOwnership = {};
             let scanned = 0;
 
-            for (const mgr of teamsToScan) {
-                try {
-                    const picksRes = await fetch(`api.php?endpoint=entry/${mgr.entry}/event/${currentGw}/picks/`);
-                    if(picksRes.ok) {
-                        const picksData = await picksRes.json();
-                        picksData.picks.forEach(p => {
-                            playerOwnership[p.element] = (playerOwnership[p.element] || 0) + 1;
-                        });
-                        scanned++;
-                    }
-                } catch(e) { console.warn('Skip', e); }
+            // Batch processing for picks fetching to avoid browser request limits
+            const batchSize = 10;
+            for (let i = 0; i < managersToScan.length; i += batchSize) {
+                const batch = managersToScan.slice(i, i + batchSize);
+                await Promise.all(batch.map(async (mgr) => {
+                    try {
+                        const picksRes = await fetch(`api.php?endpoint=entry/${mgr.entry}/event/${currentGw}/picks/`);
+                        if(picksRes.ok) {
+                            const picksData = await picksRes.json();
+                            picksData.picks.forEach(p => {
+                                playerOwnership[p.element] = (playerOwnership[p.element] || 0) + 1;
+                            });
+                            scanned++;
+                        }
+                    } catch(e) { console.warn('Skip manager', mgr.entry, e); }
+                }));
+                const progressPct = 30 + (Math.min(50, (i / managersToScan.length) * 50));
+                updateProgress(progressPct, `Scanning teams (${scanned}/${managersToScan.length})...`);
             }
             document.getElementById('teamsScanned').innerText = scanned;
 
             // D. Fetch My Picks
-            updateProgress(70, 'Comparing with your team...');
+            updateProgress(80, 'Comparing with your team...');
             const myPicksRes = await fetch(`api.php?endpoint=entry/${managerId}/event/${currentGw}/picks/`);
             const myPicksData = await myPicksRes.json();
             const myPlayerIds = new Set(myPicksData.picks.map(p => p.element));
             const mySquad = myPicksData.picks.map(p => players[p.element]);
 
             // E. Identify Transfers
-            updateProgress(85, 'Generating transfer plan...');
+            updateProgress(90, 'Generating transfer plan...');
 
             // Template players I'm missing (high ownership)
+            // Weighting: If owned by > 25% of the scanned group (rivals + leaders)
             const missingHighOwnership = Object.entries(playerOwnership)
-                .filter(([id, count]) => !myPlayerIds.has(parseInt(id)) && (count / scanned) >= 0.3) // >30% ownership
-                .map(([id, count]) => ({ player: players[id], ownership: count / scanned }))
-                .sort((a, b) => b.ownership - a.ownership);
+                .filter(([id, count]) => !myPlayerIds.has(parseInt(id)) && (count / scanned) >= 0.25)
+                .map(([id, count]) => ({ 
+                    player: players[id], 
+                    ownership: count / scanned,
+                    score: (count / scanned) * (parseFloat(players[id].form) || 1)
+                }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 10);
             
-            // Differentials (Low League Ownership but High Form)
-            // Available in FPL but owned by < 10% of league rivals
-            // Filter global player list for this? Or just checking widely
-            // We use global 'players' object
+            // Differentials (Low League Ownership but High Form & Value)
             const potentialDifferentials = Object.values(players)
                 .filter(p => 
                     p.status === 'a' &&
-                    parseFloat(p.form) > 3.0 && // Good form
-                    !myPlayerIds.has(p.id) &&   // Don't own
-                    ((playerOwnership[p.id] || 0) / scanned) < 0.1 // <10% league owned
+                    parseFloat(p.form) > 4.0 && // Higher bar for differentials
+                    !myPlayerIds.has(p.id) &&
+                    ((playerOwnership[p.id] || 0) / scanned) < 0.15 // <15% league owned
                 )
-                .sort((a,b) => parseFloat(b.form) - parseFloat(a.form))
+                .map(p => ({
+                    ...p,
+                    diffScore: parseFloat(p.form) * (1 - ((playerOwnership[p.id] || 0) / scanned))
+                }))
+                .sort((a,b) => b.diffScore - a.diffScore)
                 .slice(0, 10);
 
             // My players with low ownership/form (potential sells)
             const lowOwnershipMine = mySquad
                 .filter(p => {
                     const own = playerOwnership[p.id] || 0;
-                    return (own / scanned) < 0.2 && parseFloat(p.form) < 4.0;
+                    // Sell if low ownership AND poor form, OR if extremely low ownership in a catch-up scenario
+                    return (own / scanned) < 0.2 && (parseFloat(p.form) < 3.0 || p.status !== 'a');
                 })
-                .sort((a, b) => parseFloat(a.form) - parseFloat(b.form));
+                .sort((a, b) => {
+                    if (a.status !== 'a') return -1;
+                    if (b.status !== 'a') return 1;
+                    return parseFloat(a.form) - parseFloat(b.form);
+                });
 
             // F. Render Transfers
             updateProgress(100, 'Done!');
@@ -406,10 +471,10 @@ if(!isset($_SESSION['access'])){
         if(ownershipList) {
             ownershipList.innerHTML = '';
 
-            // Top 5 most owned
+            // Top 10 most owned
             const topOwned = Object.entries(ownership)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
+                .slice(0, 10);
 
             topOwned.forEach(([id, count]) => {
                 const p = players[id]; 
