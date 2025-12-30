@@ -12,30 +12,35 @@ $username   = "u913997673_prasanna";
 $password_db = "Ko%a/2klkcooj]@o";
 $dbname     = "u913997673_prasanna";
 
-$conn = new mysqli($servername, $username, $password_db, $dbname);
-if($conn->connect_error){
-    die("Connection failed: " . $conn->connect_error);
-}
+try {
+    $conn = new mysqli($servername, $username, $password_db, $dbname);
+    if($conn->connect_error){
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
 
-// Count Users
-$user_sql = "SELECT COUNT(*) as total FROM signin WHERE role != 'admin' OR role IS NULL";
-$user_result = $conn->query($user_sql);
-$total_users = 0;
-if($user_result->num_rows > 0) {
-    $row = $user_result->fetch_assoc();
-    $total_users = $row['total'];
-}
+    // Count Users
+    $user_sql = "SELECT COUNT(*) as total FROM signin WHERE role != 'admin' OR role IS NULL";
+    $user_result = $conn->query($user_sql);
+    $total_users = 0;
+    if($user_result && $user_result->num_rows > 0) {
+        $row = $user_result->fetch_assoc();
+        $total_users = $row['total'];
+    }
 
-// Count Admins
-$admin_sql = "SELECT COUNT(*) as total FROM signin WHERE role = 'admin'";
-$admin_result = $conn->query($admin_sql);
-$total_admins = 0;
-if($admin_result->num_rows > 0) {
-    $row = $admin_result->fetch_assoc();
-    $total_admins = $row['total'];
-}
+    // Count Admins
+    $admin_sql = "SELECT COUNT(*) as total FROM signin WHERE role = 'admin'";
+    $admin_result = $conn->query($admin_sql);
+    $total_admins = 0;
+    if($admin_result && $admin_result->num_rows > 0) {
+        $row = $admin_result->fetch_assoc();
+        $total_admins = $row['total'];
+    }
 
-$conn->close();
+    $conn->close();
+
+} catch (Exception $e) {
+    die("Error: " . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,7 +50,7 @@ $conn->close();
     <?php include 'favicon-meta.php'; ?>
     <title>Admin Dashboard | FPL Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css?v=<?php echo time(); ?>" rel="stylesheet">
+    <link href="style.css?v=<?= time(); ?>" rel="stylesheet">
 </head>
 <body class="bg-light">
     <!-- Admin Navbar -->
@@ -61,7 +66,7 @@ $conn->close();
             <div class="collapse navbar-collapse" id="adminNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <span class="nav-link text-white-50">Logged in as <?php echo htmlspecialchars($_SESSION['email']); ?></span>
+                        <span class="nav-link text-white-50">Logged in as <?= htmlspecialchars($_SESSION['email']); ?></span>
                     </li>
                     <li class="nav-item ms-lg-3">
                         <a href="logout.php" class="btn btn-outline-danger btn-sm px-3">Logout</a>
@@ -91,7 +96,7 @@ $conn->close();
                             </div>
                             <h5 class="card-title text-muted fw-bold mb-0 text-uppercase small ls-1">Total Users</h5>
                         </div>
-                        <h2 class="display-4 fw-bold mb-0 text-dark"><?php echo number_format($total_users); ?></h2>
+                        <h2 class="display-4 fw-bold mb-0 text-dark"><?= number_format($total_users); ?></h2>
                         <div class="mt-3 text-success small fw-semibold">
                             <i class="bi bi-graph-up-arrow me-1"></i> Active Community
                         </div>
@@ -111,7 +116,7 @@ $conn->close();
                             </div>
                             <h5 class="card-title text-muted fw-bold mb-0 text-uppercase small ls-1">Administrators</h5>
                         </div>
-                        <h2 class="display-4 fw-bold mb-0 text-dark"><?php echo number_format($total_admins); ?></h2>
+                        <h2 class="display-4 fw-bold mb-0 text-dark"><?= number_format($total_admins); ?></h2>
                         <div class="mt-3 text-muted small fw-semibold">
                             System Managers
                         </div>

@@ -1,5 +1,7 @@
 <?php
     session_start();
+    $error_message = null; // Initialize variable
+
     if(isset($_POST['login_btn'])) {
         $email = $_POST['email'];
         $password = $_POST['password'];
@@ -9,38 +11,53 @@
         $password_db   = "Ko%a/2klkcooj]@o";
         $dbname     = "u913997673_prasanna";
 
-        $conn = new mysqli($servername, $username, $password_db, $dbname);
+        try {
+            $conn = new mysqli($servername, $username, $password_db, $dbname);
 
-        if($conn->connect_error){
-            die("connection failed:".$conn->connect_error);
-        }
-
-        // Use prepared statement for security
-        $stmt = $conn->prepare("SELECT * FROM signin WHERE email = ? AND password = ?");
-        $stmt->bind_param("ss", $email, $password);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0){
-            $row = $result->fetch_assoc();
-            $_SESSION['access'] = true;
-            $_SESSION['email'] = $email;
-            $_SESSION['role'] = $row['role']; // Store role in session
-
-            if($row['role'] === 'admin'){
-                echo "<script>window.open('admin_dashboard.php','_self')</script>";
-            } else {
-                echo "<script>window.open('Dashboard.php','_self')</script>";
+            if($conn->connect_error){
+                throw new Exception("Connection failed: " . $conn->connect_error);
             }
-            exit();
-        } else{
-            // We'll store the error in a variable to display it later in the HTML
-            $error_message = "Invalid Email or Password";
+
+            // Use prepared statement for security
+            $stmt = $conn->prepare("SELECT * FROM signin WHERE email = ? AND password = ?");
+            if(!$stmt) {
+                throw new Exception("Prepare failed: " . $conn->error);
+            }
+            
+            $stmt->bind_param("ss", $email, $password);
+            
+            if(!$stmt->execute()) {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0){
+                $row = $result->fetch_assoc();
+                $_SESSION['access'] = true;
+                $_SESSION['email'] = $email;
+                $_SESSION['role'] = $row['role']; // Store role in session
+
+                $stmt->close();
+                $conn->close();
+
+                if($row['role'] === 'admin'){
+                    header("Location: admin_dashboard.php");
+                } else {
+                    header("Location: Dashboard.php");
+                }
+                exit();
+            } else{
+                // We'll store the error in a variable to display it later in the HTML
+                $error_message = "Invalid Email or Password";
+            }
+
+            $stmt->close();
+            $conn->close();
+
+        } catch (Exception $e) {
+            die("Error: " . $e->getMessage());
         }
-
-
-        $stmt->close();
-        $conn->close();
     }
 ?>
 <!DOCTYPE html>
@@ -51,7 +68,7 @@
   <?php include 'favicon-meta.php'; ?>
   <title>Login | FPL Manager</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="style.css?v=<?php echo time(); ?>" rel="stylesheet">
+  <link href="style.css?v=<?= time(); ?>" rel="stylesheet">
 </head>
 <body class="bg-gradient-to-br from-emerald-50 via-white to-emerald-50 min-h-screen flex items-center justify-center p-4">
     <!-- Tailwind CSS (Loaded via CDN for simplicity, matches navbar) -->
@@ -155,14 +172,14 @@
         </div>
         
         <p class="text-center text-gray-400 text-xs mt-8">
-            &copy; <?php echo date('Y'); ?> FPL Manager. All rights reserved.
+            &copy; <?= date('Y'); ?> FPL Manager. All rights reserved.
         </p>
     </div>
 
     <?php if(isset($error_message)): ?>
     <div class='fixed top-4 right-4 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-lg flex items-center animate-bounce-in z-50' role='alert'>
         <svg class='w-5 h-5 mr-2' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clip-rule='evenodd'></path></svg>
-        <span class='block sm:inline'><?php echo $error_message; ?></span>
+        <span class='block sm:inline'><?= $error_message; ?></span>
     </div>
     <script>
         setTimeout(() => { document.querySelector('[role="alert"]').remove(); }, 4000);
