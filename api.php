@@ -46,6 +46,8 @@ if (curl_errno($ch)) {
     http_response_code(500);
     echo json_encode(["error" => curl_error($ch)]);
 } else {
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    http_response_code($httpCode);
     echo $response;
 }
 

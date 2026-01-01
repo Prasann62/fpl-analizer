@@ -100,11 +100,54 @@ if(!isset($_SESSION['access'])){
     let players = [];
     let playerA = null;
     let playerB = null;
+    let teamsData = {};
+
+    // Team Logo Helper
+    function getTeamLogo(teamName) {
+        if(!teamName) return null;
+        const name = teamName.toLowerCase();
+        const map = {
+            'arsenal': 'arsenal.svg',
+            'aston villa': 'aston villa.svg',
+            'bournemouth': 'boumemouth.svg',
+            'brentford': 'brentford.svg',
+            'brighton': 'brighton.svg',
+            'burnley': 'burnley.svg',
+            'chelsea': 'chelsea.svg',
+            'crystal palace': 'crystal palace.svg',
+            'everton': 'everton.svg',
+            'fulham': 'fulham.svg',
+            'liverpool': 'liverpool.svg',
+            'man city': 'man city.svg',
+            'man utd': 'man utd.svg',
+            'newcastle': null,
+            "nott'm forest": 'forest.svg',
+            'sheffield utd': null,
+            'spurs': 'spurs.svg',
+            'tottenham': 'spurs.svg',
+            'luton': null,
+            'west ham': 'west ham.svg',
+            'wolves': 'wolves.svg',
+            'leicester': null,
+            'southampton': null,
+            'ipswich': null
+        };
+        return map[name] ? 'f_logo/' + map[name] : null;
+    }
+
+    function getTeamLogoHtml(teamName, size = 18) {
+        const logoPath = getTeamLogo(teamName);
+        if (logoPath) {
+            return `<img src="${logoPath}" alt="${teamName}" style="height: ${size}px; width: ${size}px; object-fit: contain;" class="me-1">`;
+        }
+        return '';
+    }
 
     // Fetch players
     fetch('api.php?endpoint=bootstrap-static/')
         .then(r => r.json())
         .then(data => {
+            data.teams.forEach(t => teamsData[t.id] = t);
             players = data.elements.map(p => ({
                 ...p,
                 team_name: data.teams.find(t => t.id === p.team).name,
@@ -140,7 +183,7 @@ if(!isset($_SESSION['access'])){
             matches.forEach(p => {
                 const btn = document.createElement('button');
                 btn.className = 'list-group-item list-group-item-action text-start';
-                btn.innerHTML = `<strong>${p.web_name}</strong> <small class='text-muted'>${p.team_short}</small>`;
+                btn.innerHTML = `<span class="d-flex align-items-center gap-1">${getTeamLogoHtml(p.team_name)}<strong>${p.web_name}</strong> <small class='text-muted'>${p.team_short}</small></span>`;
                 btn.onclick = () => selectPlayer(p, side);
                 results.appendChild(btn);
             });

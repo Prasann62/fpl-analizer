@@ -46,6 +46,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let staticData = null;
 
+    // Team Logo Helper
+    function getTeamLogo(teamName) {
+        if(!teamName) return null;
+        const name = teamName.toLowerCase();
+        const map = {
+            'arsenal': 'arsenal.svg',
+            'aston villa': 'aston villa.svg',
+            'bournemouth': 'boumemouth.svg',
+            'brentford': 'brentford.svg',
+            'brighton': 'brighton.svg',
+            'burnley': 'burnley.svg',
+            'chelsea': 'chelsea.svg',
+            'crystal palace': 'crystal palace.svg',
+            'everton': 'everton.svg',
+            'fulham': 'fulham.svg',
+            'liverpool': 'liverpool.svg',
+            'man city': 'man city.svg',
+            'man utd': 'man utd.svg',
+            'newcastle': null,
+            "nott'm forest": 'forest.svg',
+            'sheffield utd': null,
+            'spurs': 'spurs.svg',
+            'tottenham': 'spurs.svg',
+            'luton': null,
+            'west ham': 'west ham.svg',
+            'wolves': 'wolves.svg',
+            'leicester': null,
+            'southampton': null,
+            'ipswich': null
+        };
+        return map[name] ? 'f_logo/' + map[name] : null;
+    }
+
+    function getTeamLogoHtml(team, size = 60) {
+        const logoPath = getTeamLogo(team?.name);
+        if (logoPath) {
+            return `<img src="${logoPath}" alt="${team?.name}" style="height: ${size}px; width: ${size}px; object-fit: contain;" class="mb-2">`;
+        }
+        return '';
+    }
+
     function updateStatus(msg) {
         matchContent.innerHTML = `
             <div class="text-center py-5">
@@ -141,12 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="badge bg-light text-dark mb-3">${date.toLocaleDateString()} • ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="text-center mx-4">
-                            <h2 class="fw-bold mb-0">${homeTeam.name}</h2>
+                            ${getTeamLogoHtml(homeTeam, 70)}
+                            <h4 class="fw-bold mb-0">${homeTeam.name}</h4>
                             <div class="display-1 fw-bold">${fixture.team_h_score !== null ? fixture.team_h_score : '-'}</div>
                         </div>
                         <div class="mx-3"><span class="h2 text-muted">VS</span></div>
                         <div class="text-center mx-4">
-                            <h2 class="fw-bold mb-0">${awayTeam.name}</h2>
+                            ${getTeamLogoHtml(awayTeam, 70)}
+                            <h4 class="fw-bold mb-0">${awayTeam.name}</h4>
                             <div class="display-1 fw-bold">${fixture.team_a_score !== null ? fixture.team_a_score : '-'}</div>
                         </div>
                     </div>

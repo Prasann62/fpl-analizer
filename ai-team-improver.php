@@ -14,19 +14,74 @@ if(!isset($_SESSION['access'])){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css?v=<?php echo time(); ?>" rel="stylesheet">
     <style>
-    <style>
+        /* Animated Gradient Background */
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(55, 0, 60, 0.03) 0%, rgba(0, 255, 133, 0.03) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-gradient::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,255,133,0.1) 0%, transparent 70%);
+            animation: float 8s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-20px, 20px) rotate(5deg); }
+        }
+
+        /* Step Cards with Glassmorphism */
+        .step-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), #00ff85);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Enhanced Transfer Cards */
         .transfer-card {
             border-left: 4px solid var(--accent-color);
-            transition: transform 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
         }
         .transfer-card:hover {
-            transform: translateX(5px);
+            transform: translateX(8px) scale(1.01);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
         .transfer-card.diff-card {
-            border-left-color: #fd7e14; /* Orange for diffs */
+            border-left-color: #fd7e14;
+            background: linear-gradient(135deg, #fff 0%, #fff5ed 100%);
         }
         .transfer-card.block-card {
-            border-left-color: var(--secondary-color); /* Teal for blocks */
+            border-left-color: #20c997;
+            background: linear-gradient(135deg, #fff 0%, #e8fff6 100%);
         }
         .player-out {
             background: rgba(220, 53, 69, 0.05);
@@ -44,6 +99,113 @@ if(!isset($_SESSION['access'])){
             border-radius: 3px;
             background: var(--secondary-color);
         }
+
+        /* Stat Cards with Gradient Backgrounds */
+        .stat-card {
+            border-radius: 16px;
+            border: none;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        .stat-card.stat-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .stat-card.stat-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        .stat-card.stat-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+        .stat-card.stat-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .stat-card.stat-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .stat-card.stat-dark {
+            background: linear-gradient(135deg, #434343 0%, #000000 100%);
+            color: white;
+        }
+        .stat-card .stat-icon {
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            font-size: 4rem;
+            opacity: 0.15;
+        }
+
+        /* Enhanced Loading Animation */
+        .loading-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .pulse-loader {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #00ff85 100%);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pulse-loader i {
+            font-size: 2rem;
+            color: #000;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 133, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(0, 255, 133, 0); }
+        }
+
+        /* Strategy Toggle Enhancement */
+        .strategy-btn {
+            border-radius: 12px !important;
+            padding: 1rem !important;
+            transition: all 0.3s ease;
+        }
+        .btn-check:checked + .strategy-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #00ff85 100%) !important;
+            border-color: transparent !important;
+            color: #000 !important;
+            box-shadow: 0 8px 25px rgba(0, 255, 133, 0.3);
+        }
+
+        /* Section Headers */
+        .section-header {
+            position: relative;
+            padding-left: 1rem;
+        }
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-color) 0%, #00ff85 100%);
+            border-radius: 2px;
+        }
+
+        /* Animated Reveal */
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -51,119 +213,198 @@ if(!isset($_SESSION['access'])){
 
 <div class="main-content">
     <div class="container py-5">
-        <div class="hero-header mb-5 text-center text-md-start">
-            <h1 class="display-5 fw-bold mb-2">League-Smart Transfers</h1>
-            <p class="lead opacity-75">Analyze your mini-league rivals and find the winning edge.</p>
-        </div>
-
-        <!-- Step 1: Manager ID -->
-        <div class="card mb-4" id="step1">
-            <div class="card-body">
-                <h5 class="card-title fw-bold">1. Load Your Team</h5>
-                <div class="input-group input-group-lg">
-                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-                    <input type="number" id="managerId" class="form-control" placeholder="Enter your Manager ID">
-                    <button class="btn btn-primary" id="loadLeaguesBtn">Load Leagues</button>
+        <!-- Hero Header -->
+        <div class="hero-gradient mb-5">
+            <div class="row align-items-center">
+                <div class="col-md-8 text-center text-md-start position-relative z-1">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3">
+                        <i class="bi bi-robot me-1"></i> AI-Powered Analysis
+                    </span>
+                    <h1 class="display-4 fw-bold mb-3">League-Smart Transfers</h1>
+                    <p class="lead opacity-75 mb-0">Analyze your mini-league rivals and find the winning edge with fixture-weighted AI recommendations.</p>
+                </div>
+                <div class="col-md-4 text-center d-none d-md-block position-relative z-1">
+                    <i class="bi bi-graph-up-arrow display-1 opacity-25" style="font-size: 8rem;"></i>
                 </div>
             </div>
         </div>
 
+        <!-- Step 1: Manager ID -->
+        <div class="step-card mb-4" id="step1">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="step-number me-3">1</div>
+                    <h5 class="mb-0 fw-bold">Load Your Team</h5>
+                </div>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-badge text-primary"></i></span>
+                    <input type="number" id="managerId" class="form-control border-start-0 ps-0" placeholder="Enter your Manager ID">
+                    <button class="btn btn-primary px-4" id="loadLeaguesBtn">
+                        <i class="bi bi-arrow-right-circle me-2"></i>Load Leagues
+                    </button>
+                </div>
+                <div class="text-muted small mt-2"><i class="bi bi-info-circle me-1"></i>Find your ID on the FPL website under "Points" page URL</div>
+            </div>
+        </div>
+
         <!-- Step 2: Select League -->
-        <div class="card mb-4 d-none" id="step2">
-            <div class="card-body">
-                <h5 class="card-title fw-bold">2. Select Target League</h5>
-                <select class="form-select form-select-lg mb-3" id="leagueSelect">
+        <div class="step-card mb-4 d-none" id="step2">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="step-number me-3">2</div>
+                    <h5 class="mb-0 fw-bold">Select Target League & Strategy</h5>
+                </div>
+                <select class="form-select form-select-lg mb-4" id="leagueSelect">
                     <option selected disabled>Choose a classic league...</option>
                 </select>
-                <button class="btn btn-success w-100" id="analyzeBtn">
-                    <i class="bi bi-search me-2"></i>Analyze League & Find Transfers
+                
+                <div class="section-header mb-3">
+                    <h6 class="fw-bold text-dark m-0">Analysis Strategy</h6>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="strategy" id="strategyShort" value="short" checked>
+                        <label class="btn btn-outline-primary strategy-btn w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center" for="strategyShort">
+                            <i class="bi bi-lightning-charge-fill fs-3 mb-2"></i>
+                            <div class="fw-bold">Short Term</div>
+                            <div class="small opacity-75">Next 5 Gameweeks</div>
+                        </label>
+                    </div>
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="strategy" id="strategyLong" value="long">
+                        <label class="btn btn-outline-primary strategy-btn w-100 h-100 d-flex flex-column align-items-center justify-content-center text-center" for="strategyLong">
+                            <i class="bi bi-graph-up-arrow fs-3 mb-2"></i>
+                            <div class="fw-bold">Long Term</div>
+                            <div class="small opacity-75">Next 6-8 Gameweeks</div>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-success w-100 p-3 fs-5 fw-bold rounded-3" id="analyzeBtn" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none;">
+                    <i class="bi bi-magic me-2"></i>Find Perfect Transfers
                 </button>
             </div>
         </div>
 
         <!-- Loading -->
         <div id="loading" class="text-center py-5 d-none">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-            <h5 class="mt-3" id="loadingText">Scanning league...</h5>
-            <div class="progress mt-3 mx-auto" style="width: 300px; height: 6px;">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" style="width: 0%"></div>
+            <div class="loading-container d-inline-block">
+                <div class="pulse-loader mx-auto mb-4">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h5 class="fw-bold mb-2" id="loadingText">Scanning league...</h5>
+                <p class="text-muted small mb-3">Analyzing rival teams & fixture difficulty</p>
+                <div class="progress mx-auto" style="width: 250px; height: 8px; border-radius: 4px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" style="width: 0%; background: linear-gradient(90deg, var(--primary-color), #00ff85);"></div>
+                </div>
             </div>
         </div>
 
         <!-- Results -->
-        <div id="results" class="d-none">
+        <div id="results" class="d-none fade-in-up">
             
             <!-- Summary Stats -->
             <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-muted small text-uppercase">Teams Scanned</div>
-                            <h3 class="fw-bold text-primary" id="teamsScanned">0</h3>
+                <div class="col-6 col-md-2">
+                    <div class="stat-card stat-primary text-center h-100 position-relative overflow-hidden">
+                        <div class="card-body p-3">
+                            <i class="bi bi-people-fill stat-icon"></i>
+                            <div class="small text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Teams Scanned</div>
+                            <h3 class="fw-bold mb-0" id="teamsScanned">0</h3>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-muted small text-uppercase">Your Rank</div>
-                            <h3 class="fw-bold" id="yourRank">-</h3>
+                <div class="col-6 col-md-2">
+                    <div class="stat-card stat-dark text-center h-100 position-relative overflow-hidden">
+                        <div class="card-body p-3">
+                            <i class="bi bi-trophy-fill stat-icon"></i>
+                            <div class="small text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Your Rank</div>
+                            <h3 class="fw-bold mb-0" id="yourRank">-</h3>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-muted small text-uppercase">Points Behind #1</div>
-                            <h3 class="fw-bold text-danger" id="pointsBehind">0</h3>
+                <div class="col-6 col-md-2">
+                    <div class="stat-card stat-danger text-center h-100 position-relative overflow-hidden">
+                        <div class="card-body p-3">
+                            <i class="bi bi-arrow-down-circle-fill stat-icon"></i>
+                            <div class="small text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Pts Behind #1</div>
+                            <h3 class="fw-bold mb-0" id="pointsBehind">0</h3>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-muted small text-uppercase">Transfers Made</div>
-                            <h3 class="fw-bold text-dark" id="transfersMade">0</h3>
+                <div class="col-6 col-md-2">
+                    <div class="stat-card stat-success text-center h-100 position-relative overflow-hidden">
+                        <div class="card-body p-3">
+                            <i class="bi bi-arrow-left-right stat-icon"></i>
+                            <div class="small text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Suggested Moves</div>
+                            <h3 class="fw-bold mb-0" id="movesCount">0</h3>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-muted small text-uppercase">Suggested Moves</div>
-                            <h3 class="fw-bold text-success" id="movesCount">0</h3>
+                <div class="col-6 col-md-2">
+                    <div class="stat-card stat-warning text-center h-100 position-relative overflow-hidden">
+                        <div class="card-body p-3">
+                            <i class="bi bi-ticket-perforated-fill stat-icon"></i>
+                            <div class="small text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Free Transfers</div>
+                            <h3 class="fw-bold mb-0" id="freeTransfersDisplay">-</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="stat-card stat-info text-center h-100 position-relative overflow-hidden">
+                        <div class="card-body p-3">
+                            <i class="bi bi-bank stat-icon"></i>
+                            <div class="small text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem;">Bank</div>
+                            <h3 class="fw-bold mb-0" id="bankDisplay">-</h3>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Transfer Suggestions -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-white fw-bold d-flex align-items-center justify-content-between">
-                    <div><i class="bi bi-arrow-left-right me-2"></i>Recommended Transfers</div>
-                    <div class="small fw-normal text-muted">Based on League Ownership</div>
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
+                            <i class="bi bi-arrow-left-right text-primary fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Recommended Transfers</h5>
+                            <small class="text-muted">Based on League Ownership & Fixtures</small>
+                        </div>
+                    </div>
+                    <span id="strategyBadge" class="badge bg-primary rounded-pill px-3 py-2"></span>
                 </div>
-                <div class="card-body" id="transferList">
-                    <div class="row">
-                        <div class="col-lg-6 mb-3">
-                            <h6 class="fw-bold text-warning mb-3"><i class="bi bi-lightning-charge-fill me-2"></i>Catch Up (Differentials)</h6>
-                            <p class="small text-muted">High potential players that your rivals <strong>don't</strong> own.</p>
+                <div class="card-body pt-0" id="transferList">
+                    <!-- Top Pick Highlight -->
+                    <div id="topPickContainer" class="mb-4 d-none"></div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="section-header d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold m-0"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Catch Up (Differentials)</h6>
+                            </div>
+                            <p class="small text-muted mb-3">High potential players with <strong class="text-success">Good Fixtures</strong> that your rivals don't own.</p>
                             <div id="diffList"></div>
                         </div>
-                        <div class="col-lg-6 mb-3">
-                            <h6 class="fw-bold text-success mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Block Rivals (Template)</h6>
-                            <p class="small text-muted">High ownership players you're missing out on.</p>
+                        <div class="col-lg-6">
+                            <div class="section-header d-flex align-items-center mb-3">
+                                <h6 class="fw-bold m-0"><i class="bi bi-shield-lock-fill text-success me-2"></i>Block Rivals (Template)</h6>
+                            </div>
+                            <p class="small text-muted mb-3">High ownership players you're missing out on.</p>
                             <div id="blockList"></div>
                         </div>
                     </div>
-                    <!-- Injected -->
                 </div>
             </div>
 
             <!-- Ownership Insights -->
-            <div class="card mt-4 shadow-sm">
-                <div class="card-header bg-white fw-bold">
-                    <i class="bi bi-pie-chart me-2"></i>League Ownership Insights
+            <div class="card mt-4 shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 d-flex align-items-center border-0">
+                    <div class="bg-info bg-opacity-10 p-2 rounded-3 me-3">
+                        <i class="bi bi-pie-chart-fill text-info fs-5"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">League Ownership Insights</h5>
                 </div>
                 <ul class="list-group list-group-flush" id="ownershipList">
                     <!-- Injected -->
@@ -234,7 +475,8 @@ if(!isset($_SESSION['access'])){
             }
             
         } catch (e) {
-            alert(e.message);
+            console.error(e);
+            alert('Error loading leagues: ' + e.message + '. See console for details.');
         } finally {
             loadLeaguesBtn.disabled = false;
             loadLeaguesBtn.innerHTML = 'Load Leagues';
@@ -297,12 +539,75 @@ if(!isset($_SESSION['access'])){
                 }
             }
 
-            // Get Transfers Made for the user specifically
+            // Get Transfers Made for the user specifically & Bank
             updateProgress(28, 'Fetching your transfer history...');
+            let myBank = 0;
+            let freeTransfers = 1;
             try {
+                // 1. Fetch Entry Info for Bank
                 const entryRes = await fetch(`api.php?endpoint=entry/${managerId}/`);
                 const entryData = await entryRes.json();
-                document.getElementById('transfersMade').innerText = entryData.last_deadline_total_transfers || 0;
+                myBank = entryData.last_deadline_bank || 0;
+                document.getElementById('bankDisplay').innerText = '£' + (myBank/10).toFixed(1) + 'm';
+
+                // 2. Fetch History for Free Transfer Calculation
+                const historyRes = await fetch(`api.php?endpoint=entry/${managerId}/history/`);
+                const historyData = await historyRes.json();
+                
+                // Calculate FTs
+                // Rules: 1 FT per week, caps at 5 (new rule for 24/25). Min 1.
+                // We simulate from GW 1.
+                let storedFT = 1; // GW1 starts with 1? Actually usually 1. 24/25 rules might imply start with 1. 
+                // Let's assume standard logic: 
+                // Each GW you get +1. 
+                // You spend 'event_transfers'.
+                // Cap is 5.
+                
+                // However, detailed simulation is complex without knowing exact chip usage etc easily.
+                // Simplified approach often used: 
+                // Look at current 'transfers_limit' if available? No, API doesn't give 'current available FT'.
+                
+                // Better estimation:
+                // Start with 1. 
+                // For each finished GW:
+                // storedFT = Math.min(5, storedFT + 1);
+                // storedFT -= transfers_made_in_gameweek;
+                // if (wildcard or free hit played) storedFT = 1; // Reset to 1 after chips? check rules.
+                
+                // Actually, let's use a simpler heuristic for now or strict simulation if we trust history.
+                // Let's rely on the latest data point if possible? No.
+                
+                // Simulation:
+                if(historyData.current && historyData.current.length > 0) {
+                     storedFT = 0; // Pre-season has 0? GW1 you get 1? 
+                     // Actually usually you have 1 for GW1.
+                     // Let's iterate.
+                     let fts = 1; 
+                     for(const gw of historyData.current) {
+                        // Chips?
+                         const chipsUsed = historyData.chips ? historyData.chips.find(c => c.event === gw.event) : null;
+                         
+                         // If WC or FH used, FTs usually reset to 1 the next week.
+                         if(chipsUsed && (chipsUsed.name === 'wildcard' || chipsUsed.name === 'freehit')) {
+                             // effectively transfers cost 0 this week, but next week we start fresh?
+                             // Rule: WC/FH resets saved FTs to 1.
+                             fts = 1;
+                             continue;
+                         }
+
+                         // Normal week
+                         // Spend transfers
+                         fts -= gw.event_transfers;
+                         if(fts < 0) fts = 0; // Can't have neg, means hits were taken
+                         
+                         // Accrue for NEXT week
+                         fts = Math.min(5, fts + 1);
+                     }
+                     freeTransfers = fts;
+                }
+                
+                document.getElementById('freeTransfersDisplay').innerText = freeTransfers;
+
             } catch(e) { console.warn('Entry fetch fail', e); }
 
             // C. Analyze Managers
@@ -346,15 +651,20 @@ if(!isset($_SESSION['access'])){
                         const picksRes = await fetch(`api.php?endpoint=entry/${mgr.entry}/event/${currentGw}/picks/`);
                         if(picksRes.ok) {
                             const picksData = await picksRes.json();
-                            picksData.picks.forEach(p => {
-                                playerOwnership[p.element] = (playerOwnership[p.element] || 0) + 1;
-                            });
-                            scanned++;
+                            if(picksData && picksData.picks) {
+                                picksData.picks.forEach(p => {
+                                    playerOwnership[p.element] = (playerOwnership[p.element] || 0) + 1;
+                                });
+                                scanned++;
+                            }
                         }
                     } catch(e) { console.warn('Skip manager', mgr.entry, e); }
                 }));
                 const progressPct = 30 + (Math.min(50, (i / managersToScan.length) * 50));
                 updateProgress(progressPct, `Scanning teams (${scanned}/${managersToScan.length})...`);
+                
+                // Rate Limit Delay
+                await new Promise(r => setTimeout(r, 500));
             }
             document.getElementById('teamsScanned').innerText = scanned;
 
@@ -368,49 +678,173 @@ if(!isset($_SESSION['access'])){
             // E. Identify Transfers
             updateProgress(90, 'Generating transfer plan...');
 
-            // Template players I'm missing (high ownership)
-            // Weighting: If owned by > 25% of the scanned group (rivals + leaders)
-            const missingHighOwnership = Object.entries(playerOwnership)
-                .filter(([id, count]) => !myPlayerIds.has(parseInt(id)) && (count / scanned) >= 0.25)
-                .map(([id, count]) => ({ 
-                    player: players[id], 
-                    ownership: count / scanned,
-                    score: (count / scanned) * (parseFloat(players[id].form) || 1)
-                }))
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 10);
+            // Future Fixtures for Difficulty
+             updateProgress(85, 'Analyzing upcoming fixtures...');
+             let futureFixtures = [];
+             try {
+                 const fixRes = await fetch('api.php?endpoint=fixtures/?future=1');
+                 futureFixtures = await fixRes.json();
+             } catch(e) { console.error('Fix fetch fail', e); }
+
+             const strategy = document.querySelector('input[name="strategy"]:checked').value;
+             document.getElementById('strategyBadge').innerText = strategy === 'short' ? 'Short Term (5 GW)' : 'Long Term (8 GW)';
+             
+             // Helper: Calculate Fixture Score for a Team
+             // Higher is better.
+             const getFixtureScore = (teamId) => {
+                 const lookahead_gw = strategy === 'short' ? 5 : 8;
+                 let score = 0;
+                 let count = 0;
+                 const startGw = currentGw + 1; // Next GW
+                 
+                 // Find fixtures for next X GWs
+                 for(let i = 0; i < lookahead_gw; i++) {
+                     const gw = startGw + i;
+                     if(gw > 38) break;
+                     const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+                     
+                     if(fixtures.length === 0) {
+                         // Blank Gameweek? Penalty.
+                         score -= 2; 
+                     } else {
+                         fixtures.forEach(f => {
+                             const difficulty = f.team_h === teamId ? f.team_h_difficulty : f.team_a_difficulty;
+                             // FDR: 2 (Easy) to 5 (Hard)
+                             // We want high score for easy. 
+                             // 2 -> +3, 3 -> +1, 4 -> -1, 5 -> -3? 
+                             // Let's use simpler: Score += (6 - difficulty)
+                             score += (6 - difficulty);
+                             count++;
+                         });
+                     }
+                 }
+                 return score; 
+             };
             
-            // Differentials (Low League Ownership but High Form & Value)
-            const potentialDifferentials = Object.values(players)
-                .filter(p => 
-                    p.status === 'a' &&
-                    parseFloat(p.form) > 4.0 && // Higher bar for differentials
-                    !myPlayerIds.has(p.id) &&
-                    ((playerOwnership[p.id] || 0) / scanned) < 0.15 // <15% league owned
-                )
-                .map(p => ({
-                    ...p,
-                    diffScore: parseFloat(p.form) * (1 - ((playerOwnership[p.id] || 0) / scanned))
-                }))
-                .sort((a,b) => b.diffScore - a.diffScore)
-                .slice(0, 10);
+            // Re-Evaluate scores with Fixtures
+            // Helper to get score
+            const getSmartScore = (p, baseOwnershipScore) => {
+                 const fixScore = getFixtureScore(p.team);
+                 // Normalize fix score roughly? 
+                 // 5 games: max score approx 5*4=20.
+                 // ownership factor is 0 to 1. 
+                 // form is 0 to 10+. 
+                 
+                 // We want to boost players with good fixtures.
+                 // Multiplier: 1.0 to 1.5? 
+                 // Let's just add it as a weighted factor. 
+                 
+                 const form = parseFloat(p.form) || 0;
+                 
+                 // Combined Metric
+                 // Base: Form
+                 // Multiplier: Fixture Difficulty (1.0 = neutral 3 diff, >1.0 good, <1.0 bad)
+                 
+                 // Average difficulty is 3. (6-3)=3 per game. 
+                 // If 5 games, score 15 is neutral.
+                 // Factor = Score / (Games * 3)
+                 
+                 const games = strategy === 'short' ? 5 : 8;
+                 const neutralScore = games * 3; 
+                 const fixFactor = Math.max(0.5, fixScore / neutralScore); // Cap low at 0.5 to punish hard runs
+                 
+                 return (baseOwnershipScore + (form * 0.2)) * fixFactor;
+            };
+
+            // My players with low ownership/form (potential sells) - defined before filtering buys
 
             // My players with low ownership/form (potential sells)
+            // We need 'toSell' derived BEFORE we filter buys to check affordability
             const lowOwnershipMine = mySquad
                 .filter(p => {
                     const own = playerOwnership[p.id] || 0;
-                    // Sell if low ownership AND poor form, OR if extremely low ownership in a catch-up scenario
-                    return (own / scanned) < 0.2 && (parseFloat(p.form) < 3.0 || p.status !== 'a');
+                    const fixScore = getFixtureScore(p.team);
+                    const games = strategy === 'short' ? 5 : 8;
+                    const neutralScore = games * 3;
+                    
+                    // Sell if:
+                    // 1. Injured/Suspended (status != a)
+                    // 2. Low Ownership AND (Poor form OR Bad Fixtures)
+                    const isPoorAsset = (parseFloat(p.form) < 3.0) || (fixScore < neutralScore * 0.8);
+                    
+                    return (p.status !== 'a') || ((own / scanned) < 0.25 && isPoorAsset);
                 })
                 .sort((a, b) => {
                     if (a.status !== 'a') return -1;
                     if (b.status !== 'a') return 1;
-                    return parseFloat(a.form) - parseFloat(b.form);
+                    const scoreA = parseFloat(a.form) * getFixtureScore(a.team);
+                    const scoreB = parseFloat(b.form) * getFixtureScore(b.team);
+                    return scoreA - scoreB; 
                 });
+
+            // STRICT AFFORDABILITY CHECK
+            // We look at ALL players in that position for affordability, not just 'marked to sell' ones.
+            // This ensures we don't hide good buys just because we didn't flag a "bad" player.
+            
+            const canAfford = (buyPrice, position) => {
+                // All players in my squad in this position
+                const potentialSells = mySquad.filter(s => s.element_type === position);
+                if(potentialSells.length === 0) return false; // Should not happen if full squad
+                
+                // Max budget available = Bank + Max(SellPrice of ANY player in that pos)
+                const maxSellPrice = Math.max(...potentialSells.map(s => s.now_cost));
+                return (myBank + maxSellPrice) >= buyPrice;
+            };
+
+            // Template players I'm missing (high ownership)
+            const missingHighOwnership = Object.entries(playerOwnership)
+                .filter(([id, count]) => !myPlayerIds.has(parseInt(id)) && (count / scanned) >= 0.25)
+                .map(([id, count]) => {
+                    const p = players[id];
+                    const ownPct = count / scanned;
+                    const smartScore = getFixtureScore(p.team) * parseFloat(p.form) * ownPct; 
+                    return { 
+                        player: p, 
+                        ownership: ownPct,
+                        score: smartScore,
+                        fixScore: getFixtureScore(p.team)
+                    };
+                })
+                .filter(item => canAfford(item.player.now_cost, item.player.element_type)) // FILTER BY BUDGET
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 10);
+            
+            // Differentials
+            const potentialDifferentials = Object.values(players)
+                .filter(p => 
+                    p.status === 'a' &&
+                    parseFloat(p.form) > 3.0 && 
+                    !myPlayerIds.has(p.id) &&
+                    ((playerOwnership[p.id] || 0) / scanned) < 0.15 
+                )
+                .map(p => {
+                     const ownPct = (playerOwnership[p.id] || 0) / scanned;
+                     const fixScore = getFixtureScore(p.team);
+                     const games = strategy === 'short' ? 5 : 8;
+                     const neutralScore = games * 3; 
+                     
+                     if(fixScore < neutralScore) return { ...p, diffScore: -1 };
+
+                     const diffScore = parseFloat(p.form) * (fixScore / neutralScore) * (1 - ownPct);
+                     return {
+                        ...p,
+                        diffScore: diffScore,
+                        fixScore: fixScore
+                     };
+                })
+                .filter(p => p.diffScore > 0)
+                .filter(p => canAfford(p.now_cost, p.element_type)) // FILTER BY BUDGET
+                .sort((a,b) => b.diffScore - a.diffScore)
+                .slice(0, 10);
 
             // F. Render Transfers
             updateProgress(100, 'Done!');
-            renderTransfers(missingHighOwnership, potentialDifferentials, lowOwnershipMine, scanned, playerOwnership, players);
+            
+            // Map team ID to Team Object for easy access in render
+            const teamMap = {};
+            bootstrapData.teams.forEach(t => teamMap[t.id] = t);
+            
+            renderTransfers(missingHighOwnership, potentialDifferentials, lowOwnershipMine, scanned, playerOwnership, players, myBank, teamMap, mySquad);
 
             loading.classList.add('d-none');
             results.classList.remove('d-none');
@@ -423,7 +857,7 @@ if(!isset($_SESSION['access'])){
         }
     });
 
-    function renderTransfers(blockers, differentials, toSell, total, ownership, players) {
+    function renderTransfers(blockers, differentials, toSell, total, ownership, players, bank, teamMap, mySquad) {
         // 1. Render Transfers
         const diffList = document.getElementById('diffList');
         const blockList = document.getElementById('blockList');
@@ -434,9 +868,24 @@ if(!isset($_SESSION['access'])){
 
         // Helper to find best sell candidate for a buy target
         const findSellFor = (buyPlayer) => {
-            // Find same position, cheaper or similar price (if possible), low form/ownership
-            // or just the worst player in that position
-            return toSell.find(s => s.element_type === buyPlayer.element_type) || null;
+            // Priority 1: Check 'toSell' (marked bad assets)
+            let candidates = toSell.filter(s => s.element_type === buyPlayer.element_type);
+            
+            // Priority 2: If no bad assets, check ALL players in that pos (sorted by lowest form/fix)
+            if(candidates.length === 0) {
+                 // Sort mySquad by some metric (lowest form * fixScore)
+                 // We need to re-calculate score here or just use form
+                 candidates = mySquad.filter(s => s.element_type === buyPlayer.element_type)
+                    .sort((a,b) => parseFloat(a.form) - parseFloat(b.form));
+            }
+            
+            // Try to find one where money works
+            const moneyCandidates = candidates.filter(s => (s.now_cost + bank) >= buyPlayer.now_cost);
+            
+            if(moneyCandidates.length > 0) return moneyCandidates[0]; // First one (worst)
+            
+            // If no one directly affords, return the absolute worst (might need 2 transfers to afford)
+            return candidates[0] || null;
         };
 
         // Render Blockers
@@ -445,23 +894,43 @@ if(!isset($_SESSION['access'])){
             if(blockList) {
                 const p = item.player;
                 const sellP = findSellFor(p);
-                const card = createTransferCard(p, item.ownership, 'block', sellP);
+                const team = teamMap[p.team];
+                const card = createTransferCard(p, item.ownership, 'block', sellP, bank, team);
                 blockList.appendChild(card);
             }
             totalMoves++;
         });
 
         // Render Differentials
-        if(differentials.length === 0 && diffList) diffList.innerHTML = '<p class="text-muted small">No hidden gems found currently.</p>';
+        if(differentials.length === 0 && diffList) diffList.innerHTML = '<p class="text-muted small">No hidden gems with good fixtures found.</p>';
         differentials.forEach(p => {
              const ownCount = ownership[p.id] || 0;
              if(diffList) {
                 const sellP = findSellFor(p);
-                const card = createTransferCard(p, ownCount/total, 'diff', sellP);
+                const team = teamMap[p.team];
+                const card = createTransferCard(p, ownCount/total, 'diff', sellP, bank, team);
                 diffList.appendChild(card);
              }
              totalMoves++;
         });
+
+        // 1.5 Render "Perfect Transfer" (Top Pick)
+        // Find the absolute highest score from both lists
+        const allMoves = [...blockers.map(b => ({...b, type: 'block'})), ...differentials.map(d => ({...d, type: 'diff', score: d.diffScore}))];
+        allMoves.sort((a,b) => b.score - a.score);
+        
+        const topPickContainer = document.getElementById('topPickContainer');
+        if(topPickContainer) {
+            if(allMoves.length > 0) {
+                const top = allMoves[0];
+                const sellP = findSellFor(top.player);
+                const team = teamMap[top.player.team];
+                topPickContainer.innerHTML = createTopPickCard(top.player, top.ownership, top.type, sellP, bank, team);
+                topPickContainer.classList.remove('d-none');
+            } else {
+                topPickContainer.classList.add('d-none');
+            }
+        }
 
         const movesCountEl = document.getElementById('movesCount');
         if(movesCountEl) movesCountEl.innerText = totalMoves;
@@ -492,20 +961,63 @@ if(!isset($_SESSION['access'])){
         }
     }
 
-    function createTransferCard(p, ownPct, type, sellPlayer) {
+    function getTeamLogo(teamName) {
+        if(!teamName) return null;
+        const name = teamName.toLowerCase();
+        const map = {
+            'arsenal': 'arsenal.svg',
+            'aston villa': 'aston villa.svg',
+            'bournemouth': 'boumemouth.svg', // file typo conserved
+            'brentford': 'brentford.svg',
+            'brighton': 'brighton.svg',
+            'burnley': 'burnley.svg',
+            'chelsea': 'chelsea.svg',
+            'crystal palace': 'crystal palace.svg',
+            'everton': 'everton.svg',
+            'fulham': 'fulham.svg',
+            'liverpool': 'liverpool.svg',
+            'man city': 'man city.svg',
+            'man utd': 'man utd.svg',
+            'newcastle': null, 
+            "nott'm forest": 'forest.svg',
+            'sheffield utd': null, 
+            'spurs': 'spurs.svg',
+            'tottenham': 'spurs.svg',
+            'luton': null, 
+            'west ham': 'west ham.svg',
+            'wolves': 'wolves.svg',
+            'leicester': null,
+            'southampton': null,
+            'ipswich': null
+        };
+        return map[name] ? 'f_logo/' + map[name] : null;
+    }
+
+    function createTransferCard(p, ownPct, type, sellPlayer, bank, team) {
         const div = document.createElement('div');
         div.className = `transfer-card card mb-3 ${type === 'diff' ? 'diff-card' : 'block-card'}`;
         const badgeColor = type === 'diff' ? 'bg-warning text-dark' : 'bg-success';
         const badgeText = type === 'diff' ? 'DIFF' : 'BLOCK';
         
+        const logoPath = getTeamLogo(team?.name);
+        const logoHtml = logoPath 
+            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 24px; width: 24px; object-fit: contain;" class="me-2">`
+            : `<span class="badge bg-light text-dark border me-2">${team?.short_name || ''}</span>`;
+        
+        
+        // Append sellHtml logic here if needed or relying on the rest of the function
+
+        
         let sellHtml = '';
         if(sellPlayer) {
+            const needed = (p.now_cost - (sellPlayer.now_cost+bank));
             sellHtml = `
                 <div class="border-top pt-2 mt-2">
                     <div class="d-flex justify-content-between align-items-center small">
                          <span class="text-danger fw-bold"><i class="bi bi-box-arrow-right me-1"></i>Sell: ${sellPlayer.web_name}</span>
                          <span class="text-muted">£${sellPlayer.now_cost/10}m</span>
                     </div>
+                     ${needed > 0 ? '<div class="text-danger fw-bold text-end" style="font-size:0.7rem">Need £' + (needed/10).toFixed(1) + 'm more</div>' : ''}
                 </div>
             `;
         } else {
@@ -519,9 +1031,12 @@ if(!isset($_SESSION['access'])){
         div.innerHTML = `
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div>
-                         <div class="fw-bold text-dark fs-5">${p.web_name} <span class="badge ${badgeColor} ms-1" style="font-size:0.6rem; vertical-align: middle;">${badgeText}</span></div>
-                         <div class="small text-muted">Form: ${p.form} • £${p.now_cost/10}m</div>
+                    <div class="d-flex align-items-center">
+                         ${logoHtml}
+                         <div>
+                            <div class="fw-bold text-dark fs-5">${p.web_name} <span class="badge ${badgeColor} ms-1" style="font-size:0.6rem; vertical-align: middle;">${badgeText}</span></div>
+                            <div class="small text-muted">Form: ${p.form} • £${p.now_cost/10}m</div>
+                         </div>
                     </div>
                     <div class="text-end" style="min-width: 60px;">
                         <div class="fw-bold small">${Math.round(ownPct*100)}%</div>
@@ -535,6 +1050,68 @@ if(!isset($_SESSION['access'])){
             </div>
         `;
         return div;
+    }
+
+    function createTopPickCard(p, ownPct, type, sellPlayer, bank, team) {
+        // Star / "Perfect Transfer" Styling
+        const isDiff = type === 'diff';
+        const badgeColor = isDiff ? 'bg-warning text-dark' : 'bg-success';
+        const badgeText = isDiff ? 'TOP DIFFERENTIAL' : 'TOP BLOCKER';
+        
+        const logoPath = getTeamLogo(team?.name);
+        const logoHtml = logoPath 
+            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 60px; auto; object-fit: contain; opacity:0.1; position: absolute; right: -10px; bottom: -10px;">`
+            : '';
+            
+        const logoHeader = logoPath
+            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 20px; width: 20px; object-fit: contain;" class="me-2">`
+            : `<span>${team?.short_name}</span> `;
+        
+        let sellHtml = '';
+        if(sellPlayer) {
+            const needed = (p.now_cost - (sellPlayer.now_cost+bank));
+            sellHtml = `
+                <div class="mt-3 p-2 rounded bg-light border border-dashed">
+                    <div class="d-flex justify-content-between align-items-center">
+                         <span class="text-danger fw-bold"><i class="bi bi-box-arrow-right me-2"></i>Out: ${sellPlayer.web_name}</span>
+                         <span class="text-muted small">£${sellPlayer.now_cost/10}m</span>
+                    </div>
+                     ${needed > 0 ? '<div class="text-danger fw-bold text-end mt-1" style="font-size:0.8rem">Short by £' + (needed/10).toFixed(1) + 'm</div>' : ''}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-left: 5px solid #ffc107 !important;">
+                <div class="card-body position-relative overflow-hidden">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                        <i class="bi bi-star-fill text-warning display-1"></i>
+                    </div>
+                    ${logoHtml}
+                    
+                    <h6 class="text-uppercase text-muted fw-bold small mb-3 d-flex align-items-center"><i class="bi bi-stars text-warning me-2"></i>AI Suggested Transfer</h6>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                             <div class="d-flex align-items-center mb-1">
+                                ${logoHeader} <span class="small text-muted">${team?.name}</span>
+                             </div>
+                             <h2 class="display-6 fw-bold mb-0 text-dark">${p.web_name}</h2>
+                             <div class="d-flex align-items-center gap-2 mt-2">
+                                <span class="badge ${badgeColor}">${badgeText}</span>
+                                <span class="badge bg-white text-dark border">Form ${p.form}</span>
+                                <span class="badge bg-white text-dark border">Fix Score ${p.fixScore}</span>
+                             </div>
+                        </div>
+                        <div class="col-4 text-end">
+                             <div class="display-6 fw-bold text-primary">£${p.now_cost/10}m</div>
+                             <div class="text-muted small">Price</div>
+                        </div>
+                    </div>
+                    ${sellHtml}
+                </div>
+            </div>
+        `;
     }
 </script>
 </body>

@@ -174,6 +174,47 @@ if(!isset($_SESSION['access'])){
     
     let staticData = null;
 
+    // Team Logo Helper
+    function getTeamLogo(teamName) {
+        if(!teamName) return null;
+        const name = teamName.toLowerCase();
+        const map = {
+            'arsenal': 'arsenal.svg',
+            'aston villa': 'aston villa.svg',
+            'bournemouth': 'boumemouth.svg',
+            'brentford': 'brentford.svg',
+            'brighton': 'brighton.svg',
+            'burnley': 'burnley.svg',
+            'chelsea': 'chelsea.svg',
+            'crystal palace': 'crystal palace.svg',
+            'everton': 'everton.svg',
+            'fulham': 'fulham.svg',
+            'liverpool': 'liverpool.svg',
+            'man city': 'man city.svg',
+            'man utd': 'man utd.svg',
+            'newcastle': null,
+            "nott'm forest": 'forest.svg',
+            'sheffield utd': null,
+            'spurs': 'spurs.svg',
+            'tottenham': 'spurs.svg',
+            'luton': null,
+            'west ham': 'west ham.svg',
+            'wolves': 'wolves.svg',
+            'leicester': null,
+            'southampton': null,
+            'ipswich': null
+        };
+        return map[name] ? 'f_logo/' + map[name] : null;
+    }
+
+    function getTeamLogoHtml(team, size = 18) {
+        const logoPath = getTeamLogo(team?.name);
+        if (logoPath) {
+            return `<img src="${logoPath}" alt="${team?.name}" style="height: ${size}px; width: ${size}px; object-fit: contain;" class="me-1">`;
+        }
+        return '';
+    }
+
     // Load ID from storage
     const storedId = localStorage.getItem('fpl_manager_id');
     if(storedId) {
@@ -302,7 +343,7 @@ if(!isset($_SESSION['access'])){
                     <tr class="${mult === 0 ? 'bg-light opacity-75' : ''}">
                         <td class="text-start ps-4">
                             <div class="fw-bold text-dark">${player.web_name} ${badges}</div>
-                            <div class="small text-muted">${team.short_name} &bull; ${player.element_type === 1 ? 'GKP' : player.element_type === 2 ? 'DEF' : player.element_type === 3 ? 'MID' : 'FWD'}</div>
+                            <div class="small text-muted d-flex align-items-center">${getTeamLogoHtml(team)}${team.short_name} &bull; ${player.element_type === 1 ? 'GKP' : player.element_type === 2 ? 'DEF' : player.element_type === 3 ? 'MID' : 'FWD'}</div>
                         </td>
                         <td>${s(stats.minutes)}'</td>
                         <td>${s(stats.goals_scored) > 0 ? '<span class="text-success fw-bold">'+stats.goals_scored+'</span>' : '0'}</td>

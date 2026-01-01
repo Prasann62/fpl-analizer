@@ -102,6 +102,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let staticData = null;
 
+    // Team Logo Helper
+    function getTeamLogo(teamName) {
+        if(!teamName) return null;
+        const name = teamName.toLowerCase();
+        const map = {
+            'arsenal': 'arsenal.svg',
+            'aston villa': 'aston villa.svg',
+            'bournemouth': 'boumemouth.svg',
+            'brentford': 'brentford.svg',
+            'brighton': 'brighton.svg',
+            'burnley': 'burnley.svg',
+            'chelsea': 'chelsea.svg',
+            'crystal palace': 'crystal palace.svg',
+            'everton': 'everton.svg',
+            'fulham': 'fulham.svg',
+            'liverpool': 'liverpool.svg',
+            'man city': 'man city.svg',
+            'man utd': 'man utd.svg',
+            'newcastle': null,
+            "nott'm forest": 'forest.svg',
+            'sheffield utd': null,
+            'spurs': 'spurs.svg',
+            'tottenham': 'spurs.svg',
+            'luton': null,
+            'west ham': 'west ham.svg',
+            'wolves': 'wolves.svg',
+            'leicester': null,
+            'southampton': null,
+            'ipswich': null
+        };
+        return map[name] ? 'f_logo/' + map[name] : null;
+    }
+
+    function getTeamLogoHtml(team, size = 20) {
+        const logoPath = getTeamLogo(team?.name);
+        if (logoPath) {
+            return `<img src="${logoPath}" alt="${team?.name}" style="height: ${size}px; width: ${size}px; object-fit: contain;" class="me-1">`;
+        }
+        return '';
+    }
+
     // Fetch bootstrap-static data on load
     async function fetchStaticData() {
         try {
@@ -185,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>
                     <div class="fw-bold text-dark">${player.web_name}</div>
                 </td>
-                <td>${team.short_name}</td>
+                <td><span class="d-flex align-items-center gap-1">${getTeamLogoHtml(team)}${team.short_name}</span></td>
                 <td>${roleBadge}</td>
                 <td class="text-end pe-4 fw-bold">£${(player.now_cost / 10).toFixed(1)}</td>
             `;

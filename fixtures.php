@@ -129,6 +129,47 @@ if(!isset($_SESSION['access'])){
     const lineupsModal = new bootstrap.Modal(document.getElementById('lineupsModal'));
     const lineupsModalBody = document.getElementById('lineupsModalBody');
 
+    // Team Logo Helper
+    function getTeamLogo(teamName) {
+        if(!teamName) return null;
+        const name = teamName.toLowerCase();
+        const map = {
+            'arsenal': 'arsenal.svg',
+            'aston villa': 'aston villa.svg',
+            'bournemouth': 'boumemouth.svg',
+            'brentford': 'brentford.svg',
+            'brighton': 'brighton.svg',
+            'burnley': 'burnley.svg',
+            'chelsea': 'chelsea.svg',
+            'crystal palace': 'crystal palace.svg',
+            'everton': 'everton.svg',
+            'fulham': 'fulham.svg',
+            'liverpool': 'liverpool.svg',
+            'man city': 'man city.svg',
+            'man utd': 'man utd.svg',
+            'newcastle': null,
+            "nott'm forest": 'forest.svg',
+            'sheffield utd': null,
+            'spurs': 'spurs.svg',
+            'tottenham': 'spurs.svg',
+            'luton': null,
+            'west ham': 'west ham.svg',
+            'wolves': 'wolves.svg',
+            'leicester': null,
+            'southampton': null,
+            'ipswich': null
+        };
+        return map[name] ? 'f_logo/' + map[name] : null;
+    }
+
+    function getTeamLogoHtml(team, size = 24) {
+        const logoPath = getTeamLogo(team?.name);
+        if (logoPath) {
+            return `<img src="${logoPath}" alt="${team?.name}" style="height: ${size}px; width: ${size}px; object-fit: contain;">`;
+        }
+        return `<span class="badge bg-light text-dark border" style="font-size: 0.7rem;">${team?.short_name || ''}</span>`;
+    }
+
     // Init
     init();
 
@@ -185,8 +226,8 @@ if(!isset($_SESSION['access'])){
             // Group by team
             staticData.teams.forEach(team => {
                 const row = document.createElement('tr');
-                
-                let cells = `<td class="fw-bold ps-3">${team.short_name}</td>`;
+                const logoHtml = getTeamLogoHtml(team, 20);
+                let cells = `<td class="fw-bold ps-3 d-flex align-items-center gap-2">${logoHtml} ${team.short_name}</td>`;
                 
                 for(let i=0; i<5; i++) {
                     const gw = startGw + i;
@@ -323,14 +364,16 @@ if(!isset($_SESSION['access'])){
                                     <div class="school-date text-muted small mb-2 fw-bold text-uppercase">${dateStr}</div>
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div class="text-center w-25">
-                                            <div class="fw-bold text-dark h5 mb-0">${homeTeam.short_name}</div>
+                                            ${getTeamLogoHtml(homeTeam, 40)}
+                                            <div class="fw-bold text-dark h6 mb-0 mt-1">${homeTeam.short_name}</div>
                                         </div>
                                         <div class="w-50 d-flex flex-column align-items-center justify-content-center">
                                             ${scoreDisplay}
                                             <div class="mt-2">${statusBadge}</div>
                                         </div>
                                         <div class="text-center w-25">
-                                            <div class="fw-bold text-dark h5 mb-0">${awayTeam.short_name}</div>
+                                            ${getTeamLogoHtml(awayTeam, 40)}
+                                            <div class="fw-bold text-dark h6 mb-0 mt-1">${awayTeam.short_name}</div>
                                         </div>
                                     </div>
                                 </div>

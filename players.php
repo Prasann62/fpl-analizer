@@ -115,6 +115,47 @@ if(!isset($_SESSION['access'])){
     let teamsMap = {};
     let positionsMap = {1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD'};
 
+    // Team Logo Helper
+    function getTeamLogo(teamName) {
+        if(!teamName) return null;
+        const name = teamName.toLowerCase();
+        const map = {
+            'arsenal': 'arsenal.svg',
+            'aston villa': 'aston villa.svg',
+            'bournemouth': 'boumemouth.svg',
+            'brentford': 'brentford.svg',
+            'brighton': 'brighton.svg',
+            'burnley': 'burnley.svg',
+            'chelsea': 'chelsea.svg',
+            'crystal palace': 'crystal palace.svg',
+            'everton': 'everton.svg',
+            'fulham': 'fulham.svg',
+            'liverpool': 'liverpool.svg',
+            'man city': 'man city.svg',
+            'man utd': 'man utd.svg',
+            'newcastle': null,
+            "nott'm forest": 'forest.svg',
+            'sheffield utd': null,
+            'spurs': 'spurs.svg',
+            'tottenham': 'spurs.svg',
+            'luton': null,
+            'west ham': 'west ham.svg',
+            'wolves': 'wolves.svg',
+            'leicester': null,
+            'southampton': null,
+            'ipswich': null
+        };
+        return map[name] ? 'f_logo/' + map[name] : null;
+    }
+
+    function getTeamLogoHtml(team, size = 20) {
+        const logoPath = getTeamLogo(team?.name);
+        if (logoPath) {
+            return `<img src="${logoPath}" alt="${team?.name}" style="height: ${size}px; width: ${size}px; object-fit: contain;" class="me-1">`;
+        }
+        return '';
+    }
+
     async function init() {
         try {
             const res = await fetch('api.php?endpoint=bootstrap-static/');
@@ -202,7 +243,7 @@ if(!isset($_SESSION['access'])){
                         <div class="fw-bold text-dark">${p.first_name} ${p.second_name}</div>
                     </td>
                     <td><span class="badge bg-light text-dark border">${position}</span></td>
-                    <td>${team.short_name}</td>
+                    <td><span class="d-flex align-items-center gap-1">${getTeamLogoHtml(team)}${team.short_name}</span></td>
                     <td class="fw-bold">£${(p.now_cost / 10).toFixed(1)}m</td>
                     <td class="text-center">
                         <span class="fw-bold ${parseFloat(p.form) > 5 ? 'text-success' : ''}">${p.form}</span>
