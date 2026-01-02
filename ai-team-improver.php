@@ -206,6 +206,192 @@ if(!isset($_SESSION['access'])){
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Position Filter Pills */
+        .position-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .pos-filter-btn {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            border: 2px solid #e9ecef;
+            background: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .pos-filter-btn:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 255, 133, 0.05);
+        }
+        .pos-filter-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), #00ff85);
+            border-color: transparent;
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 255, 133, 0.3);
+        }
+
+        /* Fixture Ticker */
+        .fixture-ticker {
+            display: flex;
+            gap: 3px;
+            margin-top: 6px;
+        }
+        .fixture-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .fdr-1, .fdr-2 { background: linear-gradient(135deg, #00c853, #69f0ae); }
+        .fdr-3 { background: linear-gradient(135deg, #ffc107, #ffeb3b); color: #333 !important; }
+        .fdr-4 { background: linear-gradient(135deg, #ff5722, #ff8a65); }
+        .fdr-5 { background: linear-gradient(135deg, #d32f2f, #ef5350); }
+        .fdr-blank { background: #e0e0e0; color: #999; }
+
+        /* Confidence Meter */
+        .confidence-meter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .confidence-bar {
+            width: 60px;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .confidence-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .confidence-high { background: linear-gradient(90deg, #00c853, #69f0ae); }
+        .confidence-med { background: linear-gradient(90deg, #ffc107, #ffeb3b); }
+        .confidence-low { background: linear-gradient(90deg, #ff5722, #ff8a65); }
+
+        /* Priority Badge */
+        .priority-badge {
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .priority-1 { background: linear-gradient(135deg, #ff4444, #ff6b6b); color: white; }
+        .priority-2 { background: linear-gradient(135deg, #ffa726, #ffcc02); color: #333; }
+        .priority-3 { background: linear-gradient(135deg, #4fc3f7, #29b6f6); color: white; }
+
+        /* Expected Points Badge */
+        .xp-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .xp-badge i { font-size: 0.6rem; }
+
+        /* Chip Strategy Panel */
+        .chip-panel {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        .chip-panel h6 {
+            color: rgba(255,255,255,0.9);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .chip-suggestion {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .chip-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .chip-wc { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .chip-fh { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .chip-bb { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #333; }
+        .chip-tc { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+        /* Points Gain Estimate */
+        .points-gain {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .points-gain.positive { color: #00c853; }
+        .points-gain.neutral { color: #ffc107; }
+        .points-gain.negative { color: #ff5722; }
+
+        /* Transfer Card Enhancements */
+        .transfer-card {
+            position: relative;
+            overflow: visible !important;
+        }
+        .transfer-card .player-stats {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+        .mini-stat {
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Summary Cards Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 576px) {
+            .fixture-ticker { gap: 2px; }
+            .fixture-dot { width: 20px; height: 20px; font-size: 0.5rem; }
+            .transfer-card .card-body { padding: 0.75rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -361,19 +547,41 @@ if(!isset($_SESSION['access'])){
                 </div>
             </div>
 
+            <!-- Chip Strategy Panel (Dynamic) -->
+            <div id="chipPanel" class="chip-panel d-none">
+                <h6><i class="bi bi-cpu me-2"></i>AI Chip Strategy Suggestion</h6>
+                <div id="chipSuggestion" class="chip-suggestion">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Position Filter -->
+            <div class="position-filters mb-4">
+                <button class="pos-filter-btn active" data-pos="all"><i class="bi bi-grid-fill me-1"></i>All</button>
+                <button class="pos-filter-btn" data-pos="1"><i class="bi bi-person-fill me-1"></i>GK</button>
+                <button class="pos-filter-btn" data-pos="2"><i class="bi bi-shield-fill me-1"></i>DEF</button>
+                <button class="pos-filter-btn" data-pos="3"><i class="bi bi-bullseye me-1"></i>MID</button>
+                <button class="pos-filter-btn" data-pos="4"><i class="bi bi-lightning-fill me-1"></i>FWD</button>
+            </div>
+
             <!-- Transfer Suggestions -->
             <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between border-0">
+                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between border-0 flex-wrap gap-2">
                     <div class="d-flex align-items-center">
                         <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
                             <i class="bi bi-arrow-left-right text-primary fs-5"></i>
                         </div>
                         <div>
                             <h5 class="fw-bold mb-0">Recommended Transfers</h5>
-                            <small class="text-muted">Based on League Ownership & Fixtures</small>
+                            <small class="text-muted">Based on League Ownership, Fixtures & xPts</small>
                         </div>
                     </div>
-                    <span id="strategyBadge" class="badge bg-primary rounded-pill px-3 py-2"></span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="strategyBadge" class="badge bg-primary rounded-pill px-3 py-2"></span>
+                        <span id="expectedGain" class="badge bg-success rounded-pill px-3 py-2 d-none">
+                            <i class="bi bi-graph-up me-1"></i><span id="expectedGainValue">+0</span> xPts
+                        </span>
+                    </div>
                 </div>
                 <div class="card-body pt-0" id="transferList">
                     <!-- Top Pick Highlight -->
@@ -844,10 +1052,33 @@ if(!isset($_SESSION['access'])){
             const teamMap = {};
             bootstrapData.teams.forEach(t => teamMap[t.id] = t);
             
-            renderTransfers(missingHighOwnership, potentialDifferentials, lowOwnershipMine, scanned, playerOwnership, players, myBank, teamMap, mySquad);
+            // Store globally for position filtering
+            window.aiData = {
+                blockers: missingHighOwnership,
+                differentials: potentialDifferentials,
+                toSell: lowOwnershipMine,
+                total: scanned,
+                ownership: playerOwnership,
+                players: players,
+                bank: myBank,
+                teamMap: teamMap,
+                mySquad: mySquad,
+                futureFixtures: futureFixtures,
+                currentGw: currentGw,
+                strategy: strategy,
+                freeTransfers: freeTransfers
+            };
+            
+            // Check for Chip Strategy
+            checkChipStrategy(lowOwnershipMine, freeTransfers, strategy, futureFixtures, currentGw);
+            
+            renderTransfers(missingHighOwnership, potentialDifferentials, lowOwnershipMine, scanned, playerOwnership, players, myBank, teamMap, mySquad, futureFixtures, currentGw, strategy);
 
             loading.classList.add('d-none');
             results.classList.remove('d-none');
+            
+            // Setup Position Filter Listeners
+            setupPositionFilters();
 
         } catch (e) {
             console.error(e);
@@ -857,7 +1088,146 @@ if(!isset($_SESSION['access'])){
         }
     });
 
-    function renderTransfers(blockers, differentials, toSell, total, ownership, players, bank, teamMap, mySquad) {
+    // Position Filter Logic
+    function setupPositionFilters() {
+        document.querySelectorAll('.pos-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.pos-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const pos = btn.dataset.pos;
+                filterTransfersByPosition(pos);
+            });
+        });
+    }
+
+    function filterTransfersByPosition(pos) {
+        document.querySelectorAll('.transfer-card').forEach(card => {
+            if(pos === 'all') {
+                card.style.display = 'block';
+            } else {
+                const cardPos = card.dataset.position;
+                card.style.display = (cardPos == pos) ? 'block' : 'none';
+            }
+        });
+    }
+
+    // Chip Strategy Check
+    function checkChipStrategy(toSell, freeTransfers, strategy, futureFixtures, currentGw) {
+        const chipPanel = document.getElementById('chipPanel');
+        const chipSuggestion = document.getElementById('chipSuggestion');
+        
+        // Count issues
+        const injuredCount = toSell.filter(p => p.status !== 'a').length;
+        const poorAssets = toSell.length;
+        
+        let showChip = false;
+        let chipHtml = '';
+        
+        // Wildcard suggestion: Many poor assets
+        if(poorAssets >= 5 && freeTransfers <= 2) {
+            showChip = true;
+            chipHtml = `
+                <div class="chip-icon chip-wc"><i class="bi bi-arrow-repeat"></i></div>
+                <div>
+                    <div class="fw-bold">Consider Using Wildcard</div>
+                    <div class="small opacity-75">${poorAssets} players flagged for potential removal. A Wildcard could restructure your squad efficiently.</div>
+                </div>
+            `;
+        }
+        // Free Hit: Too many blanks/DGWs coming
+        else if(injuredCount >= 3) {
+            showChip = true;
+            chipHtml = `
+                <div class="chip-icon chip-fh"><i class="bi bi-lightning"></i></div>
+                <div>
+                    <div class="fw-bold">Free Hit Could Help</div>
+                    <div class="small opacity-75">${injuredCount} injured/doubtful players in your squad. Consider a Free Hit for the next GW.</div>
+                </div>
+            `;
+        }
+        // Bench Boost: Good fixtures across squad
+        else if(freeTransfers >= 2 && poorAssets <= 1) {
+            showChip = true;
+            chipHtml = `
+                <div class="chip-icon chip-bb"><i class="bi bi-people"></i></div>
+                <div>
+                    <div class="fw-bold">Bench Boost Opportunity</div>
+                    <div class="small opacity-75">Your squad looks strong! If bench has good fixtures, consider Bench Boost.</div>
+                </div>
+            `;
+        }
+        
+        if(showChip && chipPanel && chipSuggestion) {
+            chipSuggestion.innerHTML = chipHtml;
+            chipPanel.classList.remove('d-none');
+        } else if(chipPanel) {
+            chipPanel.classList.add('d-none');
+        }
+    }
+
+    // Get Fixture Ticker HTML for a team
+    function getFixtureTicker(teamId, futureFixtures, currentGw, teamMap, strategy) {
+        const lookahead = strategy === 'short' ? 5 : 8;
+        let html = '<div class="fixture-ticker">';
+        
+        for(let i = 0; i < Math.min(lookahead, 5); i++) { // Show max 5 dots
+            const gw = currentGw + 1 + i;
+            if(gw > 38) break;
+            
+            const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+            
+            if(fixtures.length === 0) {
+                html += '<div class="fixture-dot fdr-blank" title="GW' + gw + ': Blank">-</div>';
+            } else if(fixtures.length > 1) {
+                // DGW
+                html += '<div class="fixture-dot fdr-1" title="GW' + gw + ': DGW">2</div>';
+            } else {
+                const fix = fixtures[0];
+                const isHome = fix.team_h === teamId;
+                const opponent = teamMap[isHome ? fix.team_a : fix.team_h];
+                const difficulty = isHome ? fix.team_h_difficulty : fix.team_a_difficulty;
+                const shortName = opponent?.short_name || '?';
+                const homeAway = isHome ? 'H' : 'a';
+                
+                html += `<div class="fixture-dot fdr-${difficulty}" title="GW${gw}: ${shortName} (${homeAway})">${shortName.substring(0,3)}</div>`;
+            }
+        }
+        
+        html += '</div>';
+        return html;
+    }
+
+    // Calculate Expected Points
+    function calculateExpectedPoints(player, fixScore, strategy) {
+        const form = parseFloat(player.form) || 0;
+        const ppg = parseFloat(player.points_per_game) || 0;
+        const games = strategy === 'short' ? 5 : 8;
+        
+        // Simple xPts model: (form * 0.6 + ppg * 0.4) * weeks * fixture factor
+        const baseXpts = (form * 0.6 + ppg * 0.4);
+        const neutralScore = games * 3;
+        const fixFactor = Math.max(0.7, Math.min(1.3, fixScore / neutralScore));
+        
+        return (baseXpts * games * fixFactor).toFixed(1);
+    }
+
+    // Calculate Confidence Score
+    function calculateConfidence(player, ownership, fixScore, strategy) {
+        const form = parseFloat(player.form) || 0;
+        const games = strategy === 'short' ? 5 : 8;
+        const neutralScore = games * 3;
+        
+        // Factors: Form (40%), Fixtures (30%), Ownership relevance (30%)
+        const formScore = Math.min(10, form) / 10 * 40;
+        const fixScoreNorm = Math.min(1.5, Math.max(0.5, fixScore / neutralScore));
+        const fixtureScore = ((fixScoreNorm - 0.5) / 1) * 30;
+        const ownershipScore = Math.min(ownership, 0.5) / 0.5 * 30;
+        
+        return Math.round(formScore + fixtureScore + ownershipScore);
+    }
+
+    function renderTransfers(blockers, differentials, toSell, total, ownership, players, bank, teamMap, mySquad, futureFixtures, currentGw, strategy) {
         // 1. Render Transfers
         const diffList = document.getElementById('diffList');
         const blockList = document.getElementById('blockList');
@@ -865,6 +1235,7 @@ if(!isset($_SESSION['access'])){
         if(blockList) blockList.innerHTML = '';
 
         let totalMoves = 0;
+        let totalExpectedGain = 0;
 
         // Helper to find best sell candidate for a buy target
         const findSellFor = (buyPlayer) => {
@@ -887,29 +1258,73 @@ if(!isset($_SESSION['access'])){
             // If no one directly affords, return the absolute worst (might need 2 transfers to afford)
             return candidates[0] || null;
         };
+        
+        // Helper to get fixture score for a player
+        const getPlayerFixScore = (teamId) => {
+            const lookahead_gw = strategy === 'short' ? 5 : 8;
+            let score = 0;
+            const startGw = currentGw + 1;
+            
+            for(let i = 0; i < lookahead_gw; i++) {
+                const gw = startGw + i;
+                if(gw > 38) break;
+                const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+                
+                if(fixtures.length === 0) {
+                    score -= 2;
+                } else {
+                    fixtures.forEach(f => {
+                        const difficulty = f.team_h === teamId ? f.team_h_difficulty : f.team_a_difficulty;
+                        score += (6 - difficulty);
+                    });
+                }
+            }
+            return score;
+        };
 
         // Render Blockers
         if(blockers.length === 0 && blockList) blockList.innerHTML = '<p class="text-muted small">You own all the key template players!</p>';
-        blockers.forEach(item => {
+        blockers.forEach((item, idx) => {
             if(blockList) {
                 const p = item.player;
                 const sellP = findSellFor(p);
                 const team = teamMap[p.team];
-                const card = createTransferCard(p, item.ownership, 'block', sellP, bank, team);
+                const fixScore = getPlayerFixScore(p.team);
+                const xPts = calculateExpectedPoints(p, fixScore, strategy);
+                const confidence = calculateConfidence(p, item.ownership, fixScore, strategy);
+                const priority = idx < 2 ? 1 : (idx < 5 ? 2 : 3);
+                
+                const card = createTransferCard(p, item.ownership, 'block', sellP, bank, team, futureFixtures, currentGw, teamMap, strategy, xPts, confidence, priority);
                 blockList.appendChild(card);
+                
+                // Calculate gain (simplified: xPts of new - form*games of old)
+                if(sellP && idx < 3) {
+                    const oldXpts = parseFloat(sellP.form || 0) * (strategy === 'short' ? 5 : 8);
+                    totalExpectedGain += (parseFloat(xPts) - oldXpts);
+                }
             }
             totalMoves++;
         });
 
         // Render Differentials
         if(differentials.length === 0 && diffList) diffList.innerHTML = '<p class="text-muted small">No hidden gems with good fixtures found.</p>';
-        differentials.forEach(p => {
+        differentials.forEach((p, idx) => {
              const ownCount = ownership[p.id] || 0;
              if(diffList) {
                 const sellP = findSellFor(p);
                 const team = teamMap[p.team];
-                const card = createTransferCard(p, ownCount/total, 'diff', sellP, bank, team);
+                const fixScore = p.fixScore || getPlayerFixScore(p.team);
+                const xPts = calculateExpectedPoints(p, fixScore, strategy);
+                const confidence = calculateConfidence(p, ownCount/total, fixScore, strategy);
+                const priority = idx < 2 ? 1 : (idx < 5 ? 2 : 3);
+                
+                const card = createTransferCard(p, ownCount/total, 'diff', sellP, bank, team, futureFixtures, currentGw, teamMap, strategy, xPts, confidence, priority);
                 diffList.appendChild(card);
+                
+                if(sellP && idx < 3) {
+                    const oldXpts = parseFloat(sellP.form || 0) * (strategy === 'short' ? 5 : 8);
+                    totalExpectedGain += (parseFloat(xPts) - oldXpts);
+                }
              }
              totalMoves++;
         });
@@ -925,7 +1340,9 @@ if(!isset($_SESSION['access'])){
                 const top = allMoves[0];
                 const sellP = findSellFor(top.player);
                 const team = teamMap[top.player.team];
-                topPickContainer.innerHTML = createTopPickCard(top.player, top.ownership, top.type, sellP, bank, team);
+                const fixScore = getPlayerFixScore(top.player.team);
+                const xPts = calculateExpectedPoints(top.player, fixScore, strategy);
+                topPickContainer.innerHTML = createTopPickCard(top.player, top.ownership, top.type, sellP, bank, team, futureFixtures, currentGw, teamMap, strategy, xPts);
                 topPickContainer.classList.remove('d-none');
             } else {
                 topPickContainer.classList.add('d-none');
@@ -934,6 +1351,14 @@ if(!isset($_SESSION['access'])){
 
         const movesCountEl = document.getElementById('movesCount');
         if(movesCountEl) movesCountEl.innerText = totalMoves;
+        
+        // Show expected gain
+        const expectedGainEl = document.getElementById('expectedGain');
+        const expectedGainValueEl = document.getElementById('expectedGainValue');
+        if(expectedGainEl && expectedGainValueEl && totalExpectedGain > 0) {
+            expectedGainValueEl.innerText = '+' + totalExpectedGain.toFixed(1);
+            expectedGainEl.classList.remove('d-none');
+        }
 
         // 2. Ownership Insights
         const ownershipList = document.getElementById('ownershipList');
@@ -993,20 +1418,38 @@ if(!isset($_SESSION['access'])){
         return map[name] ? 'f_logo/' + map[name] : null;
     }
 
-    function createTransferCard(p, ownPct, type, sellPlayer, bank, team) {
+    function createTransferCard(p, ownPct, type, sellPlayer, bank, team, futureFixtures, currentGw, teamMap, strategy, xPts, confidence, priority) {
         const div = document.createElement('div');
         div.className = `transfer-card card mb-3 ${type === 'diff' ? 'diff-card' : 'block-card'}`;
+        div.dataset.position = p.element_type; // For position filtering
+        
         const badgeColor = type === 'diff' ? 'bg-warning text-dark' : 'bg-success';
         const badgeText = type === 'diff' ? 'DIFF' : 'BLOCK';
+        const priorityText = priority === 1 ? '🔥 Priority' : (priority === 2 ? '⚡ Consider' : '');
+        const priorityClass = `priority-${priority}`;
         
         const logoPath = getTeamLogo(team?.name);
         const logoHtml = logoPath 
-            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 24px; width: 24px; object-fit: contain;" class="me-2">`
+            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 28px; width: 28px; object-fit: contain;" class="me-2">`
             : `<span class="badge bg-light text-dark border me-2">${team?.short_name || ''}</span>`;
         
+        // Fixture Ticker
+        const fixtureTicker = getFixtureTicker(p.team, futureFixtures, currentGw, teamMap, strategy);
         
-        // Append sellHtml logic here if needed or relying on the rest of the function
-
+        // Confidence meter
+        const confClass = confidence >= 70 ? 'confidence-high' : (confidence >= 40 ? 'confidence-med' : 'confidence-low');
+        const confidenceHtml = `
+            <div class="confidence-meter" title="AI Confidence: ${confidence}%">
+                <span class="small text-muted">AI</span>
+                <div class="confidence-bar">
+                    <div class="confidence-fill ${confClass}" style="width: ${confidence}%"></div>
+                </div>
+                <span class="small fw-bold">${confidence}%</span>
+            </div>
+        `;
+        
+        // Position name
+        const posName = ['','GK','DEF','MID','FWD'][p.element_type] || '';
         
         let sellHtml = '';
         if(sellPlayer) {
@@ -1014,45 +1457,65 @@ if(!isset($_SESSION['access'])){
             sellHtml = `
                 <div class="border-top pt-2 mt-2">
                     <div class="d-flex justify-content-between align-items-center small">
-                         <span class="text-danger fw-bold"><i class="bi bi-box-arrow-right me-1"></i>Sell: ${sellPlayer.web_name}</span>
-                         <span class="text-muted">£${sellPlayer.now_cost/10}m</span>
+                         <span class="text-danger fw-bold"><i class="bi bi-arrow-right-circle me-1"></i>Out: ${sellPlayer.web_name}</span>
+                         <span class="text-muted">£${(sellPlayer.now_cost/10).toFixed(1)}m</span>
                     </div>
-                     ${needed > 0 ? '<div class="text-danger fw-bold text-end" style="font-size:0.7rem">Need £' + (needed/10).toFixed(1) + 'm more</div>' : ''}
+                     ${needed > 0 ? '<div class="text-danger fw-bold text-end" style="font-size:0.7rem">Need £' + (needed/10).toFixed(1) + 'm more</div>' : '<div class="text-success fw-bold text-end" style="font-size:0.7rem"><i class="bi bi-check-circle me-1"></i>Affordable</div>'}
                 </div>
             `;
         } else {
              sellHtml = `
                 <div class="border-top pt-2 mt-2">
-                    <div class="small text-muted text-center fst-italic">No obvious sell candidate in this position</div>
+                    <div class="small text-muted text-center fst-italic">No obvious sell candidate</div>
                 </div>
             `;
         }
 
         div.innerHTML = `
+            ${priority <= 2 ? `<div class="priority-badge ${priorityClass}">${priorityText}</div>` : ''}
             <div class="card-body p-3">
-                <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-start justify-content-between mb-2">
                     <div class="d-flex align-items-center">
                          ${logoHtml}
                          <div>
-                            <div class="fw-bold text-dark fs-5">${p.web_name} <span class="badge ${badgeColor} ms-1" style="font-size:0.6rem; vertical-align: middle;">${badgeText}</span></div>
-                            <div class="small text-muted">Form: ${p.form} • £${p.now_cost/10}m</div>
+                            <div class="fw-bold text-dark fs-6">${p.web_name}</div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+                                <span class="badge ${badgeColor}" style="font-size:0.6rem;">${badgeText}</span>
+                                <span class="badge bg-secondary" style="font-size:0.6rem;">${posName}</span>
+                                <span class="xp-badge"><i class="bi bi-graph-up"></i>${xPts} xPts</span>
+                            </div>
                          </div>
                     </div>
-                    <div class="text-end" style="min-width: 60px;">
+                    <div class="text-end" style="min-width: 65px;">
                         <div class="fw-bold small">${Math.round(ownPct*100)}%</div>
-                        <div class="progress" style="height: 4px; width: 60px">
+                        <div class="progress mb-1" style="height: 4px; width: 60px">
                             <div class="progress-bar ${type==='diff'?'bg-warning':'bg-success'}" role="progressbar" style="width: ${Math.round(ownPct*100)}%"></div>
                         </div>
-                        <div class="text-muted" style="font-size: 0.65rem">Owned</div>
+                        <div class="text-muted" style="font-size: 0.6rem">Owned</div>
                     </div>
                 </div>
+                
+                <div class="player-stats mb-2">
+                    <span class="mini-stat"><i class="bi bi-fire text-danger me-1"></i>Form ${p.form}</span>
+                    <span class="mini-stat"><i class="bi bi-currency-pound text-success me-1"></i>${(p.now_cost/10).toFixed(1)}m</span>
+                    <span class="mini-stat"><i class="bi bi-bullseye text-primary me-1"></i>${p.total_points} pts</span>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-muted fw-bold">Fixtures</span>
+                        ${confidenceHtml}
+                    </div>
+                    ${fixtureTicker}
+                </div>
+                
                 ${sellHtml}
             </div>
         `;
         return div;
     }
 
-    function createTopPickCard(p, ownPct, type, sellPlayer, bank, team) {
+    function createTopPickCard(p, ownPct, type, sellPlayer, bank, team, futureFixtures, currentGw, teamMap, strategy, xPts) {
         // Star / "Perfect Transfer" Styling
         const isDiff = type === 'diff';
         const badgeColor = isDiff ? 'bg-warning text-dark' : 'bg-success';
@@ -1060,12 +1523,15 @@ if(!isset($_SESSION['access'])){
         
         const logoPath = getTeamLogo(team?.name);
         const logoHtml = logoPath 
-            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 60px; auto; object-fit: contain; opacity:0.1; position: absolute; right: -10px; bottom: -10px;">`
+            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 80px; auto; object-fit: contain; opacity:0.15; position: absolute; right: -10px; bottom: -10px;">`
             : '';
             
         const logoHeader = logoPath
-            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 20px; width: 20px; object-fit: contain;" class="me-2">`
+            ? `<img src="${logoPath}" alt="${team?.name}" style="height: 24px; width: 24px; object-fit: contain;" class="me-2">`
             : `<span>${team?.short_name}</span> `;
+        
+        // Fixture Ticker
+        const fixtureTicker = getFixtureTicker(p.team, futureFixtures, currentGw, teamMap, strategy);
         
         let sellHtml = '';
         if(sellPlayer) {
@@ -1073,39 +1539,46 @@ if(!isset($_SESSION['access'])){
             sellHtml = `
                 <div class="mt-3 p-2 rounded bg-light border border-dashed">
                     <div class="d-flex justify-content-between align-items-center">
-                         <span class="text-danger fw-bold"><i class="bi bi-box-arrow-right me-2"></i>Out: ${sellPlayer.web_name}</span>
-                         <span class="text-muted small">£${sellPlayer.now_cost/10}m</span>
+                         <span class="text-danger fw-bold"><i class="bi bi-arrow-right-circle me-2"></i>Out: ${sellPlayer.web_name}</span>
+                         <span class="text-muted small">£${(sellPlayer.now_cost/10).toFixed(1)}m</span>
                     </div>
-                     ${needed > 0 ? '<div class="text-danger fw-bold text-end mt-1" style="font-size:0.8rem">Short by £' + (needed/10).toFixed(1) + 'm</div>' : ''}
+                     ${needed > 0 ? '<div class="text-danger fw-bold text-end mt-1" style="font-size:0.8rem">Short by £' + (needed/10).toFixed(1) + 'm</div>' : '<div class="text-success fw-bold text-end mt-1" style="font-size:0.8rem"><i class="bi bi-check-circle me-1"></i>Affordable</div>'}
                 </div>
             `;
         }
 
         return `
-            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-left: 5px solid #ffc107 !important;">
-                <div class="card-body position-relative overflow-hidden">
-                    <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                        <i class="bi bi-star-fill text-warning display-1"></i>
+            <div class="card border-0 shadow-lg" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-left: 5px solid #ffc107 !important;">
+                <div class="card-body position-relative overflow-hidden text-white">
+                    <div class="position-absolute top-0 end-0 p-3">
+                        <i class="bi bi-star-fill text-warning display-3 opacity-25"></i>
                     </div>
                     ${logoHtml}
                     
-                    <h6 class="text-uppercase text-muted fw-bold small mb-3 d-flex align-items-center"><i class="bi bi-stars text-warning me-2"></i>AI Suggested Transfer</h6>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-warning text-dark"><i class="bi bi-cpu me-1"></i>AI PICK</span>
+                        <span class="badge ${badgeColor}">${badgeText}</span>
+                    </div>
                     
                     <div class="row align-items-center">
-                        <div class="col-8">
-                             <div class="d-flex align-items-center mb-1">
-                                ${logoHeader} <span class="small text-muted">${team?.name}</span>
+                        <div class="col-md-7">
+                             <div class="d-flex align-items-center mb-2">
+                                ${logoHeader} <span class="small opacity-75">${team?.name}</span>
                              </div>
-                             <h2 class="display-6 fw-bold mb-0 text-dark">${p.web_name}</h2>
-                             <div class="d-flex align-items-center gap-2 mt-2">
-                                <span class="badge ${badgeColor}">${badgeText}</span>
+                             <h2 class="display-5 fw-bold mb-2">${p.web_name}</h2>
+                             <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                                <span class="xp-badge" style="font-size: 0.85rem; padding: 6px 14px;"><i class="bi bi-graph-up me-1"></i>${xPts} xPts</span>
                                 <span class="badge bg-white text-dark border">Form ${p.form}</span>
-                                <span class="badge bg-white text-dark border">Fix Score ${p.fixScore}</span>
+                                <span class="badge bg-white text-dark border">${p.total_points} pts</span>
+                             </div>
+                             <div class="mb-2">
+                                <span class="small opacity-75 d-block mb-1">Upcoming Fixtures</span>
+                                ${fixtureTicker}
                              </div>
                         </div>
-                        <div class="col-4 text-end">
-                             <div class="display-6 fw-bold text-primary">£${p.now_cost/10}m</div>
-                             <div class="text-muted small">Price</div>
+                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                             <div class="display-4 fw-bold text-warning">£${(p.now_cost/10).toFixed(1)}m</div>
+                             <div class="opacity-75 small">Price</div>
                         </div>
                     </div>
                     ${sellHtml}
