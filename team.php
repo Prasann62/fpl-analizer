@@ -120,17 +120,17 @@ document.addEventListener('DOMContentLoaded', () => {
             'liverpool': 'liverpool.svg',
             'man city': 'man city.svg',
             'man utd': 'man utd.svg',
-            'newcastle': null,
+            'newcastle': 'newcastle.svg',
             "nott'm forest": 'forest.svg',
-            'sheffield utd': null,
+            'sheffield utd': 'sunderland.svg',
             'spurs': 'spurs.svg',
             'tottenham': 'spurs.svg',
-            'luton': null,
+            'luton': 'sunderland.svg',
             'west ham': 'west ham.svg',
             'wolves': 'wolves.svg',
-            'leicester': null,
-            'southampton': null,
-            'ipswich': null
+            'leicester': 'leicester.png',
+            'southampton': 'southampton.png',
+            'ipswich': 'ipswich.png'
         };
         return map[name] ? 'f_logo/' + map[name] : null;
     }

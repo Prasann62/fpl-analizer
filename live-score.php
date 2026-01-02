@@ -24,6 +24,14 @@ if(!isset($_SESSION['access'])){
             transform: translateY(-2px);
             background: rgba(255, 255, 255, 0.1);
         }
+        .hero-header {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.95) 100%), url('f_logo/football_pitch.svg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 1rem;
+            padding: 2rem;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -34,7 +42,7 @@ if(!isset($_SESSION['access'])){
         <!-- Header -->
         <div class="hero-header text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
             <div class="z-1">
-                <h1 class="display-5 fw-bold mb-2">Live Live Score</h1>
+                <h1 class="display-5 fw-bold mb-2">Live Score</h1>
                 <p class="lead opacity-75 mb-0">Real-time performance stats for the current gameweek.</p>
             </div>
             <div class="mt-4 mt-md-0 z-1">
@@ -192,17 +200,17 @@ if(!isset($_SESSION['access'])){
             'liverpool': 'liverpool.svg',
             'man city': 'man city.svg',
             'man utd': 'man utd.svg',
-            'newcastle': null,
+            'newcastle': 'newcastle.svg',
             "nott'm forest": 'forest.svg',
-            'sheffield utd': null,
+            'sheffield utd': 'sunderland.svg',
             'spurs': 'spurs.svg',
             'tottenham': 'spurs.svg',
-            'luton': null,
+            'luton': 'sunderland.svg',
             'west ham': 'west ham.svg',
             'wolves': 'wolves.svg',
-            'leicester': null,
-            'southampton': null,
-            'ipswich': null
+            'leicester': 'leicester.png',
+            'southampton': 'southampton.png',
+            'ipswich': 'ipswich.png'
         };
         return map[name] ? 'f_logo/' + map[name] : null;
     }

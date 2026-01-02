@@ -29,6 +29,14 @@ if(!isset($_SESSION['access'])){
         .fdr-3 { background-color: #e7e7e7; color: black; }
         .fdr-4 { background-color: #ff1751; }
         .fdr-5 { background-color: #80072d; }
+        .hero-header {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.95) 100%), url('f_logo/football_pitch.svg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 1rem;
+            padding: 2rem;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -147,17 +155,17 @@ if(!isset($_SESSION['access'])){
             'liverpool': 'liverpool.svg',
             'man city': 'man city.svg',
             'man utd': 'man utd.svg',
-            'newcastle': null,
+            'newcastle': 'newcastle.svg',
             "nott'm forest": 'forest.svg',
-            'sheffield utd': null,
+            'sheffield utd': 'sunderland.svg',
             'spurs': 'spurs.svg',
             'tottenham': 'spurs.svg',
-            'luton': null,
+            'luton': 'sunderland.svg',
             'west ham': 'west ham.svg',
             'wolves': 'wolves.svg',
-            'leicester': null,
-            'southampton': null,
-            'ipswich': null
+            'leicester': 'leicester.png',
+            'southampton': 'southampton.png',
+            'ipswich': 'ipswich.png'
         };
         return map[name] ? 'f_logo/' + map[name] : null;
     }
