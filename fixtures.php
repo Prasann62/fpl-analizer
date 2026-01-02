@@ -111,15 +111,15 @@ if(!isset($_SESSION['access'])){
   
 <!-- Lineups Modal -->
 <div class="modal fade" id="lineupsModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
-      <div class="modal-header border-bottom-0">
-        <h5 class="modal-title fw-bold">Match Lineups</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content" style="background: #1a1a2e; border: none;">
+      <div class="modal-header border-bottom border-secondary">
+        <h5 class="modal-title fw-bold text-white"><i class="bi bi-people-fill me-2"></i>Match Lineups</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" id="lineupsModalBody">
+      <div class="modal-body p-0" id="lineupsModalBody">
         <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
+            <div class="spinner-border text-success" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
         </div>
@@ -127,6 +127,72 @@ if(!isset($_SESSION['access'])){
     </div>
   </div>
 </div>
+
+<style>
+    .pitch-container {
+        background: url('f_logo/football_pitch.svg') center center;
+        background-size: cover;
+        border-radius: 8px;
+        min-height: 400px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 15px 10px;
+    }
+    .pitch-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .player-chip {
+        background: rgba(255,255,255,0.95);
+        border-radius: 8px;
+        padding: 6px 10px;
+        text-align: center;
+        min-width: 70px;
+        max-width: 90px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        transition: transform 0.2s;
+    }
+    .player-chip:hover {
+        transform: scale(1.1);
+        z-index: 10;
+    }
+    .player-chip .name {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .player-chip .points {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #10b981;
+    }
+    .team-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 12px;
+        background: rgba(0,0,0,0.3);
+        border-radius: 8px 8px 0 0;
+    }
+    .team-header img {
+        height: 32px;
+        width: 32px;
+        object-fit: contain;
+    }
+    .team-header .team-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: white;
+    }
+</style>
 
 <script>
     const fixturesContainer = document.getElementById('fixtures');
@@ -416,9 +482,10 @@ if(!isset($_SESSION['access'])){
         lineupsModal.show();
         lineupsModalBody.innerHTML = `
             <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
+                <div class="spinner-border text-success" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
+                <p class="text-white-50 mt-3">Loading lineups...</p>
             </div>
         `;
 
@@ -427,16 +494,15 @@ if(!isset($_SESSION['access'])){
 
         if (!started) {
              lineupsModalBody.innerHTML = `
-                <div class="text-center py-4">
-                    <div class="alert alert-info mb-4">
-                        <i class="bi bi-info-circle-fill me-2"></i>
+                <div class="text-center py-5">
+                    <div class="alert alert-warning mb-4 mx-4">
+                        <i class="bi bi-clock-fill me-2"></i>
                         Official FPL lineup data is only available after kickoff.
                     </div>
-                    <p class="mb-4">Confirmed lineups are usually available 1 hour before kickoff on the official Premier League website.</p>
-                    <a href="https://www.premierleague.com/match/${pulseId}" target="_blank" class="btn btn-primary">
-                        <i class="bi bi-box-arrow-up-right me-2"></i> View Confirmed Lineups
+                    <p class="text-white-50 mb-4">Confirmed lineups are usually available 1 hour before kickoff on the official Premier League website.</p>
+                    <a href="https://www.premierleague.com/match/${pulseId}" target="_blank" class="btn btn-success">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>View Confirmed Lineups
                     </a>
-                    <div class="mt-3 text-muted small">Opens in a new tab</div>
                 </div>
             `;
             return;
@@ -463,19 +529,32 @@ if(!isset($_SESSION['access'])){
             const homeLineup = getTeamLineup(homeTeamId);
             const awayLineup = getTeamLineup(awayTeamId);
 
-             lineupsModalBody.innerHTML = `
-                <div class="row g-3">
-                    <div class="col-md-6 border-end">
-                        <h6 class="fw-bold text-center mb-3 text-primary">${homeTeam.name}</h6>
-                        <ul class="list-group list-group-flush list-group-sm">
-                            ${renderLineupList(homeLineup)}
-                        </ul>
-                    </div>
+            const homeLogoPath = getTeamLogo(homeTeam?.name) || '';
+            const awayLogoPath = getTeamLogo(awayTeam?.name) || '';
+
+            lineupsModalBody.innerHTML = `
+                <div class="row g-0">
+                    <!-- Home Team Pitch -->
                     <div class="col-md-6">
-                        <h6 class="fw-bold text-center mb-3 text-primary">${awayTeam.name}</h6>
-                        <ul class="list-group list-group-flush list-group-sm">
-                            ${renderLineupList(awayLineup)}
-                        </ul>
+                        <div class="team-header" style="background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);">
+                            ${homeLogoPath ? `<img src="${homeLogoPath}" alt="${homeTeam.name}">` : ''}
+                            <span class="team-name">${homeTeam.short_name}</span>
+                            <span class="badge bg-light text-dark">HOME</span>
+                        </div>
+                        <div class="pitch-container" style="border-radius: 0 0 0 8px;">
+                            ${renderPitchFormation(homeLineup, false)}
+                        </div>
+                    </div>
+                    <!-- Away Team Pitch -->
+                    <div class="col-md-6">
+                        <div class="team-header" style="background: linear-gradient(135deg, #5c1a1a 0%, #2a0d0d 100%);">
+                            ${awayLogoPath ? `<img src="${awayLogoPath}" alt="${awayTeam.name}">` : ''}
+                            <span class="team-name">${awayTeam.short_name}</span>
+                            <span class="badge bg-danger">AWAY</span>
+                        </div>
+                        <div class="pitch-container" style="border-radius: 0 0 8px 0;">
+                            ${renderPitchFormation(awayLineup, true)}
+                        </div>
                     </div>
                 </div>
             `;
@@ -483,29 +562,46 @@ if(!isset($_SESSION['access'])){
         } catch (error) {
              console.error(error);
              lineupsModalBody.innerHTML = `
-                <div class="alert alert-danger text-center">
+                <div class="alert alert-danger text-center m-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     Could not load lineup data. <br> ${error.message}
                 </div>
             `;
         }
     }
 
-    function renderLineupList(lineup) {
-        if (lineup.length === 0) return '<li class="list-group-item text-muted text-center small">No live data yet</li>';
-        
-        const posMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
-        
-        return lineup.map(item => `
-            <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0 border-0">
-                <div class="d-flex align-items-center text-truncate">
-                    <span class="badge bg-light text-secondary border me-2 small" style="min-width: 35px;">${posMap[item.player.element_type]}</span>
-                    <span class="small fw-500 text-truncate" style="max-width: 120px;" title="${item.player.web_name}">${item.player.web_name}</span>
+    function renderPitchFormation(lineup, isAway) {
+        if (lineup.length === 0) {
+            return `<div class="d-flex align-items-center justify-content-center h-100">
+                <span class="badge bg-dark text-white-50 p-3">No lineup data available</span>
+            </div>`;
+        }
+
+        // Group players by position
+        const gk = lineup.filter(p => p.player.element_type === 1);
+        const def = lineup.filter(p => p.player.element_type === 2);
+        const mid = lineup.filter(p => p.player.element_type === 3);
+        const fwd = lineup.filter(p => p.player.element_type === 4);
+
+        // Order: FWD at top, GK at bottom (normal view) or reversed for away
+        const rows = isAway ? [gk, def, mid, fwd] : [fwd, mid, def, gk];
+        const posColors = ['#dc3545', '#fd7e14', '#198754', '#0d6efd']; // FWD, MID, DEF, GK
+        const posColorsAway = ['#0d6efd', '#198754', '#fd7e14', '#dc3545']; // GK, DEF, MID, FWD
+        const colors = isAway ? posColorsAway : posColors;
+
+        return rows.map((row, idx) => {
+            if (row.length === 0) return '';
+            return `
+                <div class="pitch-row">
+                    ${row.map(item => `
+                        <div class="player-chip" style="border-top: 3px solid ${colors[idx]};">
+                            <div class="name" title="${item.player.web_name}">${item.player.web_name}</div>
+                            <div class="points">${item.stats.total_points} pts</div>
+                        </div>
+                    `).join('')}
                 </div>
-                <div class="small fw-bold ms-1" style="font-size: 0.85rem;">
-                     ${item.stats.total_points}
-                </div>
-            </li>
-        `).join('');
+            `;
+        }).join('');
     }
 </script>
 </body>
