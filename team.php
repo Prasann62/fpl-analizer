@@ -51,7 +51,26 @@ if(!isset($_SESSION['access'])){
                 </div>
 
                 <div id="teamContainer" class="d-none">
-                    <div class="card shadow-sm">
+                    <!-- View Toggle -->
+                    <div class="btn-group mb-3 w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="tableViewBtn">
+                            <i class="bi bi-table me-1"></i>Table View
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="pitchViewBtn">
+                            <i class="bi bi-grid-3x3 me-1"></i>Pitch View
+                        </button>
+                    </div>
+
+                    <!-- Team Value Card -->
+                    <div class="card bg-dark text-white mb-3">
+                        <div class="card-body d-flex justify-content-between align-items-center py-2">
+                            <span><i class="bi bi-wallet2 me-2"></i>Squad Value</span>
+                            <span class="fw-bold fs-5" id="squadValue">£0.0m</span>
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="tableView" class="card shadow-sm">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0 fw-bold text-primary" id="teamNameHeader">Team Picks</h5>
                             <span class="badge bg-primary text-dark">Active Squad</span>
@@ -75,6 +94,13 @@ if(!isset($_SESSION['access'])){
                             </div>
                         </div>
                     </div>
+
+                    <!-- Pitch View -->
+                    <div id="pitchView" class="d-none">
+                        <div class="pitch-container" id="pitchContainer">
+                            <!-- Players on pitch -->
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="errorAlert" class="alert alert-danger d-none mt-3" role="alert"></div>
@@ -82,6 +108,77 @@ if(!isset($_SESSION['access'])){
         </div>
     </div>
 </div>
+
+<style>
+    .pitch-container {
+        background: url('f_logo/football_pitch.svg') center center;
+        background-size: cover;
+        border-radius: 12px;
+        min-height: 450px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .pitch-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .player-chip {
+        background: rgba(255,255,255,0.95);
+        border-radius: 10px;
+        padding: 8px 12px;
+        text-align: center;
+        min-width: 80px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        position: relative;
+        transition: transform 0.2s;
+    }
+    .player-chip:hover {
+        transform: scale(1.1);
+        z-index: 10;
+    }
+    .player-chip .name {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+    .player-chip .price {
+        font-size: 0.65rem;
+        color: #10b981;
+        font-weight: 600;
+    }
+    .player-chip .captain-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ffc107;
+        color: #000;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+    .bench-section {
+        background: rgba(0,0,0,0.3);
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 15px;
+    }
+    .bench-section .title {
+        color: white;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        opacity: 0.7;
+    }
+</style>
 
 <?php include 'footer.php';?>
 <!-- Bootstrap Icons -->
@@ -208,33 +305,107 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTeam(picks) {
         teamTableBody.innerHTML = '';
+        let totalValue = 0;
         
-        picks.forEach(pick => {
+        // Group players by position for pitch view
+        const grouped = { 1: [], 2: [], 3: [], 4: [], bench: [] };
+        
+        picks.forEach((pick, index) => {
             const player = staticData.elements.find(e => e.id === pick.element);
             const team = staticData.teams.find(t => t.id === player.team);
             const type = staticData.element_types.find(t => t.id === player.element_type);
-
-            const row = document.createElement('tr');
             
-            // Highlight captain/vice-captain
+            totalValue += player.now_cost;
+
+            // Table row
+            const row = document.createElement('tr');
             let roleBadge = '';
             if (pick.is_captain) roleBadge = '<span class="badge bg-warning text-dark">C</span>';
             else if (pick.is_vice_captain) roleBadge = '<span class="badge bg-secondary text-white">VC</span>';
 
             row.innerHTML = `
                 <td class="ps-4"><span class="badge bg-light text-dark border">${type.singular_name_short}</span></td>
-                <td>
-                    <div class="fw-bold text-dark">${player.web_name}</div>
-                </td>
+                <td><div class="fw-bold text-dark">${player.web_name}</div></td>
                 <td><span class="d-flex align-items-center gap-1">${getTeamLogoHtml(team)}${team.short_name}</span></td>
                 <td>${roleBadge}</td>
                 <td class="text-end pe-4 fw-bold">£${(player.now_cost / 10).toFixed(1)}</td>
             `;
             teamTableBody.appendChild(row);
+            
+            // Group for pitch view (first 11 are starters)
+            const playerData = { player, pick, team };
+            if (index < 11) {
+                grouped[player.element_type].push(playerData);
+            } else {
+                grouped.bench.push(playerData);
+            }
         });
+
+        // Update squad value
+        document.getElementById('squadValue').textContent = `£${(totalValue / 10).toFixed(1)}m`;
+        
+        // Render pitch view
+        renderPitchView(grouped);
 
         teamContainer.classList.remove('d-none');
     }
+    
+    function renderPitchView(grouped) {
+        const pitchContainer = document.getElementById('pitchContainer');
+        const posColors = { 1: '#0d6efd', 2: '#198754', 3: '#fd7e14', 4: '#dc3545' };
+        
+        // Order: FWD, MID, DEF, GK (top to bottom)
+        const rows = [grouped[4], grouped[3], grouped[2], grouped[1]];
+        
+        let html = rows.map((row, idx) => {
+            if (!row || row.length === 0) return '';
+            const posType = [4, 3, 2, 1][idx];
+            return `
+                <div class="pitch-row">
+                    ${row.map(p => `
+                        <div class="player-chip" style="border-top: 4px solid ${posColors[posType]};">
+                            ${p.pick.is_captain ? '<div class="captain-badge">C</div>' : ''}
+                            ${p.pick.is_vice_captain ? '<div class="captain-badge" style="background:#6c757d;color:#fff;">V</div>' : ''}
+                            <div class="name">${p.player.web_name}</div>
+                            <div class="price">£${(p.player.now_cost / 10).toFixed(1)}m</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }).join('');
+        
+        // Add bench
+        html += `
+            <div class="bench-section">
+                <div class="title text-center">Bench</div>
+                <div class="pitch-row">
+                    ${grouped.bench.map(p => `
+                        <div class="player-chip" style="opacity: 0.8;">
+                            <div class="name">${p.player.web_name}</div>
+                            <div class="price">£${(p.player.now_cost / 10).toFixed(1)}m</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        pitchContainer.innerHTML = html;
+    }
+    
+    // View toggle
+    document.getElementById('tableViewBtn').addEventListener('click', () => {
+        document.getElementById('tableView').classList.remove('d-none');
+        document.getElementById('pitchView').classList.add('d-none');
+        document.getElementById('tableViewBtn').classList.add('active');
+        document.getElementById('pitchViewBtn').classList.remove('active');
+    });
+    
+    document.getElementById('pitchViewBtn').addEventListener('click', () => {
+        document.getElementById('tableView').classList.add('d-none');
+        document.getElementById('pitchView').classList.remove('d-none');
+        document.getElementById('pitchViewBtn').classList.add('active');
+        document.getElementById('tableViewBtn').classList.remove('active');
+    });
 
     function showLoading(show) {
         if (show) {

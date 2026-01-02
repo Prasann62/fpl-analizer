@@ -65,8 +65,9 @@ if(!isset($_SESSION['access'])){
 
         <!-- Player Table -->
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold text-primary">Statistics</h5>
+                <small class="text-muted"><i class="bi bi-arrow-down-up me-1"></i>Click headers to sort</small>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -76,9 +77,9 @@ if(!isset($_SESSION['access'])){
                                 <th class="ps-4">Name</th>
                                 <th>Pos</th>
                                 <th>Team</th>
-                                <th>Price</th>
-                                <th class="text-center">Form</th>
-                                <th class="text-center">Points</th>
+                                <th class="sortable" data-sort="now_cost" style="cursor:pointer;">Price <i class="bi bi-arrow-down-up text-muted"></i></th>
+                                <th class="sortable text-center" data-sort="form" style="cursor:pointer;">Form <i class="bi bi-arrow-down-up text-muted"></i></th>
+                                <th class="sortable text-center" data-sort="total_points" style="cursor:pointer;">Points <i class="bi bi-arrow-down-up text-muted"></i></th>
                                 <th class="text-center pe-4">Status</th>
                             </tr>
                         </thead>
@@ -191,22 +192,51 @@ if(!isset($_SESSION['access'])){
         }
     }
 
+    let currentSort = { key: 'total_points', dir: 'desc' };
+
     function filterPlayers() {
         const searchTerm = searchBox.value.toLowerCase();
         const position = positionFilter.value;
         const team = teamFilter.value;
 
-        const filtered = allPlayers.filter(p => {
+        let filtered = allPlayers.filter(p => {
             const matchesSearch = (p.first_name + ' ' + p.second_name).toLowerCase().includes(searchTerm);
             const matchesPosition = position ? p.element_type == position : true;
             const matchesTeam = team ? p.team == team : true;
             return matchesSearch && matchesPosition && matchesTeam;
         });
 
+        // Apply sorting
+        filtered.sort((a, b) => {
+            let valA = parseFloat(a[currentSort.key]) || 0;
+            let valB = parseFloat(b[currentSort.key]) || 0;
+            return currentSort.dir === 'desc' ? valB - valA : valA - valB;
+        });
+
         // Limit to 50 for performance unless searching
         const limit = searchTerm ? 100 : 50;
         renderPlayers(filtered.slice(0, limit));
     }
+
+    // Sortable columns
+    document.querySelectorAll('.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const sortKey = th.dataset.sort;
+            if (currentSort.key === sortKey) {
+                currentSort.dir = currentSort.dir === 'desc' ? 'asc' : 'desc';
+            } else {
+                currentSort.key = sortKey;
+                currentSort.dir = 'desc';
+            }
+            // Update icons
+            document.querySelectorAll('.sortable i').forEach(icon => {
+                icon.className = 'bi bi-arrow-down-up text-muted';
+            });
+            const icon = th.querySelector('i');
+            icon.className = currentSort.dir === 'desc' ? 'bi bi-arrow-down text-primary' : 'bi bi-arrow-up text-primary';
+            filterPlayers();
+        });
+    });
 
     function renderPlayers(players) {
         tbody.innerHTML = '';

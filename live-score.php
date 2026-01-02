@@ -62,6 +62,13 @@ if(!isset($_SESSION['access'])){
                     <button class="btn btn-primary fw-bold px-4" type="button" id="loadBtn">
                         <i class="bi bi-lightning-charge-fill me-2"></i>Load
                     </button>
+                    <button class="btn btn-outline-success" type="button" id="autoRefreshBtn" title="Auto-refresh every 60s">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                </div>
+                <div id="autoRefreshStatus" class="text-center mt-2 d-none">
+                    <span class="badge bg-success"><i class="bi bi-broadcast me-1"></i>Auto-refresh ON</span>
+                    <span class="text-muted small ms-2">Next update in <span id="countdown">60</span>s</span>
                 </div>
             </div>
         </div>
@@ -390,6 +397,52 @@ if(!isset($_SESSION['access'])){
             if(loadingOverlay) loadingOverlay.classList.add('d-none');
             loadBtn.disabled = false;
             loadBtn.innerHTML = '<i class="bi bi-lightning-charge-fill me-2"></i>Load';
+        }
+    }
+
+    // Auto-refresh functionality
+    let autoRefreshInterval = null;
+    let countdownInterval = null;
+    let countdown = 60;
+    const autoRefreshBtn = document.getElementById('autoRefreshBtn');
+    const autoRefreshStatus = document.getElementById('autoRefreshStatus');
+    const countdownEl = document.getElementById('countdown');
+
+    autoRefreshBtn.addEventListener('click', toggleAutoRefresh);
+
+    function toggleAutoRefresh() {
+        if (autoRefreshInterval) {
+            // Turn OFF
+            clearInterval(autoRefreshInterval);
+            clearInterval(countdownInterval);
+            autoRefreshInterval = null;
+            autoRefreshBtn.classList.remove('btn-success');
+            autoRefreshBtn.classList.add('btn-outline-success');
+            autoRefreshBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+            autoRefreshStatus.classList.add('d-none');
+        } else {
+            // Turn ON
+            if (!managerInput.value.trim()) {
+                alert('Please enter a Manager ID first');
+                return;
+            }
+            autoRefreshBtn.classList.remove('btn-outline-success');
+            autoRefreshBtn.classList.add('btn-success');
+            autoRefreshBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            autoRefreshStatus.classList.remove('d-none');
+            countdown = 60;
+            countdownEl.textContent = countdown;
+
+            countdownInterval = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = countdown;
+                if (countdown <= 0) countdown = 60;
+            }, 1000);
+
+            autoRefreshInterval = setInterval(() => {
+                countdown = 60;
+                loadData();
+            }, 60000);
         }
     }
 </script>

@@ -69,22 +69,16 @@ if(!isset($_SESSION['access'])){
             </div>
         </div>
         
-        <!-- Comparison Table -->
+        <!-- Comparison Result -->
         <div id="comparisonResult" class="d-none">
-            <div class="card border-0 overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 text-center">
-                        <thead>
-                            <tr>
-                                <th class="w-25" id="headA">Player A</th>
-                                <th class="w-50">Metric</th>
-                                <th class="w-25" id="headB">Player B</th>
-                            </tr>
-                        </thead>
-                        <tbody id="compareBody">
-                            <!-- Injected JS -->
-                        </tbody>
-                    </table>
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold" id="headA">Player A</span>
+                    <span class="badge bg-light text-dark">VS</span>
+                    <span class="fw-bold" id="headB">Player B</span>
+                </div>
+                <div class="card-body" id="compareBody">
+                    <!-- Injected JS -->
                 </div>
             </div>
         </div>
@@ -222,33 +216,44 @@ if(!isset($_SESSION['access'])){
     }
 
     document.getElementById('compareBtn').onclick = () => {
-        const tbody = document.getElementById('compareBody');
-        tbody.innerHTML = '';
+        const compareBody = document.getElementById('compareBody');
+        compareBody.innerHTML = '';
         
         document.getElementById('headA').innerText = playerA.web_name;
         document.getElementById('headB').innerText = playerB.web_name;
         
         metrics.forEach(m => {
-            const valA = parseFloat(playerA[m.key]);
-            const valB = parseFloat(playerB[m.key]);
+            const valA = parseFloat(playerA[m.key]) || 0;
+            const valB = parseFloat(playerB[m.key]) || 0;
             
             const displayA = m.fmt ? m.fmt(valA) : valA;
             const displayB = m.fmt ? m.fmt(valB) : valB;
             
-            // Highlight winner
-            let classA = '';
-            let classB = '';
-            if(valA > valB) classA = 'bg-success bg-opacity-10 fw-bold text-success';
-            if(valB > valA) classB = 'bg-success bg-opacity-10 fw-bold text-success';
+            // Calculate bar widths (percentage)
+            const total = valA + valB;
+            const pctA = total > 0 ? (valA / total) * 100 : 50;
+            const pctB = total > 0 ? (valB / total) * 100 : 50;
+            
+            // Determine winner colors
+            const colorA = valA >= valB ? '#0d6efd' : '#6c757d';
+            const colorB = valB >= valA ? '#dc3545' : '#6c757d';
+            const winnerA = valA > valB ? '<i class="bi bi-trophy-fill text-warning ms-1"></i>' : '';
+            const winnerB = valB > valA ? '<i class="bi bi-trophy-fill text-warning ms-1"></i>' : '';
 
             const row = `
-                <tr>
-                    <td class="${classA}">${displayA}</td>
-                    <td class="fw-bold text-muted small text-uppercase">${m.label}</td>
-                    <td class="${classB}">${displayB}</td>
-                </tr>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold" style="color: ${colorA}">${displayA}${winnerA}</span>
+                        <span class="text-muted small text-uppercase fw-bold">${m.label}</span>
+                        <span class="fw-bold" style="color: ${colorB}">${displayB}${winnerB}</span>
+                    </div>
+                    <div class="d-flex" style="height: 12px; border-radius: 6px; overflow: hidden; background: #e9ecef;">
+                        <div style="width: ${pctA}%; background: ${colorA}; transition: width 0.5s ease;"></div>
+                        <div style="width: ${pctB}%; background: ${colorB}; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
             `;
-            tbody.innerHTML += row;
+            compareBody.innerHTML += row;
         });
         
         document.getElementById('comparisonResult').classList.remove('d-none');
