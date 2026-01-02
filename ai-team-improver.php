@@ -392,6 +392,97 @@ if(!isset($_SESSION['access'])){
             .fixture-dot { width: 20px; height: 20px; font-size: 0.5rem; }
             .transfer-card .card-body { padding: 0.75rem !important; }
         }
+
+        /* Lineup Player Cards */
+        .lineup-player {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 10px;
+            padding: 0.5rem;
+            text-align: center;
+            min-width: 70px;
+            max-width: 85px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        .lineup-player:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .lineup-player.is-captain {
+            border-color: #ffc107;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
+        }
+        .lineup-player.is-vc {
+            border-color: #6c757d;
+        }
+        .lineup-player.bench-player {
+            opacity: 0.9;
+            background: linear-gradient(145deg, #e8e8e8, #ddd);
+        }
+        .lineup-shirt {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin: 0 auto 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.6rem;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .lineup-name {
+            font-size: 0.65rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .lineup-xpts {
+            font-size: 0.55rem;
+            color: #666;
+            margin-top: 2px;
+        }
+        .lineup-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            font-weight: 800;
+        }
+        .lineup-badge.captain {
+            background: linear-gradient(135deg, #ffc107, #ff8f00);
+            color: #000;
+        }
+        .lineup-badge.vc {
+            background: #6c757d;
+            color: #fff;
+        }
+        .bench-order-badge {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffc107;
+            color: #000;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            font-size: 0.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -617,6 +708,70 @@ if(!isset($_SESSION['access'])){
                 <ul class="list-group list-group-flush" id="ownershipList">
                     <!-- Injected -->
                 </ul>
+            </div>
+
+            <!-- Recommended Gameweek Lineup -->
+            <div class="card mt-4 shadow-lg border-0 rounded-4 overflow-hidden" id="lineupCard">
+                <div class="card-header py-3 border-0 text-white" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning bg-opacity-25 p-2 rounded-3 me-3">
+                                <i class="bi bi-trophy-fill text-warning fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Recommended Gameweek Lineup</h5>
+                                <small class="opacity-75">Optimal XI from your squad based on fixtures & form</small>
+                            </div>
+                        </div>
+                        <span id="suggestedFormation" class="badge bg-warning text-dark fs-6 px-3 py-2">4-4-2</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Pitch View -->
+                    <div class="lineup-pitch" style="background: linear-gradient(180deg, #0d4f2a 0%, #1a6b3d 30%, #1a6b3d 70%, #0d4f2a 100%); padding: 1.5rem 1rem; position: relative;">
+                        <!-- Pitch markings -->
+                        <div style="position: absolute; top: 45%; left: 10%; right: 10%; height: 2px; background: rgba(255,255,255,0.15);"></div>
+                        <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; border: 2px solid rgba(255,255,255,0.15); border-radius: 50%;"></div>
+                        
+                        <div id="lineupGkRow" class="d-flex justify-content-center gap-2 mb-3"></div>
+                        <div id="lineupDefRow" class="d-flex justify-content-center gap-2 mb-3 flex-wrap"></div>
+                        <div id="lineupMidRow" class="d-flex justify-content-center gap-2 mb-3 flex-wrap"></div>
+                        <div id="lineupFwdRow" class="d-flex justify-content-center gap-2 flex-wrap"></div>
+                    </div>
+                    
+                    <!-- Bench -->
+                    <div class="p-3" style="background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="text-white-50 small fw-bold text-uppercase"><i class="bi bi-people me-2"></i>Bench</span>
+                            <span class="badge bg-secondary">Auto-ordered by xPts</span>
+                        </div>
+                        <div id="lineupBenchRow" class="d-flex justify-content-start gap-2 flex-wrap"></div>
+                    </div>
+                    
+                    <!-- Captain Info -->
+                    <div class="p-3 bg-light border-top">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: 800;">C</div>
+                                    <div>
+                                        <div class="small text-muted">Captain</div>
+                                        <div class="fw-bold" id="captainName">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: 800;">V</div>
+                                    <div>
+                                        <div class="small text-muted">Vice Captain</div>
+                                        <div class="fw-bold" id="viceCaptainName">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -1079,6 +1234,9 @@ if(!isset($_SESSION['access'])){
             
             // Setup Position Filter Listeners
             setupPositionFilters();
+            
+            // Generate Recommended Gameweek Lineup
+            generateRecommendedLineup(mySquad, futureFixtures, currentGw, strategy, teamMap);
 
         } catch (e) {
             console.error(e);
@@ -1382,6 +1540,182 @@ if(!isset($_SESSION['access'])){
                     <span class="badge bg-primary">${pct}%</span>
                 `;
                 ownershipList.appendChild(li);
+            });
+        }
+    }
+
+    // Team shirt colors
+    const teamColors = {
+        1: '#EF0107', 2: '#670E36', 3: '#DA291C', 4: '#D20000', 5: '#0057B8',
+        6: '#6C1D45', 7: '#034694', 8: '#1B458F', 9: '#003399', 10: '#000000',
+        11: '#6CABDD', 12: '#003090', 13: '#C8102E', 14: '#6CABDD', 15: '#DA291C',
+        16: '#241F20', 17: '#E53233', 18: '#D71920', 19: '#132257', 20: '#7A263A'
+    };
+
+    // Generate Recommended Lineup from user's squad
+    function generateRecommendedLineup(mySquad, futureFixtures, currentGw, strategy, teamMap) {
+        if(!mySquad || mySquad.length === 0) return;
+        
+        // Calculate xPts for each player in squad
+        const squadWithScores = mySquad.map(p => {
+            const fixScore = getLineupFixScore(p.team, futureFixtures, currentGw, strategy);
+            const form = parseFloat(p.form) || 0;
+            const ppg = parseFloat(p.points_per_game) || 0;
+            
+            // xPts for next GW (simplified)
+            const fixFactor = Math.max(0.7, Math.min(1.3, fixScore / 15));
+            const xpts = ((form * 0.7 + ppg * 0.3) * fixFactor);
+            
+            return { ...p, xpts, fixScore };
+        });
+        
+        // Sort by position then by xPts
+        const byPosition = { 1: [], 2: [], 3: [], 4: [] };
+        squadWithScores.forEach(p => {
+            byPosition[p.element_type].push(p);
+        });
+        
+        // Sort each position by xPts descending
+        for(const pos in byPosition) {
+            byPosition[pos].sort((a, b) => b.xpts - a.xpts);
+        }
+        
+        // Try different formations and pick best total xPts
+        const formations = [
+            { name: '3-4-3', d: 3, m: 4, f: 3 },
+            { name: '3-5-2', d: 3, m: 5, f: 2 },
+            { name: '4-3-3', d: 4, m: 3, f: 3 },
+            { name: '4-4-2', d: 4, m: 4, f: 2 },
+            { name: '4-5-1', d: 4, m: 5, f: 1 },
+            { name: '5-3-2', d: 5, m: 3, f: 2 },
+            { name: '5-4-1', d: 5, m: 4, f: 1 }
+        ];
+        
+        let bestFormation = formations[0];
+        let bestXpts = 0;
+        let bestLineup = null;
+        
+        for(const f of formations) {
+            // Check if we have enough players
+            if(byPosition[2].length < f.d || byPosition[3].length < f.m || byPosition[4].length < f.f) continue;
+            if(byPosition[1].length < 1) continue;
+            
+            const lineup = {
+                1: byPosition[1].slice(0, 1),
+                2: byPosition[2].slice(0, f.d),
+                3: byPosition[3].slice(0, f.m),
+                4: byPosition[4].slice(0, f.f)
+            };
+            
+            const totalXpts = Object.values(lineup).flat().reduce((sum, p) => sum + p.xpts, 0);
+            
+            if(totalXpts > bestXpts) {
+                bestXpts = totalXpts;
+                bestFormation = f;
+                bestLineup = lineup;
+            }
+        }
+        
+        if(!bestLineup) {
+            // Fallback to 4-4-2
+            bestLineup = {
+                1: byPosition[1].slice(0, 1),
+                2: byPosition[2].slice(0, 4),
+                3: byPosition[3].slice(0, 4),
+                4: byPosition[4].slice(0, 2)
+            };
+            bestFormation = { name: '4-4-2' };
+        }
+        
+        // Get starters and bench
+        const starters = Object.values(bestLineup).flat();
+        const starterIds = new Set(starters.map(p => p.id));
+        const bench = squadWithScores.filter(p => !starterIds.has(p.id)).sort((a, b) => b.xpts - a.xpts);
+        
+        // Assign captain (highest xPts) and vice captain
+        starters.sort((a, b) => b.xpts - a.xpts);
+        if(starters.length > 0) starters[0].isCaptain = true;
+        if(starters.length > 1) starters[1].isViceCaptain = true;
+        
+        // Render
+        renderLineup(bestLineup, bench, bestFormation.name, teamMap);
+    }
+    
+    function getLineupFixScore(teamId, futureFixtures, currentGw, strategy) {
+        const lookahead = 1; // Just next GW for lineup
+        let score = 0;
+        const gw = currentGw + 1;
+        
+        const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+        
+        if(fixtures.length === 0) {
+            return 5; // Blank - low score
+        } else if(fixtures.length > 1) {
+            return 25; // DGW - high score
+        } else {
+            const f = fixtures[0];
+            const difficulty = f.team_h === teamId ? f.team_h_difficulty : f.team_a_difficulty;
+            return (6 - difficulty) * 5; // 2-20 range
+        }
+    }
+    
+    function renderLineup(lineup, bench, formationName, teamMap) {
+        document.getElementById('suggestedFormation').innerText = formationName;
+        
+        const rows = {
+            1: document.getElementById('lineupGkRow'),
+            2: document.getElementById('lineupDefRow'),
+            3: document.getElementById('lineupMidRow'),
+            4: document.getElementById('lineupFwdRow')
+        };
+        
+        // Clear rows
+        for(const row of Object.values(rows)) {
+            if(row) row.innerHTML = '';
+        }
+        
+        // Render starters
+        for(const [pos, players] of Object.entries(lineup)) {
+            const container = rows[pos];
+            if(!container) continue;
+            
+            players.forEach(p => {
+                const color = teamColors[p.team] || '#333';
+                let badge = '';
+                if(p.isCaptain) badge = '<div class="lineup-badge captain">C</div>';
+                else if(p.isViceCaptain) badge = '<div class="lineup-badge vc">V</div>';
+                
+                const div = document.createElement('div');
+                div.className = `lineup-player ${p.isCaptain ? 'is-captain' : ''} ${p.isViceCaptain ? 'is-vc' : ''}`;
+                div.innerHTML = `
+                    ${badge}
+                    <div class="lineup-shirt" style="background: ${color}">${teamMap[p.team]?.short_name || ''}</div>
+                    <div class="lineup-name">${p.web_name}</div>
+                    <div class="lineup-xpts">${p.xpts.toFixed(1)} xPts</div>
+                `;
+                container.appendChild(div);
+                
+                // Set captain/VC names
+                if(p.isCaptain) document.getElementById('captainName').innerText = p.web_name;
+                if(p.isViceCaptain) document.getElementById('viceCaptainName').innerText = p.web_name;
+            });
+        }
+        
+        // Render bench
+        const benchContainer = document.getElementById('lineupBenchRow');
+        if(benchContainer) {
+            benchContainer.innerHTML = '';
+            bench.forEach((p, idx) => {
+                const color = teamColors[p.team] || '#333';
+                const div = document.createElement('div');
+                div.className = 'lineup-player bench-player';
+                div.innerHTML = `
+                    <div class="bench-order-badge">${idx + 1}</div>
+                    <div class="lineup-shirt" style="background: ${color}; opacity: 0.7">${teamMap[p.team]?.short_name || ''}</div>
+                    <div class="lineup-name">${p.web_name}</div>
+                    <div class="lineup-xpts">${p.xpts.toFixed(1)} xPts</div>
+                `;
+                benchContainer.appendChild(div);
             });
         }
     }
