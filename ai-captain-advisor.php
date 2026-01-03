@@ -584,7 +584,16 @@ if(!isset($_SESSION['access'])){
         document.getElementById('comparisonSection').innerHTML = html;
     }
 
-    init();
+    // Initialize and auto-fetch if manager ID exists
+    init().then(() => {
+        const storedId = localStorage.getItem('fpl_manager_id');
+        if(storedId && document.getElementById('managerId').value) {
+            // Auto-analyze after a short delay to ensure everything is loaded
+            setTimeout(() => {
+                analyzeTeam();
+            }, 500);
+        }
+    });
 </script>
 </body>
 </html>
