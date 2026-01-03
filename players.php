@@ -79,13 +79,17 @@ if(!isset($_SESSION['access'])){
                                 <th>Team</th>
                                 <th class="sortable" data-sort="now_cost" style="cursor:pointer;">Price <i class="bi bi-arrow-down-up text-muted"></i></th>
                                 <th class="sortable text-center" data-sort="form" style="cursor:pointer;">Form <i class="bi bi-arrow-down-up text-muted"></i></th>
-                                <th class="sortable text-center" data-sort="total_points" style="cursor:pointer;">Points <i class="bi bi-arrow-down-up text-muted"></i></th>
+                                <th class="sortable text-center" data-sort="total_points" style="cursor:pointer;">Pts <i class="bi bi-arrow-down-up text-muted"></i></th>
+                                <th class="sortable text-center" data-sort="expected_goals" style="cursor:pointer;" title="Expected Goals">xG <i class="bi bi-arrow-down-up text-muted"></i></th>
+                                <th class="sortable text-center" data-sort="expected_assists" style="cursor:pointer;" title="Expected Assists">xA <i class="bi bi-arrow-down-up text-muted"></i></th>
+                                <th class="sortable text-center" data-sort="ict_index" style="cursor:pointer;" title="ICT Index">ICT <i class="bi bi-arrow-down-up text-muted"></i></th>
+                                <th class="text-center">Next 5</th>
                                 <th class="text-center pe-4">Status</th>
                             </tr>
                         </thead>
                         <tbody id="playersTableBody">
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="11" class="text-center py-5">
                                     <div class="spinner-border text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
@@ -161,6 +165,10 @@ if(!isset($_SESSION['access'])){
         try {
             const res = await fetch('api.php?endpoint=bootstrap-static/');
             const data = await res.json();
+            staticData = data; // Store globally
+
+            // Load fixtures for FDR display
+            await loadFixtures();
 
             // Map teams
             data.teams.forEach(t => {
@@ -183,7 +191,7 @@ if(!isset($_SESSION['access'])){
             console.error(error);
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center py-5 text-danger">
+                    <td colspan="11" class="text-center py-5 text-danger">
                         <i class="bi bi-x-circle display-4 d-block mb-3"></i>
                         Failed to load players
                     </td>
@@ -243,7 +251,7 @@ if(!isset($_SESSION['access'])){
         if (players.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center py-5 text-muted">
+                    <td colspan="11" class="text-center py-5 text-muted">
                         No players found matching your criteria
                     </td>
                 </tr>
@@ -267,10 +275,19 @@ if(!isset($_SESSION['access'])){
                 statusTitle = p.news || 'Unavailable';
             }
 
+            // xG and xA 
+            const xG = parseFloat(p.expected_goals) || 0;
+            const xA = parseFloat(p.expected_assists) || 0;
+            const ict = parseFloat(p.ict_index) || 0;
+
+            // Get next 5 fixtures FDR
+            const next5Fixtures = getNext5Fixtures(p.team);
+
             const row = `
                 <tr>
                     <td class="ps-4">
                         <div class="fw-bold text-dark">${p.first_name} ${p.second_name}</div>
+                        <small class="text-muted">${p.selected_by_percent}% owned</small>
                     </td>
                     <td><span class="badge bg-light text-dark border">${position}</span></td>
                     <td><span class="d-flex align-items-center gap-1">${getTeamLogoHtml(team)}${team.short_name}</span></td>
@@ -279,6 +296,14 @@ if(!isset($_SESSION['access'])){
                         <span class="fw-bold ${parseFloat(p.form) > 5 ? 'text-success' : ''}">${p.form}</span>
                     </td>
                     <td class="text-center fw-bold">${p.total_points}</td>
+                    <td class="text-center ${xG > 3 ? 'text-success fw-bold' : ''}">${xG.toFixed(1)}</td>
+                    <td class="text-center ${xA > 2 ? 'text-primary fw-bold' : ''}">${xA.toFixed(1)}</td>
+                    <td class="text-center ${ict > 100 ? 'text-warning fw-bold' : ''}">${ict.toFixed(1)}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            ${next5Fixtures}
+                        </div>
+                    </td>
                     <td class="text-center pe-4">
                         <i class="bi ${statusIcon}" data-bs-toggle="tooltip" title="${statusTitle}"></i>
                     </td>
@@ -292,6 +317,66 @@ if(!isset($_SESSION['access'])){
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
+    }
+
+    // FDR color helper
+    function getFDRColor(fdr) {
+        switch(fdr) {
+            case 1: return '#00ff85'; // Very easy - bright green
+            case 2: return '#01fc7a'; // Easy - green
+            case 3: return '#e7e7e7'; // Medium - grey
+            case 4: return '#ff6961'; // Hard - light red
+            case 5: return '#dc3545'; // Very hard - red
+            default: return '#6c757d';
+        }
+    }
+
+    function getFDRTextColor(fdr) {
+        return fdr <= 2 ? '#000' : (fdr >= 4 ? '#fff' : '#000');
+    }
+
+    // Get next 5 fixtures for a team
+    let fixturesData = [];
+    
+    async function loadFixtures() {
+        try {
+            const res = await fetch('api.php?endpoint=fixtures/');
+            fixturesData = await res.json();
+        } catch(e) {
+            console.error('Failed to load fixtures');
+        }
+    }
+
+    function getNext5Fixtures(teamId) {
+        const currentGW = staticData?.events?.find(e => e.is_current || e.is_next)?.id || 1;
+        
+        const teamFixtures = fixturesData
+            .filter(f => (f.team_h === teamId || f.team_a === teamId) && f.event >= currentGW)
+            .slice(0, 5);
+
+        if(teamFixtures.length === 0) {
+            return '<span class="badge bg-secondary">-</span>';
+        }
+
+        return teamFixtures.map(f => {
+            const isHome = f.team_h === teamId;
+            const oppTeamId = isHome ? f.team_a : f.team_h;
+            const oppTeam = teamsMap[oppTeamId];
+            const fdr = isHome ? f.team_h_difficulty : f.team_a_difficulty;
+            
+            return `<span class="badge" style="background:${getFDRColor(fdr)};color:${getFDRTextColor(fdr)};font-size:9px;min-width:28px;" 
+                          title="GW${f.event}: ${oppTeam?.name || 'TBD'} (${isHome ? 'H' : 'A'})"
+                          data-bs-toggle="tooltip">${oppTeam?.short_name || '?'}${isHome ? '' : ''}</span>`;
+        }).join('');
+    }
+
+    // Store staticData globally
+    let staticData = null;
+    
+    async function loadStaticData() {
+        const res = await fetch('api.php?endpoint=bootstrap-static/');
+        staticData = await res.json();
+        return staticData;
     }
 
     init();

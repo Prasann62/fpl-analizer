@@ -115,6 +115,54 @@ if(!isset($_SESSION['access'])){
                 </div>
             </div>
 
+            <!-- New Row: Mini-League & Captain Comparison -->
+            <div class="row g-3 mb-4">
+                <!-- Mini-League Live -->
+                <div class="col-lg-6">
+                    <div class="card h-100" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 text-white fw-bold"><i class="bi bi-trophy me-2"></i>Mini-League Live</h6>
+                                <select class="form-select form-select-sm bg-dark border-secondary text-white" id="leagueSelect" style="width: auto;">
+                                    <option value="">Select League</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="miniLeagueTable" class="text-center py-4">
+                                <small class="text-white-50">Enter Manager ID to load leagues</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Captain Comparison -->
+                <div class="col-lg-6">
+                    <div class="card h-100" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h6 class="mb-0 text-white fw-bold"><i class="bi bi-person-badge me-2"></i>Captain Points vs Rivals</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="captainComparison" class="text-center py-3">
+                                <small class="text-white-50">Load data to see captain comparison</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autosub Preview -->
+            <div class="card mb-4" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%); border: 1px solid rgba(245, 158, 11, 0.3);">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h6 class="mb-0 text-warning fw-bold"><i class="bi bi-arrow-left-right me-2"></i>Autosub Simulation</h6>
+                </div>
+                <div class="card-body py-2">
+                    <div id="autosubPreview" class="d-flex flex-wrap gap-2 justify-content-center">
+                        <small class="text-white-50">Autosubs will appear here if applicable</small>
+                    </div>
+                </div>
+            </div>
+
             <!-- Players Table -->
             <div class="card position-relative">
                 <div class="card-header py-3">
@@ -387,6 +435,15 @@ if(!isset($_SESSION['access'])){
             
             liveContent.classList.remove('d-none');
 
+            // Load mini-leagues
+            loadMiniLeagues(id);
+            
+            // Render captain comparison
+            renderCaptainComparison(picksData, liveStats, players);
+            
+            // Render autosub simulation
+            renderAutosubPreview(picksData, liveStats, players);
+
         } catch (err) {
             console.error(err);
             errorMessage.textContent = err.message || "Failed to load data.";
@@ -398,6 +455,191 @@ if(!isset($_SESSION['access'])){
             loadBtn.disabled = false;
             loadBtn.innerHTML = '<i class="bi bi-lightning-charge-fill me-2"></i>Load';
         }
+    }
+
+    // Mini-League Functions
+    let managerLeagues = [];
+    
+    async function loadMiniLeagues(managerId) {
+        try {
+            const res = await fetch(`api.php?endpoint=entry/${managerId}/`);
+            const data = await res.json();
+            
+            // Get classic leagues
+            managerLeagues = data.leagues?.classic || [];
+            
+            // Populate dropdown
+            const leagueSelect = document.getElementById('leagueSelect');
+            leagueSelect.innerHTML = '<option value="">Select League</option>';
+            
+            managerLeagues.slice(0, 10).forEach(league => {
+                if(league.league_type === 'x') {
+                    leagueSelect.innerHTML += `<option value="${league.id}">${league.name}</option>`;
+                }
+            });
+            
+            // Auto-select first private league
+            const privateLeague = managerLeagues.find(l => l.league_type === 'x');
+            if(privateLeague) {
+                leagueSelect.value = privateLeague.id;
+                loadLeagueStandings(privateLeague.id, managerId);
+            }
+            
+        } catch(e) {
+            console.error('Failed to load leagues:', e);
+        }
+    }
+    
+    document.getElementById('leagueSelect').addEventListener('change', function() {
+        if(this.value) {
+            loadLeagueStandings(this.value, managerInput.value);
+        }
+    });
+    
+    async function loadLeagueStandings(leagueId, currentManagerId) {
+        const container = document.getElementById('miniLeagueTable');
+        container.innerHTML = '<div class="spinner-border spinner-border-sm text-primary"></div>';
+        
+        try {
+            const res = await fetch(`api.php?endpoint=leagues-classic/${leagueId}/standings/`);
+            const data = await res.json();
+            
+            const standings = data.standings?.results || [];
+            const top5 = standings.slice(0, 5);
+            
+            let html = '<table class="table table-sm table-borderless mb-0">';
+            html += '<thead><tr class="text-white-50 small"><th>#</th><th class="text-start">Manager</th><th>GW</th><th>Total</th></tr></thead><tbody>';
+            
+            top5.forEach((entry, idx) => {
+                const isYou = entry.entry == currentManagerId;
+                const rankChange = entry.last_rank - entry.rank;
+                const changeIcon = rankChange > 0 ? '<i class="bi bi-arrow-up-short text-success"></i>' : 
+                                   rankChange < 0 ? '<i class="bi bi-arrow-down-short text-danger"></i>' : '';
+                
+                html += `
+                    <tr class="${isYou ? 'bg-primary bg-opacity-25' : ''}">
+                        <td class="text-white">${entry.rank} ${changeIcon}</td>
+                        <td class="text-start text-white text-truncate" style="max-width: 120px;">
+                            ${entry.player_name}
+                            ${isYou ? '<span class="badge bg-primary ms-1">You</span>' : ''}
+                        </td>
+                        <td class="text-white fw-bold">${entry.event_total}</td>
+                        <td class="text-white-50">${entry.total}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            
+        } catch(e) {
+            container.innerHTML = '<small class="text-danger">Failed to load</small>';
+        }
+    }
+    
+    // Captain Comparison
+    function renderCaptainComparison(picksData, liveStats, playersMap) {
+        const container = document.getElementById('captainComparison');
+        
+        const captainPick = picksData.picks.find(p => p.is_captain);
+        if(!captainPick) {
+            container.innerHTML = '<small class="text-white-50">No captain found</small>';
+            return;
+        }
+        
+        const captainPlayer = playersMap[captainPick.element];
+        const captainStats = liveStats[captainPick.element] || {};
+        const captainPoints = (captainStats.total_points || 0) * captainPick.multiplier;
+        
+        // Get top template captains
+        const topCaptains = staticData.elements
+            .filter(p => parseFloat(p.selected_by_percent) > 15)
+            .sort((a, b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))
+            .slice(0, 3);
+        
+        let html = `
+            <div class="mb-3 p-2 rounded" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-warning text-dark me-2">C</span>
+                        <strong class="text-white">${captainPlayer.web_name}</strong>
+                    </div>
+                    <span class="text-success fw-bold fs-5">${captainPoints} pts</span>
+                </div>
+            </div>
+            <div class="small text-white-50 mb-2">Template Captain Comparison:</div>
+        `;
+        
+        topCaptains.forEach(player => {
+            const stats = liveStats[player.id] || {};
+            const points = (stats.total_points || 0) * 2; // Assuming captain
+            const diff = captainPoints - points;
+            const diffColor = diff > 0 ? 'text-success' : diff < 0 ? 'text-danger' : 'text-white-50';
+            const diffIcon = diff > 0 ? '↑' : diff < 0 ? '↓' : '=';
+            
+            html += `
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-secondary">
+                    <span class="text-white-50">${player.web_name} (${player.selected_by_percent}%)</span>
+                    <span class="text-white">${points} pts <span class="${diffColor}">${diffIcon}${Math.abs(diff)}</span></span>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    // Autosub Preview
+    function renderAutosubPreview(picksData, liveStats, playersMap) {
+        const container = document.getElementById('autosubPreview');
+        
+        const starters = picksData.picks.filter(p => p.multiplier > 0);
+        const bench = picksData.picks.filter(p => p.multiplier === 0);
+        
+        // Find starters who didn't play
+        const noPlayStarters = starters.filter(p => {
+            const stats = liveStats[p.element] || {};
+            return (stats.minutes || 0) === 0;
+        });
+        
+        if(noPlayStarters.length === 0) {
+            container.innerHTML = '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>All starters played - No autosubs needed</span>';
+            return;
+        }
+        
+        let html = '';
+        noPlayStarters.forEach(starter => {
+            const starterPlayer = playersMap[starter.element];
+            
+            // Find first valid bench player
+            const benchSub = bench.find(b => {
+                const benchPlayer = playersMap[b.element];
+                const benchStats = liveStats[b.element] || {};
+                return (benchStats.minutes || 0) > 0;
+            });
+            
+            if(benchSub) {
+                const benchPlayer = playersMap[benchSub.element];
+                const benchStats = liveStats[benchSub.element] || {};
+                
+                html += `
+                    <div class="d-flex align-items-center gap-2 bg-dark rounded px-3 py-2">
+                        <span class="text-danger text-decoration-line-through">${starterPlayer.web_name}</span>
+                        <i class="bi bi-arrow-right text-warning"></i>
+                        <span class="text-success">${benchPlayer.web_name}</span>
+                        <span class="badge bg-success">+${benchStats.total_points || 0}</span>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="d-flex align-items-center gap-2 bg-dark rounded px-3 py-2">
+                        <span class="text-danger">${starterPlayer.web_name}</span>
+                        <span class="badge bg-warning text-dark">No valid sub</span>
+                    </div>
+                `;
+            }
+        });
+        
+        container.innerHTML = html || '<span class="text-white-50">Calculating autosubs...</span>';
     }
 
     // Auto-refresh functionality

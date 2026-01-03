@@ -118,11 +118,33 @@
                     </a>
                 </li>
                  <li class="menu-item">
+                    <a class="menu-link group" href="ai-captain-advisor.php">
+                        <span class="menu-text font-medium text-gray-600 group-hover:text-emerald-700">👑 Captain Advisor</span>
+                    </a>
+                </li>
+                 <li class="menu-item">
                     <a class="menu-link group" href="ai-final-team.php">
                         <span class="menu-text font-medium text-gray-600 group-hover:text-emerald-700">🏆 Final Team</span>
                     </a>
                 </li>
             </ul>
+        </li>
+
+        <li class="menu-title text-xs font-bold text-gray-400 uppercase tracking-wider px-4 mt-6 mb-1">
+            <span>Insights</span>
+        </li>
+
+        <li class="menu-item">
+            <a href="price-predictor.php" class="menu-link group <?php echo basename($_SERVER['PHP_SELF']) == 'price-predictor.php' ? 'active' : ''; ?>">
+                <span class="menu-icon group-hover:text-emerald-600"><i class="bi bi-graph-up-arrow"></i></span>
+                <span class="menu-text font-medium text-gray-600 group-hover:text-emerald-700">Price Predictor</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="chip-strategy.php" class="menu-link group <?php echo basename($_SERVER['PHP_SELF']) == 'chip-strategy.php' ? 'active' : ''; ?>">
+                <span class="menu-icon group-hover:text-emerald-600"><i class="bi bi-lightning-charge"></i></span>
+                <span class="menu-text font-medium text-gray-600 group-hover:text-emerald-700">Chip Strategy</span>
+            </a>
         </li>
 
         <li class="menu-title text-xs font-bold text-gray-400 uppercase tracking-wider px-4 mt-6 mb-1">

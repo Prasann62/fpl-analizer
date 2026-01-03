@@ -71,7 +71,7 @@ if(!isset($_SESSION['access'])){
         
         <!-- Comparison Result -->
         <div id="comparisonResult" class="d-none">
-            <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card border-0 shadow-sm overflow-hidden mb-4">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <span class="fw-bold" id="headA">Player A</span>
                     <span class="badge bg-light text-dark">VS</span>
@@ -79,6 +79,33 @@ if(!isset($_SESSION['access'])){
                 </div>
                 <div class="card-body" id="compareBody">
                     <!-- Injected JS -->
+                </div>
+            </div>
+
+            <!-- Seasonality Chart -->
+            <div class="card border-0 shadow-sm overflow-hidden mb-4">
+                <div class="card-header bg-transparent">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up me-2"></i>Points Over Gameweeks</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="seasonalityChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Template Overlap -->
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-transparent">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-people me-2"></i>Template Overlap</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6" id="overlapA">
+                            <!-- Player A template info -->
+                        </div>
+                        <div class="col-md-6" id="overlapB">
+                            <!-- Player B template info -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -89,6 +116,7 @@ if(!isset($_SESSION['access'])){
 <?php include 'footer.php';?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
     let players = [];
@@ -257,7 +285,132 @@ if(!isset($_SESSION['access'])){
         });
         
         document.getElementById('comparisonResult').classList.remove('d-none');
+        
+        // Render seasonality chart
+        renderSeasonalityChart(playerA, playerB);
+        
+        // Render template overlap
+        renderTemplateOverlap(playerA, playerB);
     };
+
+    let seasonalityChart = null;
+    
+    async function renderSeasonalityChart(pA, pB) {
+        // Fetch player history
+        const [histA, histB] = await Promise.all([
+            fetchPlayerHistory(pA.id),
+            fetchPlayerHistory(pB.id)
+        ]);
+        
+        const labels = histA.map(h => `GW${h.round}`);
+        const dataA = histA.map(h => h.total_points);
+        const dataB = histB.map(h => h.total_points);
+        
+        const ctx = document.getElementById('seasonalityChart').getContext('2d');
+        
+        // Destroy existing chart
+        if(seasonalityChart) seasonalityChart.destroy();
+        
+        seasonalityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: pA.web_name,
+                        data: dataA,
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: pB.web_name,
+                        data: dataB,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Points' }
+                    }
+                }
+            }
+        });
+    }
+    
+    async function fetchPlayerHistory(playerId) {
+        try {
+            const res = await fetch(`api.php?endpoint=element-summary/${playerId}/`);
+            const data = await res.json();
+            return data.history || [];
+        } catch(e) {
+            console.error('Failed to fetch history:', e);
+            return [];
+        }
+    }
+    
+    function renderTemplateOverlap(pA, pB) {
+        const overlapA = document.getElementById('overlapA');
+        const overlapB = document.getElementById('overlapB');
+        
+        // Calculate template characteristics
+        const ownA = parseFloat(pA.selected_by_percent) || 0;
+        const ownB = parseFloat(pB.selected_by_percent) || 0;
+        
+        const templateThreshold = 10; // >10% is template
+        
+        overlapA.innerHTML = `
+            <div class="p-3 rounded ${ownA > templateThreshold ? 'bg-primary bg-opacity-10 border border-primary' : 'bg-light'}">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <strong class="text-primary">${pA.web_name}</strong>
+                    ${ownA > templateThreshold ? '<span class="badge bg-primary">Template</span>' : '<span class="badge bg-secondary">Differential</span>'}
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Ownership</small>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" style="width: ${ownA}%;"></div>
+                    </div>
+                    <small class="fw-bold">${ownA}%</small>
+                </div>
+                <p class="small text-muted mb-0">
+                    ${ownA > 30 ? 'Very high ownership - essential pick' : ownA > 15 ? 'Solid template player' : 'Differential pick - could gain ranks'}
+                </p>
+            </div>
+        `;
+        
+        overlapB.innerHTML = `
+            <div class="p-3 rounded ${ownB > templateThreshold ? 'bg-danger bg-opacity-10 border border-danger' : 'bg-light'}">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <strong class="text-danger">${pB.web_name}</strong>
+                    ${ownB > templateThreshold ? '<span class="badge bg-danger">Template</span>' : '<span class="badge bg-secondary">Differential</span>'}
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Ownership</small>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-danger" style="width: ${ownB}%;"></div>
+                    </div>
+                    <small class="fw-bold">${ownB}%</small>
+                </div>
+                <p class="small text-muted mb-0">
+                    ${ownB > 30 ? 'Very high ownership - essential pick' : ownB > 15 ? 'Solid template player' : 'Differential pick - could gain ranks'}
+                </p>
+            </div>
+        `;
+    }
 
 </script>
 </body>
