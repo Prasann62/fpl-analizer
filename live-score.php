@@ -687,6 +687,15 @@ if(!isset($_SESSION['access'])){
             }, 60000);
         }
     }
+
+    // Auto-load if manager ID is stored
+    window.addEventListener('DOMContentLoaded', () => {
+        const storedId = localStorage.getItem('fpl_manager_id');
+        if(storedId) {
+            managerInput.value = storedId;
+            setTimeout(() => loadData(), 300);
+        }
+    });
 </script>
 </body>
 </html>

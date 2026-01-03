@@ -163,6 +163,13 @@ if(!isset($_SESSION['access'])){
     const managerIdInput = document.getElementById('managerId');
     const resultsSection = document.getElementById('resultsSection');
 
+    // Auto-load from localStorage
+    const storedId = localStorage.getItem('fpl_manager_id');
+    if(storedId) {
+        managerIdInput.value = storedId;
+        setTimeout(() => analyzeBtn.click(), 500);
+    }
+
     analyzeBtn.addEventListener('click', async () => {
         const managerId = managerIdInput.value.trim();
         if (!managerId) {

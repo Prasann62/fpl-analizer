@@ -61,6 +61,13 @@ if(!isset($_SESSION['access'])){
     const scoreDisplay = document.getElementById('predictedScore');
     const list = document.getElementById('breakdownList');
 
+    // Auto-load from localStorage
+    const storedId = localStorage.getItem('fpl_manager_id');
+    if(storedId) {
+        managerIdInput.value = storedId;
+        setTimeout(() => predictBtn.click(), 500);
+    }
+
     predictBtn.addEventListener('click', async () => {
         const nid = managerIdInput.value.trim();
         if(!nid) return;

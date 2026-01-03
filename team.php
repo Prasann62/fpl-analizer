@@ -255,9 +255,14 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchStaticData().then(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const urlManagerId = urlParams.get('id');
+        const storedId = localStorage.getItem('fpl_manager_id');
+        
         if (urlManagerId) {
             managerIdInput.value = urlManagerId;
             fetchManagerTeam(urlManagerId);
+        } else if (storedId) {
+            managerIdInput.value = storedId;
+            fetchManagerTeam(storedId);
         }
     });
 

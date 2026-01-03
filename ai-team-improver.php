@@ -796,11 +796,15 @@ if(!isset($_SESSION['access'])){
     let bootstrapData = null;
     let managerId = null;
 
-    // Auto-load from URL
+    // Auto-load from URL or localStorage
     const urlParams = new URLSearchParams(window.location.search);
+    const storedManagerId = localStorage.getItem('fpl_manager_id');
+    
     if(urlParams.get('manager_id')) {
         managerIdInput.value = urlParams.get('manager_id');
-        // Auto click load
+        setTimeout(() => loadLeaguesBtn.click(), 500);
+    } else if(storedManagerId) {
+        managerIdInput.value = storedManagerId;
         setTimeout(() => loadLeaguesBtn.click(), 500);
     }
 
