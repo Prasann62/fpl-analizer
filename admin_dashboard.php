@@ -37,7 +37,7 @@ try {
     }
 
     // Get Recent Users (last 5)
-    $recent_sql = "SELECT id, full_name, email, created_at FROM signin WHERE role != 'admin' OR role IS NULL ORDER BY id DESC LIMIT 5";
+    $recent_sql = "SELECT * FROM signin WHERE role != 'admin' OR role IS NULL LIMIT 5";
     $recent_result = $conn->query($recent_sql);
     $recent_users = [];
     if($recent_result && $recent_result->num_rows > 0) {
@@ -814,9 +814,9 @@ foreach($chart_data as $data) {
                                     <td>
                                         <div class="user-info">
                                             <div class="user-avatar">
-                                                <?= strtoupper(substr($user['full_name'] ?? $user['email'], 0, 1)) ?>
+                                                <?= strtoupper(substr($user['name'] ?? $user['email'], 0, 1)) ?>
                                             </div>
-                                            <span class="user-name"><?= htmlspecialchars($user['full_name'] ?? 'User') ?></span>
+                                            <span class="user-name"><?= htmlspecialchars($user['name'] ?? 'User') ?></span>
                                         </div>
                                     </td>
                                     <td class="user-email"><?= htmlspecialchars($user['email']) ?></td>
@@ -855,6 +855,11 @@ foreach($chart_data as $data) {
                     </div>
                     <div class="card-body">
                         <div class="quick-actions">
+                            <a href="admin_users.php" class="action-btn" style="border-color: var(--accent-yellow); background: rgba(245, 158, 11, 0.05);">
+                                <i class="bi bi-people-fill" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(249, 115, 22, 0.2)); color: var(--accent-yellow);"></i>
+                                <span>Manage Users & Admins</span>
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
                             <a href="index.php" class="action-btn">
                                 <i class="bi bi-house-door"></i>
                                 <span>View Homepage</span>
