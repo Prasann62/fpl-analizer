@@ -12,6 +12,7 @@ if(!isset($_SESSION['access'])){
   <?php include 'favicon-meta.php'; ?>
     <title>Players | FPL Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="style.css?v=<?php echo time(); ?>" rel="stylesheet">
 </head>
 <body>
@@ -104,10 +105,6 @@ if(!isset($_SESSION['access'])){
 </div>
 
 <?php include 'footer.php';?>
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   
 <script>
