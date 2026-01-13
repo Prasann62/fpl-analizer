@@ -1,114 +1,110 @@
 🏆 FPL Analizer
 
-A simple, beginner-friendly Fantasy Premier League (FPL) web app built with PHP.
-This project includes basic authentication (login/logout) and some FPL-related functionality (team planning, fixtures, players, price changes, live score pages, etc).
+A simple, beginner-friendly Fantasy Premier League (FPL) web app built with PHP to help users explore basic FPL data, plan teams, and analyze performance. Includes authentication (login/logout), session handling, and starter tools for FPL stats and team planning.
 
-NOTE: The original repository description says it’s a PHP authentication system, so this README focuses on that and the visible file structure.
-GitHub
+📌 Features
 
-🚀 Features
-✔️ Core Functionality
+✔️ User login & logout system (PHP + sessions)
+✔️ Dashboard after authentication
+✔️ FPL-related pages including:
 
-🔐 User Login & Logout
+Team Analyzer
 
-🛡️ PHP Session Handling
+Fixtures & Live Scores
 
-💡 Basic form validation
+Player & Rank pages
 
-📊 FPL-related pages (team view, fixtures, live score, price changes, etc)
+Price Change and Prediction pages
 
-🎨 Simple clean UI
+Planner and AI helpers
+✔️ Basic UI components (navbar/sidebar)
+✔️ PHP backend API for dynamic data handling
+📁 Repository Structure
+├── index.php                 # Main entry / login redirect  
+├── loginform.php             # Login form  
+├── dashboard.php             # User dashboard  
+├── team-analyzer.php         # Team analysis tool  
+├── planner.php               # Team planner  
+├── fixtures.php              # Fixtures page  
+├── live-score.php            # Live scores  
+├── price-changes.php         # Price changes  
+├── players.php               # Player list & details  
+├── rank.php                  # Rankings  
+├── compare.php               # Team/player comparison  
+├── api.php                   # Backend API endpoints  
+├── style.css                 # Site styles  
+├── navbar.php / sidebar.php  # UI components  
+└── …                        # Other PHP & asset files  
+``` :contentReference[oaicite:3]{index=3}
 
-🧠 FPL Tools (based on included PHP pages)
+---
 
-📋 Team Analyzer
+## 🚀 Getting Started
 
-📈 FPL Planner
+These instructions will help you run the project locally.
 
-🧠 AI-based team picker & predictor
+### 🛠 Prerequisites
 
-🏆 Rank & Compare Pages
+Make sure you have:
 
-⚽ Fixtures & Match Details
+- PHP 7.4 or higher  
+- Apache, Nginx, or any local server that can run PHP  
+- A modern web browser
 
-(Actual features depend on implementation in respective .php files.)
-GitHub
+> Optional: a database (MySQL/MariaDB) if you extend authentication or dynamic data storage.
 
-🗂️ Repo Structure (important files)
-├── index.php                  # Homepage / login redirect
-├── loginform.php             # Authentication form
-├── dashboard.php             # User dashboard
-├── team-analyzer.php         # Team analysis
-├── planner.php               # FPL planner
-├── fixtures.php              # Fixtures page
-├── live-score.php            # Live scores
-├── price-changes.php         # Price changes
-├── players.php               # Player list/detail page
-├── rank.php                  # Rankings
-├── compare.php               # Compare teams/players
-├── logout.php                # Logout handler
-├── style.css                 # Common site styles
-├── navbar.php / sidebar.php  # UI components
-└── api.php                   # Backend endpoint for data
+---
 
+### 📥 Installation
 
-(Partial list — full directory contains additional UI assets & helpers.)
-GitHub
-
-🧑‍💻 Getting Started
-Requirements
-
-PHP 7.4+ (or later)
-
-Apache/Nginx server (or built-in PHP server)
-
-MySQL/MariaDB (if database integration is included)
-
-Web browser
-
-📦 Setup
-
-Clone the repository
-
-git clone https://github.com/Prasann62/fpl-analizer.git
-cd fpl-analizer
-
-
-Serve locally
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/Prasann62/fpl-analizer.git
+   cd fpl-analizer
+2.Start the PHP server
 
 php -S localhost:8000
+3.Open in browser
 
+http://localhost:8000
+4.Login / Signup
 
-Open in browser
-Go to: http://localhost:8000
+If a signup form exists, create an account
 
-Configure database (optional)
-If there’s a database used for authentication or FPL data, update config in api.php (or other config file).
+Otherwise, ensure authentication data is seeded
 
-💡 Usage
+🧠 How to Use
 
-Sign up or log in using the form on loginform.php, then explore features from the dashboard:
+Once logged in, explore the dashboard and available tools:
 
-View upcoming fixtures
+Team Analyzer: Plan your squad and evaluate strength
 
-Analyze team performance
+Fixtures: See upcoming match schedules
 
-Track price changes & ranks
+Live Scores: Watch real match outcomes
 
-Use team planner and AI helpers
+Price Changes & Rank: Track player value changes or FPL rank
 
-📌 Contributing
+Planner & AI Helpers: Suggest changes, captain picks, predictions
 
-Contributions are welcome! Here’s how you can help:
+Actual feature behavior depends on implementation of respective PHP files.
 
-Add more FPL analytics features (xG, xA, form tracking)
+🤝 Contributing
 
-Improve UI/UX
+Contributions are welcome! Here are ways you can help:
 
-Integrate with Fantasy Premier League official API
+Add deeper FPL analysis (expected goals, xGI metrics)
 
-Add tests & documentation
+Improve UI/UX responsiveness
 
-📄 License
+Integrate with the official FPL API for real-time data
 
-Specify a license here (e.g., MIT) or note if no license is provided.
+Add tests and documentation
+
+📝 License
+
+i have no licence
+
+🧾 About
+
+A beginner-friendly PHP web project to start learning backend development while building useful tools for Fantasy Premier League data exploration.
