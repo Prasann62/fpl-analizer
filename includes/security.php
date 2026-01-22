@@ -103,6 +103,24 @@ class Security {
     }
 
     /**
+     * Get or generate CSRF token
+     * @return string CSRF token
+     */
+    public static function getCSRFToken() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $tokenName = Config::get('CSRF_TOKEN_NAME', 'csrf_token');
+        
+        if (!isset($_SESSION[$tokenName])) {
+            return self::generateCSRFToken();
+        }
+        
+        return $_SESSION[$tokenName];
+    }
+
+    /**
      * Verify CSRF token
      * @param string $token Token to verify
      * @return bool True if valid

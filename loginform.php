@@ -22,23 +22,31 @@ if (isset($_GET['registered']) && $_GET['registered'] == '1') {
     $error_message = "<span class='text-green-600'>Registration successful! Please login.</span>";
 }
 
-// Generate CSRF token (for future use)
-$csrfToken = Security::generateCSRFToken();
+// Get CSRF token
+$csrfToken = Security::getCSRFToken();
 
 if(isset($_POST['login_btn'])) {
     // SECURITY: Enforce rate limiting (5 attempts per 15 minutes per IP)
     RateLimit::enforce('login');
 
-    // SECURITY: Sanitize inputs
-    $email = Security::sanitizeInput($_POST['email'] ?? '', 'email', 255);
-    $password = $_POST['password'] ?? '';
-
-    // Validate inputs
-    if (empty($email) || !Security::validateEmail($email)) {
-        $error_message = "Invalid email address";
-    } elseif (empty($password)) {
-        $error_message = "Password is required";
+    // SECURITY: Verify CSRF token
+    $submittedToken = $_POST['csrf_token'] ?? '';
+    if (!Security::verifyCSRFToken($submittedToken)) {
+        Security::logSecurityEvent('CSRF token validation failed on login');
+        $error_message = "Security validation failed. Please try again.";
+        // Refresh token on failure
+        $csrfToken = Security::generateCSRFToken();
     } else {
+        // SECURITY: Sanitize inputs
+        $email = Security::sanitizeInput($_POST['email'] ?? '', 'email', 255);
+        $password = $_POST['password'] ?? '';
+
+        // Validate inputs
+        if (empty($email) || !Security::validateEmail($email)) {
+            $error_message = "Invalid email address";
+        } elseif (empty($password)) {
+            $error_message = "Password is required";
+        } else {
         try {
             $db = Database::getInstance();
 
@@ -130,6 +138,7 @@ if(isset($_POST['login_btn'])) {
         }
     }
 }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -188,6 +197,8 @@ if(isset($_POST['login_btn'])) {
         <!-- Login Card -->
         <div class="glass-card rounded-2xl p-8 sm:p-10">
             <form method="POST" action="" class="space-y-6">
+                <!-- SECURITY: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 
                 <!-- Email Input -->
                 <div class="space-y-2">

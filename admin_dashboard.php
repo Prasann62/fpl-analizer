@@ -7,61 +7,45 @@ require_once __DIR__ . '/includes/security.php';
 // SECURITY: Require admin role
 SecureSession::requireRole('admin', 'loginform.php');
 
-try {
-    // SECURITY: Use secure database wrapper
-    $db = Database::getInstance();
+$db = Database::getInstance();
 
-    // Count Users
+// Count Users
+try {
     $user_result = $db->selectOne("SELECT COUNT(*) as total FROM signin WHERE role != 'admin' OR role IS NULL");
     $total_users = $user_result ? (int)$user_result['total'] : 0;
+} catch (Exception $e) {
+    $total_users = 0;
+    Security::logSecurityEvent('Admin dashboard: total users fetch failed', ['error' => $e->getMessage()]);
+}
 
-    // Count Admins
+// Count Admins
+try {
     $admin_result = $db->selectOne("SELECT COUNT(*) as total FROM signin WHERE role = 'admin'");
     $total_admins = $admin_result ? (int)$admin_result['total'] : 0;
-
-    // Get Recent Users (last 5)
-    $recent_users = $db->selectAll("SELECT * FROM signin WHERE role != 'admin' OR role IS NULL ORDER BY id DESC LIMIT 5");
-
-    // Get user registration stats for chart (last 7 days)
-    $chart_data = $db->selectAll("SELECT DATE(created_at) as date, COUNT(*) as count FROM signin WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date ASC");
-
-    // Total account count
-    $total_accounts = $total_users + $total_admins;
-
 } catch (Exception $e) {
-    Security::logSecurityEvent('Admin dashboard data fetch failed', [
-        'error' => $e->getMessage()
-    ]);
-    
-    // Set default values
-    $total_users = 0;
     $total_admins = 0;
-    $total_accounts = 0;
+    Security::logSecurityEvent('Admin dashboard: total admins fetch failed', ['error' => $e->getMessage()]);
+}
+
+// Get Recent Users (last 5)
+try {
+    // Falls back to no ordering if 'id' is missing
+    $recent_users = $db->selectAll("SELECT * FROM signin WHERE role != 'admin' OR role IS NULL LIMIT 5");
+} catch (Exception $e) {
     $recent_users = [];
+    Security::logSecurityEvent('Admin dashboard: recent users fetch failed', ['error' => $e->getMessage()]);
+}
+
+// Get user registration stats for chart (last 7 days)
+try {
+    $chart_data = $db->selectAll("SELECT DATE(created_at) as date, COUNT(*) as count FROM signin WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date ASC");
+} catch (Exception $e) {
     $chart_data = [];
+    Security::logSecurityEvent('Admin dashboard: chart data fetch failed', ['error' => $e->getMessage()]);
 }
 
-// Get greeting based on time
-$hour = date('H');
-if ($hour < 12) {
-    $greeting = "Good Morning";
-    $greeting_icon = "☀️";
-} elseif ($hour < 17) {
-    $greeting = "Good Afternoon";
-    $greeting_icon = "🌤️";
-} else {
-    $greeting = "Good Evening";
-    $greeting_icon = "🌙";
-}
-
-// Prepare chart data for JS
-$chart_labels = [];
-$chart_values = [];
-foreach($chart_data as $data) {
-    $chart_labels[] = date('M d', strtotime($data['date']));
-    $chart_values[] = (int)$data['count'];
-}
-?>
+// Total account count
+$total_accounts = $total_users + $total_admins;
 
 // Get greeting based on time
 $hour = date('H');

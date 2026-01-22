@@ -154,7 +154,8 @@ try {
         $params[] = $searchParam;
     }
 
-    $query .= " ORDER BY id DESC";
+    // Removed ORDER BY id DESC as the column is missing in current schema
+    //$query .= " ORDER BY id DESC";
 
     $users = $db->selectAll($query, $types, $params);
     

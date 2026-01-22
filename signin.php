@@ -17,8 +17,8 @@ SecureSession::start();
 $error_message = null;
 $success_message = null;
 
-// Generate CSRF token
-$csrfToken = Security::generateCSRFToken();
+// Get CSRF token (don't force generate a new one every load)
+$csrfToken = Security::getCSRFToken();
 
 if(isset($_POST['but'])) {
     // SECURITY: Enforce rate limiting (3 registrations per hour per IP)
@@ -29,6 +29,8 @@ if(isset($_POST['but'])) {
     if (!Security::verifyCSRFToken($submittedToken)) {
         Security::logSecurityEvent('CSRF token validation failed on registration');
         $error_message = "Security validation failed. Please try again.";
+        // Refresh token on failure
+        $csrfToken = Security::generateCSRFToken();
     } else {
         // SECURITY: Sanitize and validate inputs
         $name  = Security::sanitizeInput($_POST['na'] ?? '', 'string', 100);

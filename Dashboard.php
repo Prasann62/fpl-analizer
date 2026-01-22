@@ -1,8 +1,6 @@
 <?php
-session_start();
-if(!isset($_SESSION['access'])){
-  header('location:loginform.php');
-}
+require_once __DIR__ . '/includes/session.php';
+SecureSession::requireAuth('loginform.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
