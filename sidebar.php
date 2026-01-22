@@ -127,6 +127,16 @@
                         <span class="menu-text font-medium text-gray-600 group-hover:text-emerald-700">🏆 Final Team</span>
                     </a>
                 </li>
+                 <li class="menu-item">
+                    <a class="menu-link group" href="ai-freehit-picker.php">
+                        <span class="menu-text font-medium text-gray-600 group-hover:text-emerald-700">⚡ Freehit Picker</span>
+                    </a>
+                </li>
+                 <li class="menu-item">
+                    <a class="menu-link group" href="ai-wildcard-picker.php">
+                        <span class="menu-text font-medium text-gray-600 group-hover:text-emerald-700">🃏 Wildcard Picker</span>
+                    </a>
+                </li>
             </ul>
         </li>
 
