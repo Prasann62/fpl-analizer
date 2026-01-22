@@ -1,0 +1,28 @@
+# Environment files - NEVER commit these!
+config/.env
+config/.env.local
+config/.env.production
+.env
+.env.local
+.env.production
+
+# Security logs
+logs/
+cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.old

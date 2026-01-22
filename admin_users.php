@@ -1,174 +1,184 @@
 <?php
-session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// SECURITY: Use secure session handler
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/database.php';
+require_once __DIR__ . '/includes/security.php';
 
-// Strict Access Control
-if(!isset($_SESSION['access']) || $_SESSION['role'] !== 'admin'){
-  header('location:loginform.php');
-  exit();
-}
-
-$servername = "localhost";
-$username   = "u913997673_prasanna";
-$password_db = "Ko%a/2klkcooj]@o";
-$dbname     = "u913997673_prasanna";
+// SECURITY: Require admin role
+SecureSession::requireRole('admin', 'loginform.php');
 
 $message = '';
 $messageType = '';
-$debug_info = '';
+
+// SECURITY: Generate CSRF token for forms
+$csrfToken = Security::generateCSRFToken();
 
 try {
-    $conn = new mysqli($servername, $username, $password_db, $dbname);
-    if($conn->connect_error){
-        throw new Exception("Connection failed: " . $conn->connect_error);
-    }
-
-    // First, detect what columns exist in the signin table
-    $columns_result = $conn->query("SHOW COLUMNS FROM signin");
-    $existing_columns = [];
-    if($columns_result) {
-        while($col = $columns_result->fetch_assoc()) {
-            $existing_columns[] = $col['Field'];
-        }
-    }
-    $debug_info = "Columns: " . implode(", ", $existing_columns);
-    
-    // Check if specific columns exist
-    $has_id = in_array('id', $existing_columns);
-    $has_role = in_array('role', $existing_columns);
-    $has_created_at = in_array('created_at', $existing_columns);
+    // SECURITY: Use secure database wrapper
+    $db = Database::getInstance();
 
     // Handle Delete Action
     if(isset($_GET['delete']) && !empty($_GET['delete'])) {
-        $delete_email = urldecode($_GET['delete']);
+        $delete_email = Security::sanitizeInput(urldecode($_GET['delete']), 'email', 255);
         
-        // Prevent self-deletion
+        // SECURITY: Prevent self-deletion
         if(isset($_SESSION['email']) && $delete_email == $_SESSION['email']) {
             $message = "You cannot delete your own account!";
             $messageType = "danger";
+            
+            Security::logSecurityEvent('Admin attempted self-deletion', [
+                'email' => $delete_email
+            ]);
         } else {
-            $delete_stmt = $conn->prepare("DELETE FROM signin WHERE email = ?");
-            $delete_stmt->bind_param("s", $delete_email);
-            if($delete_stmt->execute()) {
-                $message = "User deleted successfully!";
-                $messageType = "success";
-            } else {
-                $message = "Failed to delete user.";
-                $messageType = "danger";
-            }
-            $delete_stmt->close();
+            $db->execute("DELETE FROM signin WHERE email = ?", 's', [$delete_email]);
+            $message = "User deleted successfully!";
+            $messageType = "success";
+            
+            Security::logSecurityEvent('Admin deleted user', [
+                'deleted_email' => $delete_email
+            ]);
         }
     }
 
     // Handle Edit Action (POST)
     if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
-        $original_email = trim($_POST['original_email']);
-        $edit_name = trim($_POST['full_name']);
-        $edit_email = trim($_POST['email']);
+        // SECURITY: Verify CSRF token
+        if (!Security::verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+            throw new Exception('CSRF validation failed');
+        }
+
+        $original_email = Security::sanitizeInput($_POST['original_email'], 'email', 255);
+        $edit_name = Security::sanitizeInput($_POST['full_name'], 'string', 100);
+        $edit_email = Security::sanitizeInput($_POST['email'], 'email', 255);
         $edit_role = $_POST['role'] === 'admin' ? 'admin' : null;
-        $new_password = trim($_POST['new_password']);
+        $new_password = $_POST['new_password'] ?? '';
 
         if(!empty($new_password)) {
-            // Update with password
-            $update_stmt = $conn->prepare("UPDATE signin SET name = ?, email = ?, role = ?, password = ? WHERE email = ?");
-            $update_stmt->bind_param("sssss", $edit_name, $edit_email, $edit_role, $new_password, $original_email);
+            // SECURITY: Hash password before storage
+            $hashed_password = Security::hashPassword($new_password);
+            $db->execute(
+                "UPDATE signin SET name = ?, email = ?, role = ?, password = ? WHERE email = ?",
+                'sssss',
+                [$edit_name, $edit_email, $edit_role, $hashed_password, $original_email]
+            );
         } else {
-            // Update without password
-            $update_stmt = $conn->prepare("UPDATE signin SET name = ?, email = ?, role = ? WHERE email = ?");
-            $update_stmt->bind_param("ssss", $edit_name, $edit_email, $edit_role, $original_email);
+            $db->execute(
+                "UPDATE signin SET name = ?, email = ?, role = ? WHERE email = ?",
+                'ssss',
+                [$edit_name, $edit_email, $edit_role, $original_email]
+            );
         }
         
-        if($update_stmt->execute()) {
-            $message = "User updated successfully!";
-            $messageType = "success";
-        } else {
-            $message = "Failed to update user: " . $conn->error;
-            $messageType = "danger";
-        }
-        $update_stmt->close();
+        $message = "User updated successfully!";
+        $messageType = "success";
+        
+        Security::logSecurityEvent('Admin updated user', [
+            'original_email' => $original_email,
+            'new_email' => $edit_email
+        ]);
     }
 
     // Handle Add New User (POST)
     if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
-        $add_name = trim($_POST['full_name']);
-        $add_email = trim($_POST['email']);
-        $add_password = trim($_POST['password']);
+        // SECURITY: Verify CSRF token
+        if (!Security::verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+            throw new Exception('CSRF validation failed');
+        }
+
+        $add_name = Security::sanitizeInput($_POST['full_name'], 'string', 100);
+        $add_email = Security::sanitizeInput($_POST['email'], 'email', 255);
+        $add_password = $_POST['password'];
         $add_role = $_POST['role'] === 'admin' ? 'admin' : null;
 
+        // SECURITY: Validate email
+        if (!Security::validateEmail($add_email)) {
+            throw new Exception('Invalid email address');
+        }
+
+        // SECURITY: Validate password
+        $passwordValidation = Security::validatePassword($add_password);
+        if (!$passwordValidation['valid']) {
+            throw new Exception(implode(', ', $passwordValidation['errors']));
+        }
+
         // Check if email already exists
-        $check_stmt = $conn->prepare("SELECT email FROM signin WHERE email = ?");
-        $check_stmt->bind_param("s", $add_email);
-        $check_stmt->execute();
-        $check_result = $check_stmt->get_result();
+        $existing = $db->selectOne("SELECT email FROM signin WHERE email = ?", 's', [$add_email]);
         
-        if($check_result->num_rows > 0) {
+        if($existing) {
             $message = "Email already exists!";
             $messageType = "danger";
         } else {
-            // Use same format as original signin.php (without created_at if it doesn't exist)
-            $add_stmt = $conn->prepare("INSERT INTO signin (name, email, password, role) VALUES (?, ?, ?, ?)");
-            $add_stmt->bind_param("ssss", $add_name, $add_email, $add_password, $add_role);
-            if($add_stmt->execute()) {
-                $message = "User added successfully!";
-                $messageType = "success";
-            } else {
-                $message = "Failed to add user: " . $conn->error;
-                $messageType = "danger";
-            }
-            $add_stmt->close();
+            // SECURITY: Hash password before storage
+            $hashed_password = Security::hashPassword($add_password);
+            
+            $db->execute(
+                "INSERT INTO signin (name, email, password, role) VALUES (?, ?, ?, ?)",
+                'ssss',
+                [$add_name, $add_email, $hashed_password, $add_role]
+            );
+            
+            $message = "User added successfully!";
+            $messageType = "success";
+            
+            Security::logSecurityEvent('Admin added new user', [
+                'email' => $add_email,
+                'role' => $add_role ?? 'user'
+            ]);
         }
-        $check_stmt->close();
     }
-    // Simple fetch - just get all users with basic query
+
+    // Fetch users with filtering
     $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
-    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $search = isset($_GET['search']) ? Security::sanitizeInput($_GET['search'], 'string', 255) : '';
 
-    // Use the simplest possible query
-    $result = $conn->query("SELECT * FROM signin");
-    
-    if(!$result) {
-        $debug_info .= " | Query Error: " . $conn->error;
+    // Build query based on filter
+    $query = "SELECT * FROM signin WHERE 1=1";
+    $params = [];
+    $types = '';
+
+    if ($filter === 'admins') {
+        $query .= " AND role = ?";
+        $types .= 's';
+        $params[] = 'admin';
+    } elseif ($filter === 'users') {
+        $query .= " AND (role IS NULL OR role != ?)";
+        $types .= 's';
+        $params[] = 'admin';
     }
 
+    if (!empty($search)) {
+        $query .= " AND (name LIKE ? OR email LIKE ?)";
+        $types .= 'ss';
+        $searchParam = "%$search%";
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+    }
+
+    $query .= " ORDER BY id DESC";
+
+    $users = $db->selectAll($query, $types, $params);
+    
+    // Count stats
+    $total_users = 0;
+    $total_admins = 0;
+    foreach($users as $user) {
+        if(isset($user['role']) && $user['role'] === 'admin') {
+            $total_admins++;
+        } else {
+            $total_users++;
+        }
+    }
+
+} catch (Exception $e) {
+    Security::logSecurityEvent('Admin users page error', [
+        'error' => $e->getMessage()
+    ]);
+    
+    $message = "Error: " . $e->getMessage();
+    $messageType = "danger";
     $users = [];
     $total_users = 0;
     $total_admins = 0;
-    
-    if($result && $result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            // Check role if column exists
-            $is_admin = isset($row['role']) && $row['role'] === 'admin';
-            
-            // Apply filter
-            if($filter === 'all' || 
-               ($filter === 'admins' && $is_admin) || 
-               ($filter === 'users' && !$is_admin)) {
-                
-                // Apply search if provided
-                if(empty($search) || 
-                   (isset($row['name']) && stripos($row['name'], $search) !== false) || 
-                   (isset($row['email']) && stripos($row['email'], $search) !== false)) {
-                    $users[] = $row;
-                }
-            }
-            
-            // Count stats
-            if($is_admin) {
-                $total_admins++;
-            } else {
-                $total_users++;
-            }
-        }
-    }
-    
-    $debug_info .= " | Found: " . count($users) . " users, " . $total_admins . " admins";
-
-    $conn->close();
-
-} catch (Exception $e) {
-    $message = "Database Error: " . $e->getMessage();
-    $messageType = "danger";
 }
 ?>
 <!DOCTYPE html>
@@ -763,6 +773,8 @@ try {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
+                        <!-- SECURITY: CSRF Token -->
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                         <input type="hidden" name="add_user" value="1">
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
@@ -805,6 +817,8 @@ try {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
+                        <!-- SECURITY: CSRF Token -->
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                         <input type="hidden" name="edit_user" value="1">
                         <input type="hidden" name="original_email" id="edit_original_email">
                         <div class="mb-3">

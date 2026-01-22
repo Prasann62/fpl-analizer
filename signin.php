@@ -1,30 +1,102 @@
 <?php
-    if(isset($_POST['but'])) {
-        $name  = $_POST['na'];
-        $email = $_POST['gm'];
-        $psw   = $_POST['ps'];
+/**
+ * User Registration Page
+ * SECURITY: Rate limited, input validated, passwords hashed, SQL injection protected
+ */
 
-        $servername = "localhost";
-        $username   = "u913997673_prasanna";
-        $password   = "Ko%a/2klkcooj]@o";
-        $dbname     = "u913997673_prasanna";
+// Load security libraries
+require_once __DIR__ . '/includes/security.php';
+require_once __DIR__ . '/includes/ratelimit.php';
+require_once __DIR__ . '/includes/database.php';
+require_once __DIR__ . '/includes/session.php';
 
-        $conn = new mysqli($servername,$username,$password,$dbname);
+// Start secure session
+SecureSession::start();
 
-        if($conn->connect_error){
-            die("connection failed:".$conn->connect_error);
+// Initialize error/success messages
+$error_message = null;
+$success_message = null;
+
+// Generate CSRF token
+$csrfToken = Security::generateCSRFToken();
+
+if(isset($_POST['but'])) {
+    // SECURITY: Enforce rate limiting (3 registrations per hour per IP)
+    RateLimit::enforce('register');
+
+    // SECURITY: Verify CSRF token
+    $submittedToken = $_POST['csrf_token'] ?? '';
+    if (!Security::verifyCSRFToken($submittedToken)) {
+        Security::logSecurityEvent('CSRF token validation failed on registration');
+        $error_message = "Security validation failed. Please try again.";
+    } else {
+        // SECURITY: Sanitize and validate inputs
+        $name  = Security::sanitizeInput($_POST['na'] ?? '', 'string', 100);
+        $email = Security::sanitizeInput($_POST['gm'] ?? '', 'email', 255);
+        $password   = $_POST['ps'] ?? ''; // Don't sanitize password (preserve special chars)
+
+        $errors = [];
+
+        // Validate name
+        if (!Security::validateLength($name, 2, 100)) {
+            $errors[] = "Name must be between 2 and 100 characters";
         }
 
-        $sql="INSERT INTO signin (name,email,password) values('".$name."','".$email."','".$psw."')";
-
-        if ($conn->query($sql)=== TRUE){
-            echo "<script>window.open('loginform.php','_self')</script>";
-        } else{
-             $error_message = "Registration Failed. Please try again.";
+        // Validate email
+        if (!Security::validateEmail($email)) {
+            $errors[] = "Invalid email address";
         }
 
-        $conn->close();
+        // Validate password strength
+        $passwordValidation = Security::validatePassword($password);
+        if (!$passwordValidation['valid']) {
+            $errors = array_merge($errors, $passwordValidation['errors']);
+        }
+
+        if (empty($errors)) {
+            try {
+                $db = Database::getInstance();
+
+                // SECURITY: Check if email already exists
+                $existingUser = $db->selectOne(
+                    "SELECT id FROM signin WHERE email = ?",
+                    's',
+                    [$email]
+                );
+
+                if ($existingUser) {
+                    $error_message = "Email already registered. Please login instead.";
+                } else {
+                    // SECURITY: Hash password before storage
+                    $hashedPassword = Security::hashPassword($password);
+
+                    // SECURITY: Use prepared statement to prevent SQL injection
+                    $db->execute(
+                        "INSERT INTO signin (name, email, password, role) VALUES (?, ?, ?, 'user')",
+                        'sss',
+                        [$name, $email, $hashedPassword]
+                    );
+
+                    Security::logSecurityEvent('User registered successfully', [
+                        'email' => $email
+                    ]);
+
+                    // Redirect to login page
+                    header('Location: loginform.php?registered=1');
+                    exit;
+                }
+
+            } catch (Exception $e) {
+                Security::logSecurityEvent('Registration error', [
+                    'error' => $e->getMessage()
+                ]);
+                $error_message = "Registration failed. Please try again later.";
+            }
+        } else {
+            $error_message = implode('<br>', $errors);
+        }
     }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,6 +150,8 @@
         <!-- Signup Card -->
         <div class="glass-card rounded-2xl p-8 sm:p-10">
             <form method="POST" action="" class="space-y-5">
+                <!-- SECURITY: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 
                 <!-- Name Input -->
                 <div class="space-y-2">
@@ -88,7 +162,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
-                        <input required type="text" name="na" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="John Doe">
+                        <input required type="text" name="na" minlength="2" maxlength="100" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="John Doe" value="<?php echo isset($_POST['na']) ? htmlspecialchars($_POST['na']) : ''; ?>">
                     </div>
                 </div>
 
@@ -101,7 +175,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <input required type="email" name="gm" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="name@example.com">
+                        <input required type="email" name="gm" maxlength="255" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="name@example.com" value="<?php echo isset($_POST['gm']) ? htmlspecialchars($_POST['gm']) : ''; ?>">
                     </div>
                 </div>
 
@@ -114,8 +188,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
-                        <input required type="password" name="ps" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="At least 6 characters">
+                        <input required type="password" name="ps" minlength="8" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="Min 8 chars, 1 uppercase, 1 number">
                     </div>
+                    <p class="text-xs text-gray-500 mt-1">Must contain uppercase, lowercase, and number</p>
                 </div>
 
                 <!-- Submit Button -->
@@ -147,11 +222,12 @@
     </div>
     
     <?php if(isset($error_message)): ?>
-    <div class='fixed top-4 right-4 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-lg flex items-center animate-bounce-in z-50' role='alert'>
+    <div class='fixed top-4 right-4 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-lg flex items-center animate-bounce-in z-50 max-w-md' role='alert'>
+        <svg class='w-5 h-5 mr-2 flex-shrink-0' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z' clip-rule='evenodd'></path></svg>
         <span class='block sm:inline'><?php echo $error_message; ?></span>
     </div>
     <script>
-        setTimeout(() => { document.querySelector('[role="alert"]').remove(); }, 4000);
+        setTimeout(() => { const alert = document.querySelector('[role="alert"]'); if(alert) alert.remove(); }, 6000);
     </script>
     <?php endif; ?>
 

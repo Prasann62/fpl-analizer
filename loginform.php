@@ -1,64 +1,141 @@
 <?php
-    session_start();
-    $error_message = null; // Initialize variable
+/**
+ * User Login Page
+ * SECURITY: Rate limited, CSRF protected, password verification with on-the-fly migration
+ */
 
-    if(isset($_POST['login_btn'])) {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+// Load security libraries
+require_once __DIR__ . '/includes/security.php';
+require_once __DIR__ . '/includes/ratelimit.php';
+require_once __DIR__ . '/includes/database.php';
+require_once __DIR__ . '/includes/session.php';
 
-        $servername = "localhost";
-        $username   = "u913997673_prasanna";
-        $password_db   = "Ko%a/2klkcooj]@o";
-        $dbname     = "u913997673_prasanna";
+// Start secure session
+SecureSession::start();
 
-        try {
-            $conn = new mysqli($servername, $username, $password_db, $dbname);
+// Initialize error message
+$error_message = null;
 
-            if($conn->connect_error){
-                throw new Exception("Connection failed: " . $conn->connect_error);
-            }
+// Check for registration success
+if (isset($_GET['registered']) && $_GET['registered'] == '1') {
+    $error_message = "<span class='text-green-600'>Registration successful! Please login.</span>";
+}
 
-            // Use prepared statement for security
-            $stmt = $conn->prepare("SELECT * FROM signin WHERE email = ? AND password = ?");
-            if(!$stmt) {
-                throw new Exception("Prepare failed: " . $conn->error);
-            }
-            
-            $stmt->bind_param("ss", $email, $password);
-            
-            if(!$stmt->execute()) {
-                throw new Exception("Execute failed: " . $stmt->error);
-            }
+// Generate CSRF token
+$csrfToken = Security::generateCSRFToken();
 
-            $result = $stmt->get_result();
+if(isset($_POST['login_btn'])) {
+    // SECURITY: Enforce rate limiting (5 attempts per 15 minutes per IP)
+    RateLimit::enforce('login');
 
-            if ($result->num_rows > 0){
-                $row = $result->fetch_assoc();
-                $_SESSION['access'] = true;
-                $_SESSION['email'] = $email;
-                $_SESSION['role'] = $row['role']; // Store role in session
+    // SECURITY: Verify CSRF token
+    $submittedToken = $_POST['csrf_token'] ?? '';
+    if (!Security::verifyCSRFToken($submittedToken)) {
+        Security::logSecurityEvent('CSRF token validation failed on login');
+        $error_message = "Security validation failed. Please try again.";
+    } else {
+        // SECURITY: Sanitize inputs
+        $email = Security::sanitizeInput($_POST['email'] ?? '', 'email', 255);
+        $password = $_POST['password'] ?? '';
 
-                $stmt->close();
-                $conn->close();
+        // Validate inputs
+        if (empty($email) || !Security::validateEmail($email)) {
+            $error_message = "Invalid email address";
+        } elseif (empty($password)) {
+            $error_message = "Password is required";
+        } else {
+            try {
+                $db = Database::getInstance();
 
-                if($row['role'] === 'admin'){
-                    header("Location: admin_dashboard.php");
+                // SECURITY: Use prepared statement
+                $user = $db->selectOne(
+                    "SELECT * FROM signin WHERE email = ?",
+                    's',
+                    [$email]
+                );
+
+                if ($user) {
+                    $passwordValid = false;
+                    $needsMigration = false;
+
+                    // SECURITY: Check if password is hashed or plain text
+                    if (password_get_info($user['password'])['algo'] !== null) {
+                        // Password is hashed - verify using password_verify
+                        $passwordValid = Security::verifyPassword($password, $user['password']);
+                        
+                        // Check if rehashing needed (algorithm updated)
+                        if ($passwordValid && Security::needsRehash($user['password'])) {
+                            $needsMigration = true;
+                        }
+                    } else {
+                        // Password is plain text - compare directly then migrate
+                        if ($password === $user['password']) {
+                            $passwordValid = true;
+                            $needsMigration = true;
+                            
+                            Security::logSecurityEvent('Plain text password detected and migrated', [
+                                'email' => $email
+                            ]);
+                        }
+                    }
+
+                    if ($passwordValid) {
+                        // SECURITY: Migrate password if needed
+                        if ($needsMigration) {
+                            $newHash = Security::hashPassword($password);
+                            $db->execute(
+                                "UPDATE signin SET password = ? WHERE id = ?",
+                                'si',
+                                [$newHash, $user['id']]
+                            );
+                        }
+
+                        // Login successful
+                        $_SESSION['access'] = true;
+                        $_SESSION['email'] = $email;
+                        $_SESSION['role'] = $user['role'] ?? 'user';
+
+                        // SECURITY: Regenerate session ID after login
+                        SecureSession::regenerate();
+
+                        Security::logSecurityEvent('User logged in successfully', [
+                            'email' => $email
+                        ]);
+
+                        // Reset rate limit on successful login
+                        RateLimit::reset('login');
+
+                        // Redirect based on role
+                        if ($user['role'] === 'admin') {
+                            header("Location: admin_dashboard.php");
+                        } else {
+                            header("Location: Dashboard.php");
+                        }
+                        exit();
+                    } else {
+                        // Invalid password
+                        Security::logSecurityEvent('Failed login attempt - invalid password', [
+                            'email' => $email
+                        ]);
+                        $error_message = "Invalid Email or Password";
+                    }
                 } else {
-                    header("Location: Dashboard.php");
+                    // User not found
+                    Security::logSecurityEvent('Failed login attempt - user not found', [
+                        'email' => $email
+                    ]);
+                    $error_message = "Invalid Email or Password";
                 }
-                exit();
-            } else{
-                // We'll store the error in a variable to display it later in the HTML
-                $error_message = "Invalid Email or Password";
+
+            } catch (Exception $e) {
+                Security::logSecurityEvent('Login error', [
+                    'error' => $e->getMessage()
+                ]);
+                $error_message = "An error occurred. Please try again later.";
             }
-
-            $stmt->close();
-            $conn->close();
-
-        } catch (Exception $e) {
-            die("Error: " . $e->getMessage());
         }
     }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,6 +194,8 @@
         <!-- Login Card -->
         <div class="glass-card rounded-2xl p-8 sm:p-10">
             <form method="POST" action="" class="space-y-6">
+                <!-- SECURITY: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 
                 <!-- Email Input -->
                 <div class="space-y-2">
@@ -127,7 +206,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <input required type="email" name="email" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="name@example.com">
+                        <input required type="email" name="email" maxlength="255" class="w-full px-4 py-3 bg-transparent outline-none text-gray-700 placeholder-gray-400" placeholder="name@example.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
                     </div>
                 </div>
 
@@ -182,7 +261,7 @@
         <span class='block sm:inline'><?= $error_message; ?></span>
     </div>
     <script>
-        setTimeout(() => { document.querySelector('[role="alert"]').remove(); }, 4000);
+        setTimeout(() => { const alert = document.querySelector('[role="alert"]'); if(alert) alert.remove(); }, 4000);
     </script>
     <?php endif; ?>
 

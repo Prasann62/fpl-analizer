@@ -4,32 +4,37 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// SECURITY: Load database wrapper
+require_once __DIR__ . '/includes/database.php';
+require_once __DIR__ . '/includes/security.php';
+
 $userName = "User";
 $userInitial = "U";
 
 if (isset($_SESSION['email'])) {
     $email = $_SESSION['email'];
     
-    // Database connection
-    $servername = "localhost";
-    $username   = "u913997673_prasanna";
-    $password_db   = "Ko%a/2klkcooj]@o";
-    $dbname     = "u913997673_prasanna";
-
-    $conn = new mysqli($servername, $username, $password_db, $dbname);
-
-    if (!$conn->connect_error) {
-        $stmt = $conn->prepare("SELECT name FROM signin WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+    try {
+        // SECURITY: Use secure database wrapper
+        $db = Database::getInstance();
         
-        if ($row = $result->fetch_assoc()) {
-            $userName = htmlspecialchars($row['name']); // Sanitize output
+        // SECURITY: Use prepared statement
+        $user = $db->selectOne(
+            "SELECT name FROM signin WHERE email = ?",
+            's',
+            [$email]
+        );
+        
+        if ($user) {
+            // SECURITY: Escape output to prevent XSS
+            $userName = Security::escapeOutput($user['name']);
             $userInitial = strtoupper(substr($userName, 0, 1));
         }
-        $stmt->close();
-        $conn->close();
+    } catch (Exception $e) {
+        // Silently fail - user will see default values
+        Security::logSecurityEvent('Navbar user fetch failed', [
+            'error' => $e->getMessage()
+        ]);
     }
 }
 ?>

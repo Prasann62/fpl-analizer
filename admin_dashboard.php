@@ -1,69 +1,67 @@
 <?php
-session_start();
+// SECURITY: Use secure session handler
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/database.php';
+require_once __DIR__ . '/includes/security.php';
 
-// Strict Access Control
-if(!isset($_SESSION['access']) || $_SESSION['role'] !== 'admin'){
-  header('location:loginform.php');
-  exit();
-}
-
-$servername = "localhost";
-$username   = "u913997673_prasanna";
-$password_db = "Ko%a/2klkcooj]@o";
-$dbname     = "u913997673_prasanna";
+// SECURITY: Require admin role
+SecureSession::requireRole('admin', 'loginform.php');
 
 try {
-    $conn = new mysqli($servername, $username, $password_db, $dbname);
-    if($conn->connect_error){
-        throw new Exception("Connection failed: " . $conn->connect_error);
-    }
+    // SECURITY: Use secure database wrapper
+    $db = Database::getInstance();
 
     // Count Users
-    $user_sql = "SELECT COUNT(*) as total FROM signin WHERE role != 'admin' OR role IS NULL";
-    $user_result = $conn->query($user_sql);
-    $total_users = 0;
-    if($user_result && $user_result->num_rows > 0) {
-        $row = $user_result->fetch_assoc();
-        $total_users = $row['total'];
-    }
+    $user_result = $db->selectOne("SELECT COUNT(*) as total FROM signin WHERE role != 'admin' OR role IS NULL");
+    $total_users = $user_result ? (int)$user_result['total'] : 0;
 
     // Count Admins
-    $admin_sql = "SELECT COUNT(*) as total FROM signin WHERE role = 'admin'";
-    $admin_result = $conn->query($admin_sql);
-    $total_admins = 0;
-    if($admin_result && $admin_result->num_rows > 0) {
-        $row = $admin_result->fetch_assoc();
-        $total_admins = $row['total'];
-    }
+    $admin_result = $db->selectOne("SELECT COUNT(*) as total FROM signin WHERE role = 'admin'");
+    $total_admins = $admin_result ? (int)$admin_result['total'] : 0;
 
     // Get Recent Users (last 5)
-    $recent_sql = "SELECT * FROM signin WHERE role != 'admin' OR role IS NULL LIMIT 5";
-    $recent_result = $conn->query($recent_sql);
-    $recent_users = [];
-    if($recent_result && $recent_result->num_rows > 0) {
-        while($row = $recent_result->fetch_assoc()) {
-            $recent_users[] = $row;
-        }
-    }
+    $recent_users = $db->selectAll("SELECT * FROM signin WHERE role != 'admin' OR role IS NULL ORDER BY id DESC LIMIT 5");
 
     // Get user registration stats for chart (last 7 days)
-    $chart_sql = "SELECT DATE(created_at) as date, COUNT(*) as count FROM signin WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date ASC";
-    $chart_result = $conn->query($chart_sql);
-    $chart_data = [];
-    if($chart_result && $chart_result->num_rows > 0) {
-        while($row = $chart_result->fetch_assoc()) {
-            $chart_data[] = $row;
-        }
-    }
+    $chart_data = $db->selectAll("SELECT DATE(created_at) as date, COUNT(*) as count FROM signin WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY date ASC");
 
     // Total account count
     $total_accounts = $total_users + $total_admins;
 
-    $conn->close();
-
 } catch (Exception $e) {
-    die("Error: " . $e->getMessage());
+    Security::logSecurityEvent('Admin dashboard data fetch failed', [
+        'error' => $e->getMessage()
+    ]);
+    
+    // Set default values
+    $total_users = 0;
+    $total_admins = 0;
+    $total_accounts = 0;
+    $recent_users = [];
+    $chart_data = [];
 }
+
+// Get greeting based on time
+$hour = date('H');
+if ($hour < 12) {
+    $greeting = "Good Morning";
+    $greeting_icon = "☀️";
+} elseif ($hour < 17) {
+    $greeting = "Good Afternoon";
+    $greeting_icon = "🌤️";
+} else {
+    $greeting = "Good Evening";
+    $greeting_icon = "🌙";
+}
+
+// Prepare chart data for JS
+$chart_labels = [];
+$chart_values = [];
+foreach($chart_data as $data) {
+    $chart_labels[] = date('M d', strtotime($data['date']));
+    $chart_values[] = (int)$data['count'];
+}
+?>
 
 // Get greeting based on time
 $hour = date('H');
