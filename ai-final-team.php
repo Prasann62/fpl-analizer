@@ -564,8 +564,12 @@ if(!isset($_SESSION['access'])){
             updateProgress(25, 'Analyzing fixtures...');
             try {
                 const fixRes = await fetch('api.php?endpoint=fixtures/?future=1');
-                futureFixtures = await fixRes.json();
-            } catch(e) { console.warn('Fixtures fetch failed'); }
+                const data = await fixRes.json();
+                futureFixtures = Array.isArray(data) ? data : [];
+            } catch(e) { 
+                console.warn('Fixtures fetch failed', e);
+                futureFixtures = [];
+            }
             
             // 3. Calculate player scores
             updateProgress(40, 'Calculating player ratings...');
@@ -576,7 +580,7 @@ if(!isset($_SESSION['access'])){
                 for(let i = 0; i < 5; i++) {
                     const gw = startGw + i;
                     if(gw > 38) break;
-                    const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+                    const fixtures = Array.isArray(futureFixtures) ? futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId)) : [];
                     if(fixtures.length === 0) {
                         score -= 2;
                     } else {

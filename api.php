@@ -59,7 +59,7 @@ if (!$valid) {
 }
 
 // SECURITY: Validate endpoint format (alphanumeric, slashes, hyphens only)
-if (!preg_match('/^[a-zA-Z0-9\/-]+$/', $endpoint)) {
+if (!preg_match('/^[a-zA-Z0-9\/\-\?\=\&]+$/', $endpoint)) {
     Security::logSecurityEvent('Malicious API endpoint pattern detected', [
         'endpoint' => $endpoint
     ]);

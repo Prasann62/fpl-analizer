@@ -1050,8 +1050,12 @@ if(!isset($_SESSION['access'])){
              let futureFixtures = [];
              try {
                  const fixRes = await fetch('api.php?endpoint=fixtures/?future=1');
-                 futureFixtures = await fixRes.json();
-             } catch(e) { console.error('Fix fetch fail', e); }
+                 const data = await fixRes.json();
+                 futureFixtures = Array.isArray(data) ? data : [];
+             } catch(e) { 
+                 console.error('Fix fetch fail', e);
+                 futureFixtures = [];
+             }
 
              const strategy = document.querySelector('input[name="strategy"]:checked').value;
              document.getElementById('strategyBadge').innerText = strategy === 'short' ? 'Short Term (5 GW)' : 'Long Term (8 GW)';
@@ -1068,7 +1072,7 @@ if(!isset($_SESSION['access'])){
                  for(let i = 0; i < lookahead_gw; i++) {
                      const gw = startGw + i;
                      if(gw > 38) break;
-                     const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+                     const fixtures = Array.isArray(futureFixtures) ? futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId)) : [];
                      
                      if(fixtures.length === 0) {
                          // Blank Gameweek? Penalty.
@@ -1337,7 +1341,7 @@ if(!isset($_SESSION['access'])){
             const gw = currentGw + 1 + i;
             if(gw > 38) break;
             
-            const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+            const fixtures = Array.isArray(futureFixtures) ? futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId)) : [];
             
             if(fixtures.length === 0) {
                 html += '<div class="fixture-dot fdr-blank" title="GW' + gw + ': Blank">-</div>';
@@ -1430,7 +1434,7 @@ if(!isset($_SESSION['access'])){
             for(let i = 0; i < lookahead_gw; i++) {
                 const gw = startGw + i;
                 if(gw > 38) break;
-                const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+                const fixtures = Array.isArray(futureFixtures) ? futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId)) : [];
                 
                 if(fixtures.length === 0) {
                     score -= 2;
@@ -1650,7 +1654,7 @@ if(!isset($_SESSION['access'])){
         let score = 0;
         const gw = currentGw + 1;
         
-        const fixtures = futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId));
+        const fixtures = Array.isArray(futureFixtures) ? futureFixtures.filter(f => f.event === gw && (f.team_h === teamId || f.team_a === teamId)) : [];
         
         if(fixtures.length === 0) {
             return 5; // Blank - low score
